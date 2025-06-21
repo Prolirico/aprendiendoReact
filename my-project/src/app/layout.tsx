@@ -27,7 +27,7 @@ export default function RootLayout({
             </li>
             <li>
               <Link href="/screens/recuperarContraseña">
-                Recuperar Contraseña
+                Recuperar password
               </Link>
             </li>
           </ul>
