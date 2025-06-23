@@ -1,3 +1,12 @@
+# Iniciar front
+En carpeta raiz ejecutar: npm run dev
+
+# Iniciar back
+En carpeta raiz ejecutar: npm run start
+
+# Iniciar base de datos mysql
+sudo systemctl enable --now mariadb
+
 { id: 1
   email:
     alumno@gmail.com
