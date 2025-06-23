@@ -1,0 +1,84 @@
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap");
+
+.fondoHome {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: var(--background, #ffffff);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 9vh;
+    background-color: white;
+    border-bottom: 1px solid #ccc;
+    padding: 0 16px;
+}
+
+.headerLeft {
+    flex: 0 0 20%;
+    display: flex;
+    align-items: center;
+}
+
+.headerLeft img {
+    width: 100%;
+    height: auto;
+    max-height: 9vh;
+    object-fit: contain;
+}
+
+.headerCenter {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin: 0 20px;
+    font-size: 1.5rem;
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 800;
+    font-style: italic;
+}
+
+.headerRight {
+    flex: 0 0 20%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 16px;
+}
+
+.contenidoHome {
+    flex-grow: 1;
+    padding: 1rem;
+    background-color: var(--background, #ffffff);
+}
+
+.filtrosCursos {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 1rem;
+}
+
+.filtrosCursos h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--foreground, #171717);
+}
+
+.filtrosCursos h3:hover {
+    color: #007bff;
+}
+
+.contenidoFooter {
+    padding: 1rem;
+    background-color: #f0f0f0;
+    text-align: center;
+    border-top: 1px solid #ccc;
+}

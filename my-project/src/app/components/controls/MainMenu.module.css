@@ -1,0 +1,37 @@
+.container {
+    position: relative;
+    display: inline-block;
+}
+
+.iconButton {
+    background: none;
+    border: none;
+    font-size: 2.4rem;
+    cursor: pointer;
+}
+
+.dropdown {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 8px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+.menuItem {
+    background: none;
+    border: none;
+    width: 100%;
+    padding: 8px 16px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.menuItem:hover {
+    background-color: #f0f0f0;
+}
