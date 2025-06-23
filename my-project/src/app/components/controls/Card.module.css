@@ -1,0 +1,380 @@
+/* MicroCredenciales/login-app/src/Components/controls/Card.module.css */
+.card {
+    width: 100%;
+    height: calc(70vh - 6rem);
+    background: royalblue; /* Keep this transparent so only the backgroundBlur gets the color */
+    position: relative;
+    display: grid;
+    place-content: center;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.5s ease-in-out;
+    margin-top: 0.5rem;
+}
+
+.backgroundBlur {
+    /* Add background styles here */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f0f0f0; /* Example background color, change as needed */
+    z-index: 0; /* Ensure it's behind the content */
+    opacity: 0.5; /* Adjust opacity if needed */
+    border-radius: 10px; /* Match card's border-radius */
+}
+
+.card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -60%;
+    right: 0;
+    bottom: 0;
+    background: url("/assets/LOGOCEATYCCUno.png") no-repeat center center;
+    background-size: 24%;
+    z-index: 1;
+}
+
+#logo-main,
+#logo-second {
+    height: 100%;
+}
+
+#logo-main {
+    fill: #bd9f67;
+}
+
+#logo-second {
+    padding-bottom: 10px;
+    fill: none;
+    stroke: #bd9f67;
+    stroke-width: 1px;
+}
+
+.border {
+    position: absolute;
+    inset: 0px;
+    border: 2px solid black;
+    opacity: 0;
+    transform: rotate(10deg);
+    transition: all 0.5s ease-in-out;
+}
+
+.bottomText {
+    position: absolute;
+    left: 50%;
+    bottom: 26px;
+    transform: translateX(-50%);
+    font-size: 12px;
+    text-transform: uppercase;
+    padding: 0px 10px 0px 16px;
+    color: white;
+    background: #243137;
+    opacity: 0;
+    letter-spacing: 14px;
+    transition: all 0.5s ease-in-out;
+    z-index: 3;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    transition: all 0.5s ease-in-out;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 10px;
+    position: relative;
+    z-index: 2;
+    margin-left: 1rem;
+}
+
+.logoContainer {
+    margin-bottom: 0.5rem;
+    transition: all 0.5s ease-in-out;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.logoContainer:empty {
+    display: none;
+    margin-bottom: 0;
+}
+
+.ceatyccLogo {
+    width: 200px;
+    height: 200px;
+    transition: all 0.5s ease-in-out;
+}
+
+.customLogo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.5s ease-in-out;
+}
+
+.defaultLogo {
+    width: 200px;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.5s ease-in-out;
+}
+
+.placeholderLogo {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #bd9f67;
+    border: 2px solid #bd9f67;
+    border-radius: 10px;
+    padding: 2rem;
+    background: rgba(189, 159, 103, 0.1);
+    display: none;
+}
+
+.textContent {
+    color: black;
+    width: 100%;
+    max-width: 800px;
+    margin-left: 26rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.title {
+    font-size: 4.5rem;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+    width: 100%;
+    line-height: 1.2;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.description {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    color: black;
+    line-height: 1.5;
+    max-width: 600px;
+    text-align: center;
+    width: 100%;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0);
+}
+
+.coursePreview {
+    margin-top: 1rem;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.subtitle {
+    font-size: 2rem;
+    color: white;
+    font-weight: 600;
+    text-align: center;
+    width: 100%;
+    line-height: 1.3;
+}
+
+.card:hover {
+    border-radius: 0;
+    transform: scale(1.04);
+}
+
+.card:hover .ceatyccLogo {
+    width: 250px;
+    height: 250px;
+    transform: scale(1.1);
+}
+
+.card:hover .customLogo {
+    transform: scale(1.1);
+}
+
+.card:hover .defaultLogo {
+    transform: scale(1.1);
+}
+
+.card:hover .placeholderLogo {
+    background: rgba(189, 159, 103, 0.2);
+    box-shadow: 0 0 20px rgba(189, 159, 103, 0.3);
+}
+
+.card:hover .border {
+    inset: 20px;
+    opacity: 1;
+    transform: rotate(0);
+}
+
+.card:hover .bottomText {
+    letter-spacing: 6px;
+    opacity: 1;
+    margin-left: 14rem;
+    transform: translateX(-50%);
+}
+
+.card:hover .textContent {
+    transform: translateY(0px);
+}
+
+.card:hover .title {
+    color: black;
+    text-shadow: 0 0 20px rgba(189, 159, 103, 0.5);
+}
+.card:hover .description {
+    color: white;
+    text-shadow: 0 0 20px rgba(189, 159, 103, 0.5);
+}
+@keyframes opacity {
+    0% {
+        border-right: 1px solid transparent;
+    }
+
+    10% {
+        border-right: 1px solid #bd9f67;
+    }
+
+    80% {
+        border-right: 1px solid #bd9f67;
+    }
+
+    100% {
+        border-right: 1px solid transparent;
+    }
+}
+
+@keyframes trail {
+    0% {
+        background: linear-gradient(
+            90deg,
+            rgba(189, 159, 103, 0) 90%,
+            rgb(189, 159, 103) 100%
+        );
+        opacity: 0;
+    }
+
+    30% {
+        background: linear-gradient(
+            90deg,
+            rgba(189, 159, 103, 0) 70%,
+            rgb(189, 159, 103) 100%
+        );
+        opacity: 1;
+    }
+
+    70% {
+        background: linear-gradient(
+            90deg,
+            rgba(189, 159, 103, 0) 70%,
+            rgb(189, 159, 103) 100%
+        );
+        opacity: 1;
+    }
+
+    95% {
+        background: linear-gradient(
+            90deg,
+            rgba(189, 159, 103, 0) 90%,
+            rgb(189, 159, 103) 100%
+        );
+        opacity: 0;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .title {
+        font-size: 3rem; /* Slightly smaller title for tablets */
+    }
+
+    .description {
+        font-size: 1rem; /* Smaller description for tablets */
+        margin-bottom: 0.5rem;
+    }
+
+    .bottomText {
+        font-size: 10px; /* Smaller font for bottom text */
+        letter-spacing: 8px; /* Adjusted letter spacing */
+        padding: 0px 8px 0px 12px;
+    }
+
+    .card:hover .bottomText {
+        letter-spacing: 4px; /* Further reduced spacing on hover for smaller screens */
+    }
+
+    .content {
+        padding: 0.5rem; /* Reduced padding for content */
+    }
+
+    .logoContainer .ceatyccLogo,
+    .logoContainer .customLogo,
+    .logoContainer .defaultLogo {
+        width: 150px; /* Smaller logos for tablets */
+        height: 150px;
+    }
+
+    .card:hover .ceatyccLogo,
+    .card:hover .customLogo,
+    .card:hover .defaultLogo {
+        width: 200px; /* Slightly larger on hover */
+        height: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .title {
+        font-size: 2.2rem; /* Even smaller title for mobile phones */
+    }
+
+    .description {
+        font-size: 0.9rem; /* Smaller description for mobile phones */
+    }
+
+    .bottomText {
+        font-size: 9px; /* Smallest font for bottom text */
+        letter-spacing: 5px; /* Adjusted letter spacing */
+        padding: 0px 6px 0px 10px;
+        bottom: 15px; /* Adjust bottom position */
+    }
+
+    .card:hover .bottomText {
+        letter-spacing: 2px; /* Further reduced spacing on hover for mobile */
+        transform: translateX(-50%); /* Ensure it stays centered */
+    }
+
+    .content {
+        padding: 0.5rem 0.5rem; /* Further reduced padding */
+    }
+
+    .logoContainer .ceatyccLogo,
+    .logoContainer .customLogo,
+    .logoContainer .defaultLogo {
+        width: 120px; /* Smallest logos for mobile */
+        height: 120px;
+    }
+
+    .card:hover .ceatyccLogo,
+    .card:hover .customLogo,
+    .card:hover .defaultLogo {
+        width: 150px; /* Slightly larger on hover */
+        height: 150px;
+    }
+
+    .textContent {
+        padding: 0 0.5rem; /* Add some horizontal padding to text content */
+    }
+}

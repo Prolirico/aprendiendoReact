@@ -5,11 +5,12 @@ import styles from "./Home.module.css";
 import SplitText from "../../components/controls/SplitText";
 import UserMenu from "../../components/controls/UserMenu";
 import MainMenu from "../../components/controls/MainMenu";
+import Card from "../../components/controls/Card";
+import LogoSEDEQ from "../../../../public/assets/Secretaria-de-educacion-Queretaro.png";
 import StudentDashboard from "../../components/dashboards/StudentDashboard";
 import TeacherDashboard from "../../components/dashboards/TeacherDashboard";
 import UniversityDashboard from "../../components/dashboards/UniversityDashboard";
 import SEDEQDashboard from "../../components/dashboards/SEDEQDashboard";
-import LogoSEDEQ from "../../../../public/assets/Secretaria-de-educacion-Queretaro.png";
 
 const handleAnimationComplete = () => {
   console.log("All letters have animated!");
@@ -34,18 +35,14 @@ export default function HomeLayout({
     if (!user) {
       return (
         <main className={styles.contenidoHome}>
-          <div className="welcome-card text-center p-6">
-            <h2 className="text-2xl font-bold text-blue-600 mb-4">
-              Bienvenido
-            </h2>
-            <p className="text-gray-600 mb-4">
-              Ingresa a tu cuenta para desbloquear todas las oportunidades que
-              tenemos para ti.
-            </p>
-            <Link href="/screens/login" className="text-blue-600 underline">
-              Iniciar sesión
-            </Link>
-          </div>
+          <Card
+            title="Bienvenido"
+            description="Ingresa a tu cuenta para desbloquear todas las oportunidades que tenemos para ti."
+            bottomText="Explora nuestros cursos"
+            logoConfig={{
+              type: "none", // ← No mostrar logo, solo fondo
+            }}
+          />
         </main>
       );
     }
@@ -99,9 +96,28 @@ export default function HomeLayout({
           />
         </div>
       </header>
-      {renderContent()}
+
+      {/* Contenido Principal */}
+      <main className={styles.contenidoHome}>{renderContent()}</main>
+      <main className={styles.contenidoHome}>
+        {/* Ejemplo con logo de Google */}
+        <p>Bienvenido</p>
+      </main>
+
+      {/*CRUD */}
+      <main className={styles.contenidoHome}>
+        <div className={styles.FiltrosCursos}>
+          <h3>Todo</h3>
+          <h3>Cursos Gratuitos</h3>
+          <h3>Por Escuela</h3>
+          <h3>Tipo de Apoyo</h3>
+          <h3>Fecha</h3>
+        </div>
+      </main>
+
+      {/* Footer */}
       <footer className={styles.contenidoFooter}>
-        <div>Footer</div>
+        <h2>Footer</h2>
       </footer>
     </div>
   );
