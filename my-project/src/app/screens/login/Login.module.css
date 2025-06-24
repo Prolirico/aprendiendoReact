@@ -24,7 +24,7 @@
     background-image: url(/assets/homeWallpaper.jpg);
     background-position: center;
     background-size: cover;
-    filter: blur(8px) brightness(0.85);
+    filter: blur(8px) brightness(0.7s);
     z-index: -1;
 }
 

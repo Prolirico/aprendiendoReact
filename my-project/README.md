@@ -36,3 +36,6 @@ sudo systemctl enable --now mariadb
     Sedeq123
   role: "SEDEQ"
 }
+
+# Base de datos
+root: $Yy@pJB5Poqs
