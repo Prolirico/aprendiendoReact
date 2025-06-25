@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styles from "./Dashboard.module.css";
 
 function SEDEQDashboard({ userId }) {
-  const [data, , setData] = useState({
+  const [data, setData] = useState({
     students: [],
     teachers: [],
     courses: [],
@@ -11,6 +11,7 @@ function SEDEQDashboard({ userId }) {
 
   useEffect(() => {
     // Mock API call to fetch all data
+    console.log("Fetching SEDEQ data for userId:", userId); // Depuración
     setData({
       students: [
         { id: 1, name: "Alice" },
@@ -26,8 +27,8 @@ function SEDEQDashboard({ userId }) {
       ],
       universities: [{ id: 1, name: "Uni QRO" }],
     });
-    // Replace with API calls: fetch(`/api/sedeq/${userId}/overview`)
-    // Replace with actual API call
+    console.log("SEDEQ data updated:", data); // Depuración
+    // TODO: Replace with actual API call: fetch(`/api/sedeq/${userId}/overview`)
   }, [userId]);
 
   return (
