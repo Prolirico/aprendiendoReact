@@ -40,7 +40,7 @@
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     width: 50vw;
-    max-width: 400px; /* Keep max-width for responsiveness */
+    max-width: 420px; /* Keep max-width for responsiveness */
     height: auto;
     padding-bottom: 1.5em;
 }

@@ -16,18 +16,23 @@ const handleAnimationComplete = () => {
   console.log("All letters have animated!");
 };
 
-export default function HomeLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function HomeLayout({ children }) {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     console.log("Stored user:", storedUser);
-    setUser(storedUser);
-    // Mitigar hydration mismatch
+    if (storedUser) {
+      // Mapear roles del backend a los esperados
+      const roleMap = {
+        alumno: "ALUMNO",
+        maestro: "MAESTRO",
+        admin_universidad: "UNIVERSIDAD",
+        admin_sedeq: "SEDEQ",
+      };
+      storedUser.role = roleMap[storedUser.role] || storedUser.role;
+      setUser(storedUser);
+    }
     document.body.removeAttribute("cz-shortcut-listen");
   }, []);
 
@@ -39,14 +44,13 @@ export default function HomeLayout({
             title="Bienvenido"
             description="Ingresa a tu cuenta para desbloquear todas las oportunidades que tenemos para ti."
             bottomText="Explora nuestros cursos"
-            logoConfig={{
-              type: "none", // ← No mostrar logo, solo fondo
-            }}
+            logoConfig={{ type: "none" }}
           />
         </main>
       );
     }
 
+    console.log("Rendering dashboard for role:", user.role); // Depuración
     switch (user.role) {
       case "ALUMNO":
         return <StudentDashboard userId={user.id} />;
@@ -65,6 +69,7 @@ export default function HomeLayout({
 
   return (
     <div className={styles.fondoHome}>
+      {/*HEADER*/}
       <header className={styles.header}>
         <div className={styles.headerLeft}>
           <img src={LogoSEDEQ.src} alt="Logo SEDEQ" className={styles.logo} />
@@ -97,25 +102,9 @@ export default function HomeLayout({
         </div>
       </header>
 
-      {/* Contenido Principal */}
-      <main className={styles.contenidoHome}>{renderContent()}</main>
-      <main className={styles.contenidoHome}>
-        {/* Ejemplo con logo de Google */}
-        <p>Bienvenido</p>
-      </main>
+      {/*CONTENIDO*/}
+      <div className={styles.contenidoHome}>{renderContent()}</div>
 
-      {/*CRUD */}
-      <main className={styles.contenidoHome}>
-        <div className={styles.FiltrosCursos}>
-          <h3>Todo</h3>
-          <h3>Cursos Gratuitos</h3>
-          <h3>Por Escuela</h3>
-          <h3>Tipo de Apoyo</h3>
-          <h3>Fecha</h3>
-        </div>
-      </main>
-
-      {/* Footer */}
       <footer className={styles.contenidoFooter}>
         <h2>Footer</h2>
       </footer>

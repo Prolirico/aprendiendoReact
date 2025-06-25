@@ -16,20 +16,17 @@
     border-bottom: 1px solid transparent;
     padding: 0 16px;
 }
-
 .headerLeft {
     flex: 0 0 20%;
     display: flex;
     align-items: center;
 }
-
 .headerLeft img {
     width: 100%;
     height: auto;
     max-height: 9vh;
     object-fit: contain;
 }
-
 .headerCenter {
     flex-grow: 1;
     display: flex;
@@ -42,7 +39,6 @@
     font-weight: 800;
     font-style: italic;
 }
-
 .headerRight {
     flex: 0 0 20%;
     display: flex;
@@ -62,6 +58,7 @@
     align-items: center;
     gap: 20px; /* Use gap to add space between items */
 }
+
 /*Footer*/
 .contenidoFooter {
     padding: 1rem;

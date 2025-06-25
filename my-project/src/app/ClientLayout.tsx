@@ -1,4 +1,3 @@
-// app/ClientLayout.tsx
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -23,7 +22,17 @@ export default function ClientLayout({ children }) {
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     console.log("Stored user:", storedUser); // Depuración
-    setUser(storedUser);
+    if (storedUser) {
+      // Mapear roles del backend a los esperados
+      const roleMap = {
+        alumno: "ALUMNO",
+        maestro: "MAESTRO",
+        admin_universidad: "UNIVERSIDAD",
+        admin_sedeq: "SEDEQ",
+      };
+      storedUser.role = roleMap[storedUser.role] || storedUser.role;
+      setUser(storedUser);
+    }
     document.body.removeAttribute("cz-shortcut-listen"); // Eliminar atributo problemático
   }, []);
 
@@ -49,12 +58,13 @@ export default function ClientLayout({ children }) {
               Ingresa a tu cuenta para desbloquear todas las oportunidades que
               tenemos para ti.
             </p>
-            <Link href="/login">Iniciar sesión</Link>
+            <Link href="/screens/login">Iniciar sesión</Link>
           </div>
         </main>
       );
     }
 
+    console.log("Rendering dashboard for role:", user.role); // Depuración
     switch (user.role) {
       case "ALUMNO":
         return <StudentDashboard userId={user.id} />;
@@ -65,7 +75,9 @@ export default function ClientLayout({ children }) {
       case "SEDEQ":
         return <SEDEQDashboard userId={user.id} />;
       default:
-        return <p>Rol de usuario no válido.</p>;
+        return (
+          <p className="text-center text-red-600">Rol de usuario no válido.</p>
+        );
     }
   };
 

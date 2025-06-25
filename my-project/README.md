@@ -1,41 +1,43 @@
+# Iniciar back
+node server.js
+
 # Iniciar front
 En carpeta raiz ejecutar: npm run dev
-
-# Iniciar back
-En carpeta raiz ejecutar: npm run start
 
 # Iniciar base de datos mysql
 sudo systemctl enable --now mariadb
 
-{ id: 1
-  email:
-    alumno@gmail.com
-  password:
-    Alumno123
-  role: "ALUMNO"
 {
-  id: 2,
-  email:
-    maestro@gmail.com
-  password:
-    Maestro123
-  role: "MAESTRO"
+  username: "alumno1",
+  email: "alumno1@example.com",
+    password: "Password123",
+  tipo_usuario: "alumno",
+  estatus: "activo",
 },
 {
-  id: 3,
-  email:
-    universidad@gmail.com
-  password:
-    Uni123
-  role: "UNIVERSIDAD"
+  username: "maestro1",
+  email: "maestro1@example.com",
+  password: "Password123",
+  tipo_usuario: "maestro",
+  estatus: "activo",
 },
-{ id: 4,
-  email:
-    sedeq@gmail.com
-  password:
-    Sedeq123
-  role: "SEDEQ"
+{
+  username: "adminuni1",
+  email: "adminuni1@example.com",
+  password: "Password123",
+  tipo_usuario: "admin_universidad",
+  estatus: "activo",
+},
+{
+  username: "sedeq1",
+  email: "sedeq1@example.com",
+  password: "Password123",
+  tipo_usuario: "admin_sedeq",
+  estatus: "activo",
 }
 
 # Base de datos
 root: $Yy@pJB5Poqs
+
+# JWT_secret
+0d86c1e9aaf0192c1234673d06d6ed452beb5ca2a12014cfa913818b114444bd7a6ee2c64fde53f98503a98a153754becdf0fe8ec53304adb233f0c4fec0bf31

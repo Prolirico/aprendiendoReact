@@ -9,6 +9,13 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+// Rutas
+const userRoutes = require("./routes/userRoutes");
+app.use("/api", userRoutes);
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
 // Configuración del pool de conexiones
 const dbConfig = {
   host: "localhost",
@@ -23,7 +30,9 @@ const dbConfig = {
 const pool = mysql.createPool(dbConfig);
 
 // Clave JWT desde variable de entorno
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret_key";
+const JWT_SECRET =
+  process.env.JWT_SECRET ||
+  "0d86c1e9aaf0192c1234673d06d6ed452beb5ca2a12014cfa913818b114444bd7a6ee2c64fde53f98503a98a153754becdf0fe8ec53304adb233f0c4fec0bf31";
 
 // Validar tipo_usuario y estatus
 const validTipoUsuario = [
@@ -147,6 +156,3 @@ app.post("/login", async (req, res) => {
     handleError(res, error, "Login failed");
   }
 });
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

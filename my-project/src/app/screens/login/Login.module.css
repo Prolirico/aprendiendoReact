@@ -24,7 +24,7 @@
     background-image: url(/assets/homeWallpaper.jpg);
     background-position: center;
     background-size: cover;
-    filter: blur(8px) brightness(0.7s);
+    filter: blur(8px) brightness(0.7);
     z-index: -1;
 }
 
@@ -40,7 +40,7 @@
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     width: 50vw;
-    max-width: 400px;
+    max-width: 420px;
     height: auto;
     padding-bottom: 1.5em;
 }

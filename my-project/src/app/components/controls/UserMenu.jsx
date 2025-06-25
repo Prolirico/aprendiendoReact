@@ -22,20 +22,26 @@ function UserMenu({ user, onLogout }) {
     setOpen(false);
   };
 
+  // Mostrar solo el ícono si no hay usuario, o la inicial del username si está autenticado
+  const displayName =
+    user && user.username ? user.username.charAt(0).toUpperCase() : "👤";
+
   return (
     <div className={styles.container} ref={menuRef}>
       <button onClick={() => setOpen(!open)} className={styles.iconButton}>
-        {user ? `👤 ${user.email.charAt(0).toUpperCase()}` : "👤"}
+        {displayName}
       </button>
       {open && (
         <div className={styles.dropdown}>
-          {user ? (
+          {user && user.username ? (
             <>
               <div className={styles.userInfo}>
-                <span>{user.email}</span>
+                <span>{user.username}</span>
                 <span className={styles.role}>
-                  {user.role.charAt(0).toUpperCase() +
-                    user.role.slice(1).toLowerCase()}
+                  {user.role
+                    ? user.role.charAt(0).toUpperCase() +
+                      user.role.slice(1).toLowerCase()
+                    : "Usuario"}
                 </span>
               </div>
               <button className={styles.menuItem} onClick={handleLogout}>
@@ -48,7 +54,7 @@ function UserMenu({ user, onLogout }) {
                 <button
                   className={styles.menuItem}
                   onClick={() => {
-                    console.log("Navigating to /screens/login"); // Depuración
+                    console.log("Navigating to /screens/login");
                     setOpen(false);
                   }}
                 >
@@ -59,7 +65,7 @@ function UserMenu({ user, onLogout }) {
                 <button
                   className={styles.menuItem}
                   onClick={() => {
-                    console.log("Navigating to /screens/signup"); // Depuración
+                    console.log("Navigating to /screens/signup");
                     setOpen(false);
                   }}
                 >
