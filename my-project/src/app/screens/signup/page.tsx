@@ -4,6 +4,9 @@ import { useRouter } from "next/navigation";
 import styles from "./SignUp.module.css";
 import logoGoogle from "../../../../public/assets/Secretaria-de-educacion-Queretaro.png";
 import Image from "next/image";
+import axios from "axios";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("");

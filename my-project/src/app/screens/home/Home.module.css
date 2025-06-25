@@ -48,10 +48,14 @@
 }
 
 /*Contenido*/
-.contenidoHome {
-    height: 70vh;
+.contenidoIntro {
+    height: 64vh;
     padding: 1rem;
-    background-color: #ffffff;
+}
+.contenidoHome {
+    height: 82vh;
+    padding: 1rem;
+    background-color: blue;
 }
 .FiltrosCursos {
     display: flex;
@@ -65,4 +69,5 @@
     background-color: #f0f0f0;
     text-align: center;
     border-top: 1px solid #ccc;
+    height: 9vh;
 }

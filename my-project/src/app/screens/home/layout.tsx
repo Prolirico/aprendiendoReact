@@ -39,7 +39,7 @@ export default function HomeLayout({ children }) {
   const renderContent = () => {
     if (!user) {
       return (
-        <main className={styles.contenidoHome}>
+        <main className={styles.contenidoIntro}>
           <Card
             title="Bienvenido"
             description="Ingresa a tu cuenta para desbloquear todas las oportunidades que tenemos para ti."
@@ -103,7 +103,10 @@ export default function HomeLayout({ children }) {
       </header>
 
       {/*CONTENIDO*/}
-      <div className={styles.contenidoHome}>{renderContent()}</div>
+      {renderContent()}
+      <div className={styles.contenidoHome}>
+        <h3>Bienvenido</h3>
+      </div>
 
       <footer className={styles.contenidoFooter}>
         <h2>Footer</h2>
