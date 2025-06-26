@@ -378,6 +378,8 @@ CREATE INDEX `idx_sesiones_reporte` ON `sesiones_usuario` (`id_usuario`, `fecha_
 -- Para control de inscripciones
 CREATE INDEX `idx_inscripcion_control` ON `inscripcion` (`estatus_inscripcion`, `fecha_solicitud`);
 
+-- Almacena el Google sub ID de los usuarios que se registran a través de Google para evitar registros duplicados.
+ALTER TABLE usuario ADD COLUMN google_id VARCHAR(255) UNIQUE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

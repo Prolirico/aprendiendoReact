@@ -55,7 +55,7 @@
 .contenidoHome {
     height: 82vh;
     padding: 1rem;
-    background-color: blue;
+    background-color: white;
 }
 .FiltrosCursos {
     display: flex;
