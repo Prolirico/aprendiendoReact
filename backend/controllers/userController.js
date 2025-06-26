@@ -248,7 +248,7 @@ exports.googleSignUp = async (req, res) => {
     if (error.code === "ER_DUP_ENTRY") {
       return res.status(400).json({ error: "Usuario ya registrado" });
     }
-    console.error("Error en Google Sign-Up:", error);
+    console.error("Error en Google Sign-Up:", error.message, error.stack);
     res.status(500).json({ error: "Error en el servidor" });
   }
 };
