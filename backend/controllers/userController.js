@@ -269,7 +269,7 @@ exports.login = async (req, res) => {
       );
 
       res.json({
-        message: "Login successful",
+        message: "Login exitoso",
         token,
         user: {
           id_usuario: user.id_usuario,
@@ -282,7 +282,7 @@ exports.login = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Login failed" });
+    res.status(500).json({ error: "Fallo el Login" });
   }
 };
 
@@ -350,33 +350,9 @@ exports.googleSignUp = async (req, res) => {
         [username, email, googleId, "alumno", "pendiente"],
       );
 
-      console.log(
-        "Google Sign-Up: Generating JWT for user ID:",
-        result.insertId,
-      );
-      const token = jwt.sign(
-        {
-          id_usuario: result.insertId,
-          username,
-          tipo_usuario: "alumno",
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: "1h" },
-      );
-
-      console.log(
-        "Google Sign-Up: Logging session for user ID:",
-        result.insertId,
-      );
-      await db.execute(
-        "INSERT INTO sesiones_usuario (id_usuario, fecha_login, estatus_sesion) VALUES (?, NOW(), 'activa')",
-        [result.insertId],
-      );
-
       console.log("Google Sign-Up: Success for user:", email);
-      res.status(200).json({
+      res.status(201).json({
         message: "Google Sign-Up successful",
-        token,
         user: {
           id_usuario: result.insertId,
           username,
