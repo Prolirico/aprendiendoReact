@@ -48,7 +48,7 @@ CREATE TABLE `usuario` (
   `id_usuario` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `username` VARCHAR(50) NOT NULL,
   `email` VARCHAR(100) NOT NULL,
-  `password_hash` VARCHAR(255) NOT NULL,
+  `password_hash` VARCHAR(255) NULL,
   `tipo_usuario` ENUM('alumno', 'maestro', 'admin_universidad', 'admin_sedeq') NOT NULL,
   `estatus` ENUM('activo', 'inactivo', 'pendiente', 'suspendido') NOT NULL DEFAULT 'pendiente',
   `ultimo_acceso` TIMESTAMP NULL,
