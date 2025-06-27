@@ -35,6 +35,121 @@ const esCorreoInstitucional = (email) => {
   return UNIVERSIDADES_QUERETARO.includes(dominio);
 };
 
+exports.googleAuth = async (req, res) => {
+  const { token } = req.body;
+
+  console.log("Google Auth: Received token:", token);
+
+  if (!token) {
+    console.log("Google Auth: No token provided");
+    return res.status(400).json({ error: "Google token is required" });
+  }
+
+  try {
+    console.log(
+      "Google Auth: Initializing OAuth2Client with client ID:",
+      process.env.GOOGLE_CLIENT_ID,
+    );
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    console.log("Google Auth: Verifying token...");
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    console.log("Google Auth: Token payload:", payload);
+
+    const { email, name, sub: googleId } = payload;
+
+    console.log("Google Auth: Validating email:", email);
+    if (!esCorreoInstitucional(email)) {
+      console.log("Google Auth: Non-institutional email detected:", email);
+      return res.status(403).json({
+        error:
+          "Correo no institucional. Usa un correo de una universidad de Querétaro.",
+      });
+    }
+
+    console.log("Google Auth: Connecting to database...");
+    const db = await pool.getConnection();
+    try {
+      console.log(
+        "Google Auth: Executing query for email:",
+        email,
+        "and google_id:",
+        googleId,
+      );
+      const [existingUser] = await db.execute(
+        "SELECT id_usuario, username, email, google_id, tipo_usuario, estatus FROM usuario WHERE email = ? OR google_id = ?",
+        [email, googleId],
+      );
+      console.log("Google Auth: Query result:", existingUser);
+
+      if (existingUser.length === 0) {
+        console.log("Google Auth: User not found:", email);
+        return res.status(404).json({ error: "Usuario no registrado" });
+      }
+
+      const user = existingUser[0];
+      console.log("Google Auth: Existing user found:", user);
+
+      if (user.estatus === "inactivo" || user.estatus === "suspendido") {
+        console.log(
+          "Google Auth: User account is inactive or suspended:",
+          email,
+        );
+        return res.status(403).json({ error: "Cuenta inactiva o suspendida" });
+      }
+
+      const userId = user.id_usuario;
+      const username = user.username;
+      const tipo_usuario = user.tipo_usuario;
+
+      console.log("Google Auth: Generating JWT for user ID:", userId);
+      const jwtToken = jwt.sign(
+        {
+          id_usuario: userId,
+          username,
+          tipo_usuario,
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: "1h" },
+      );
+
+      console.log("Google Auth: Logging session for user ID:", userId);
+      await db.execute(
+        "INSERT INTO sesiones_usuario (id_usuario, fecha_login, estatus_sesion) VALUES (?, NOW(), 'activa')",
+        [userId],
+      );
+
+      console.log("Google Auth: Success for user:", email);
+      res.status(200).json({
+        message: "Google Login successful",
+        token: jwtToken,
+        user: {
+          id_usuario: userId,
+          username,
+          tipo_usuario,
+        },
+      });
+    } finally {
+      console.log("Google Auth: Releasing database connection");
+      db.release();
+    }
+  } catch (error) {
+    console.error("Google Auth: Error:", error.message, error.stack);
+    if (
+      error.name === "TokenError" ||
+      error.message.includes("Invalid token")
+    ) {
+      console.log("Google Auth: Invalid Google token");
+      return res.status(401).json({ error: "Token de Google inválido" });
+    }
+    res.status(500).json({ error: "Error en el servidor: " + error.message });
+  }
+};
+
+// Keep existing signup, login, googleSignUp, and getUsers functions unchanged
 exports.getUsers = async (req, res) => {
   try {
     const db = await pool.getConnection();
@@ -174,58 +289,91 @@ exports.login = async (req, res) => {
 exports.googleSignUp = async (req, res) => {
   const { token } = req.body;
 
+  console.log("Google Sign-Up: Received token:", token);
+
   if (!token) {
-    return res.status(400).json({ error: "Google token es requerido" });
+    console.log("Google Sign-Up: No token provided");
+    return res.status(400).json({ error: "Google token is required" });
   }
 
   try {
+    console.log(
+      "Google Sign-Up: Initializing OAuth2Client with client ID:",
+      process.env.GOOGLE_CLIENT_ID,
+    );
     const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    console.log("Google Sign-Up: Verifying token...");
     const ticket = await client.verifyIdToken({
       idToken: token,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
     const payload = ticket.getPayload();
+    console.log("Google Sign-Up: Token payload:", payload);
+
     const { email, name, sub: googleId } = payload;
 
+    console.log("Google Sign-Up: Validating email:", email);
     if (!esCorreoInstitucional(email)) {
+      console.log("Google Sign-Up: Non-institutional email detected:", email);
       return res.status(403).json({
         error:
           "Correo no institucional. Usa un correo de una universidad de Querétaro.",
       });
     }
 
+    console.log("Google Sign-Up: Connecting to database...");
     const db = await pool.getConnection();
     try {
+      console.log(
+        "Google Sign-Up: Checking for existing user with email:",
+        email,
+        "or google_id:",
+        googleId,
+      );
       const [existingUser] = await db.execute(
         "SELECT * FROM usuario WHERE email = ? OR google_id = ?",
         [email, googleId],
       );
 
       if (existingUser.length > 0) {
+        console.log("Google Sign-Up: User already exists:", email);
         return res.status(400).json({ error: "Usuario ya registrado" });
       }
 
       const username = name || email.split("@")[0];
+      console.log(
+        "Google Sign-Up: Inserting new user with username:",
+        username,
+      );
       const [result] = await db.execute(
         "INSERT INTO usuario (username, email, google_id, tipo_usuario, estatus) VALUES (?, ?, ?, ?, ?)",
         [username, email, googleId, "alumno", "pendiente"],
       );
 
+      console.log(
+        "Google Sign-Up: Generating JWT for user ID:",
+        result.insertId,
+      );
       const token = jwt.sign(
         {
           id_usuario: result.insertId,
           username,
           tipo_usuario: "alumno",
         },
-        JWT_SECRET,
+        process.env.JWT_SECRET,
         { expiresIn: "1h" },
       );
 
+      console.log(
+        "Google Sign-Up: Logging session for user ID:",
+        result.insertId,
+      );
       await db.execute(
         "INSERT INTO sesiones_usuario (id_usuario, fecha_login, estatus_sesion) VALUES (?, NOW(), 'activa')",
         [result.insertId],
       );
 
+      console.log("Google Sign-Up: Success for user:", email);
       res.status(200).json({
         message: "Google Sign-Up successful",
         token,
@@ -236,19 +384,22 @@ exports.googleSignUp = async (req, res) => {
         },
       });
     } finally {
+      console.log("Google Sign-Up: Releasing database connection");
       db.release();
     }
   } catch (error) {
+    console.error("Google Sign-Up: Error:", error.message, error.stack);
     if (
       error.name === "JsonWebTokenError" ||
-      error.message.includes("Token de Google inválido")
+      error.message.includes("Invalid token")
     ) {
+      console.log("Google Sign-Up: Invalid Google token");
       return res.status(401).json({ error: "Token de Google inválido" });
     }
     if (error.code === "ER_DUP_ENTRY") {
+      console.log("Google Sign-Up: Duplicate entry detected");
       return res.status(400).json({ error: "Usuario ya registrado" });
     }
-    console.error("Error en Google Sign-Up:", error.message, error.stack);
     res.status(500).json({ error: "Error en el servidor" });
   }
 };

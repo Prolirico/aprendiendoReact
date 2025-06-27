@@ -98,10 +98,9 @@
     transition: 0.3s ease;
 }
 
-.loginLink a:hover {
+.loginLinkButton {
     text-decoration: underline;
 }
-
 .loginLinkButton:hover {
     color: red; /* Color más claro al pasar el ratón */
 }

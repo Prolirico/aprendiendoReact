@@ -53,99 +53,40 @@
 .loginText {
     text-align: center;
     margin: 1em 0 2em 0;
-    color: rgb(255, 255, 255);
+    color: white;
     font-size: 1.8em;
     font-family: "JetBrains Mono", monospace;
     font-optical-sizing: auto;
     font-weight: 700;
     font-style: italic;
-    color: white;
 }
 
-.inputGroup {
+.googleSignInButton {
     display: flex;
-    align-items: center;
-    gap: 0.5em;
-    border-bottom: 2px solid black;
-    padding: 0.6em 0;
-    background-color: transparent;
+    justify-content: center;
+    margin: 1.5em 0;
 }
 
-.inputIcon {
-    height: 1.3em;
-    width: 1.3em;
-    fill: white;
-    margin-right: 0.5em;
+.signupLink {
+    text-align: center;
+    margin-top: 1.5em;
+    color: white; /* Ensure all text is white */
+    font-size: 0.9em;
+    font-family: "Open Sans", sans-serif;
 }
 
-.inputField {
+.signupLinkButton {
     background: none;
     border: none;
-    outline: none;
-    width: 100%;
-    color: white;
-    font-size: 1em;
-    padding-top: 5px;
-    height: 40px;
-}
-
-.inputField::placeholder {
-    color: white;
-}
-
-.buttonGroup {
-    display: flex;
-    justify-content: space-between;
-    flex-direction: row;
-    margin-top: 2.5em;
-    gap: 1em;
-}
-
-.buttonGroup button {
-    flex-grow: 1;
-    text-align: center;
-    padding: 0.8em;
-    border-radius: 5px;
-    border: none;
-    outline: none;
-    transition: 0.4s ease-in-out;
-    background-color: white;
-    color: black;
+    color: white; /* Original color white */
+    text-decoration: underline;
     cursor: pointer;
     font-size: 1em;
-    font-weight: 600;
+    font-family: "Open Sans", sans-serif;
 }
 
-.loginButton:hover {
-    background-color: black;
-    color: white;
-}
-
-.signupButton:hover {
-    background-color: black;
-    color: white;
-}
-
-.forgotPasswordButton {
-    margin-top: 1em;
-    margin-bottom: 1em;
-    padding: 0.8em;
-    border-radius: 5px;
-    border: none;
-    outline: none;
-    transition: 0.4s ease-in-out;
-    background-color: white;
-    color: black;
-    cursor: pointer;
-    width: 100%;
-    font-size: 1em;
-    font-weight: 600;
-    text-align: center;
-}
-
-.forgotPasswordButton:hover {
-    background-color: red;
-    color: white;
+.signupLinkButton:hover {
+    color: red; /* Red on hover */
 }
 
 .error {
@@ -158,9 +99,5 @@
 @media (max-width: 576px) {
     .loginContainer {
         width: 90vw;
-    }
-    .buttonGroup {
-        flex-direction: column;
-        gap: 0.5em;
     }
 }
