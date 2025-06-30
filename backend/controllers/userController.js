@@ -2,7 +2,7 @@ const { OAuth2Client } = require("google-auth-library");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const pool = require("../config/db");
-const mysql = require("mysql2/promise");
+const cache = require("../config/cache");
 require("dotenv").config();
 
 const JWT_SECRET =
@@ -18,21 +18,45 @@ const validTipoUsuario = [
 
 const validEstatus = ["activo", "inactivo", "pendiente", "suspendido"];
 
-const UNIVERSIDADES_QUERETARO = [
-  "upsrj.edu.mx",
-  "upq.mx",
-  "utcorregidora.edu.mx",
-  "utsrj.edu.mx",
-  "uteq.edu.mx",
-  "soyunaq.mx",
-  "unaq.mx",
-  "queretaro.tecnm.mx",
-  "uaq.mx",
-];
-
-const esCorreoInstitucional = (email) => {
+const esCorreoInstitucional = async (email) => {
   const dominio = email.split("@")[1]?.toLowerCase();
-  return UNIVERSIDADES_QUERETARO.includes(dominio);
+  if (!dominio) {
+    console.log("esCorreoInstitucional: Invalid email format:", email);
+    return false;
+  }
+
+  try {
+    const { universityDomainsCache, lastCacheUpdate } = cache.getDomainsCache();
+    const now = Date.now();
+
+    if (
+      universityDomainsCache &&
+      lastCacheUpdate &&
+      now - lastCacheUpdate < cache.CACHE_DURATION
+    ) {
+      console.log("esCorreoInstitucional: Using cached domains");
+      return universityDomainsCache.includes(dominio);
+    }
+
+    console.log("esCorreoInstitucional: Fetching domains from database");
+    const db = await pool.getConnection();
+    try {
+      const [rows] = await db.execute(
+        "SELECT dominio FROM dominiosUniversidades WHERE estatus = 'activo'",
+      );
+      const domains = rows.map((row) => row.dominio.toLowerCase());
+      cache.setDomainsCache(domains);
+      return domains.includes(dominio);
+    } finally {
+      db.release();
+    }
+  } catch (error) {
+    console.error(
+      "esCorreoInstitucional: Error fetching domains:",
+      error.message,
+    );
+    return false;
+  }
 };
 
 exports.googleAuth = async (req, res) => {
@@ -62,7 +86,7 @@ exports.googleAuth = async (req, res) => {
     const { email, name, sub: googleId } = payload;
 
     console.log("Google Auth: Validating email:", email);
-    if (!esCorreoInstitucional(email)) {
+    if (!(await esCorreoInstitucional(email))) {
       console.log("Google Auth: Non-institutional email detected:", email);
       return res.status(403).json({
         error:
@@ -112,7 +136,7 @@ exports.googleAuth = async (req, res) => {
           username,
           tipo_usuario,
         },
-        process.env.JWT_SECRET,
+        JWT_SECRET,
         { expiresIn: "1h" },
       );
 
@@ -149,7 +173,100 @@ exports.googleAuth = async (req, res) => {
   }
 };
 
-// Keep existing signup, login, googleSignUp, and getUsers functions unchanged
+exports.googleSignUp = async (req, res) => {
+  const { token } = req.body;
+
+  console.log("Google Sign-Up: Received token:", token);
+
+  if (!token) {
+    console.log("Google Sign-Up: No token provided");
+    return res.status(400).json({ error: "Google token is required" });
+  }
+
+  try {
+    console.log(
+      "Google Sign-Up: Initializing OAuth2Client with client ID:",
+      process.env.GOOGLE_CLIENT_ID,
+    );
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    console.log("Google Sign-Up: Verifying token...");
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    console.log("Google Sign-Up: Token payload:", payload);
+
+    const { email, name, sub: googleId } = payload;
+
+    console.log("Google Sign-Up: Validating email:", email);
+    if (!(await esCorreoInstitucional(email))) {
+      console.log("Google Sign-Up: Non-institutional email detected:", email);
+      return res.status(403).json({
+        error:
+          "Correo no institucional. Usa un correo de una universidad de Querétaro.",
+      });
+    }
+
+    console.log("Google Sign-Up: Connecting to database...");
+    const db = await pool.getConnection();
+    try {
+      console.log(
+        "Google Sign-Up: Checking for existing user with email:",
+        email,
+        "or google_id:",
+        googleId,
+      );
+      const [existingUser] = await db.execute(
+        "SELECT * FROM usuario WHERE email = ? OR google_id = ?",
+        [email, googleId],
+      );
+
+      if (existingUser.length > 0) {
+        console.log("Google Sign-Up: User already exists:", email);
+        return res.status(400).json({ error: "Usuario ya registrado" });
+      }
+
+      const username = name || email.split("@")[0];
+      console.log(
+        "Google Sign-Up: Inserting new user with username:",
+        username,
+      );
+      const [result] = await db.execute(
+        "INSERT INTO usuario (username, email, google_id, tipo_usuario, estatus) VALUES (?, ?, ?, ?, ?)",
+        [username, email, googleId, "alumno", "pendiente"],
+      );
+
+      console.log("Google Sign-Up: Success for user:", email);
+      res.status(201).json({
+        message: "Google Sign-Up successful",
+        user: {
+          id_usuario: result.insertId,
+          username,
+          tipo_usuario: "alumno",
+        },
+      });
+    } finally {
+      console.log("Google Sign-Up: Releasing database connection");
+      db.release();
+    }
+  } catch (error) {
+    console.error("Google Sign-Up: Error:", error.message, error.stack);
+    if (
+      error.name === "TokenError" ||
+      error.message.includes("Invalid token")
+    ) {
+      console.log("Google Sign-Up: Invalid Google token");
+      return res.status(401).json({ error: "Token de Google inválido" });
+    }
+    if (error.code === "ER_DUP_ENTRY") {
+      console.log("Google Sign-Up: Duplicate entry detected");
+      return res.status(400).json({ error: "Usuario ya registrado" });
+    }
+    res.status(500).json({ error: "Error en el servidor: " + error.message });
+  }
+};
+
 exports.getUsers = async (req, res) => {
   try {
     const db = await pool.getConnection();
@@ -165,6 +282,7 @@ exports.getUsers = async (req, res) => {
   }
 };
 
+// Keep signup and login for now, but can be removed later
 exports.signup = async (req, res) => {
   const { username, email, password, tipo_usuario, estatus } = req.body;
 
@@ -283,99 +401,5 @@ exports.login = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Fallo el Login" });
-  }
-};
-
-exports.googleSignUp = async (req, res) => {
-  const { token } = req.body;
-
-  console.log("Google Sign-Up: Received token:", token);
-
-  if (!token) {
-    console.log("Google Sign-Up: No token provided");
-    return res.status(400).json({ error: "Google token is required" });
-  }
-
-  try {
-    console.log(
-      "Google Sign-Up: Initializing OAuth2Client with client ID:",
-      process.env.GOOGLE_CLIENT_ID,
-    );
-    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-    console.log("Google Sign-Up: Verifying token...");
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-    const payload = ticket.getPayload();
-    console.log("Google Sign-Up: Token payload:", payload);
-
-    const { email, name, sub: googleId } = payload;
-
-    console.log("Google Sign-Up: Validating email:", email);
-    if (!esCorreoInstitucional(email)) {
-      console.log("Google Sign-Up: Non-institutional email detected:", email);
-      return res.status(403).json({
-        error:
-          "Correo no institucional. Usa un correo de una universidad de Querétaro.",
-      });
-    }
-
-    console.log("Google Sign-Up: Connecting to database...");
-    const db = await pool.getConnection();
-    try {
-      console.log(
-        "Google Sign-Up: Checking for existing user with email:",
-        email,
-        "or google_id:",
-        googleId,
-      );
-      const [existingUser] = await db.execute(
-        "SELECT * FROM usuario WHERE email = ? OR google_id = ?",
-        [email, googleId],
-      );
-
-      if (existingUser.length > 0) {
-        console.log("Google Sign-Up: User already exists:", email);
-        return res.status(400).json({ error: "Usuario ya registrado" });
-      }
-
-      const username = name || email.split("@")[0];
-      console.log(
-        "Google Sign-Up: Inserting new user with username:",
-        username,
-      );
-      const [result] = await db.execute(
-        "INSERT INTO usuario (username, email, google_id, tipo_usuario, estatus) VALUES (?, ?, ?, ?, ?)",
-        [username, email, googleId, "alumno", "pendiente"],
-      );
-
-      console.log("Google Sign-Up: Success for user:", email);
-      res.status(201).json({
-        message: "Google Sign-Up successful",
-        user: {
-          id_usuario: result.insertId,
-          username,
-          tipo_usuario: "alumno",
-        },
-      });
-    } finally {
-      console.log("Google Sign-Up: Releasing database connection");
-      db.release();
-    }
-  } catch (error) {
-    console.error("Google Sign-Up: Error:", error.message, error.stack);
-    if (
-      error.name === "JsonWebTokenError" ||
-      error.message.includes("Invalid token")
-    ) {
-      console.log("Google Sign-Up: Invalid Google token");
-      return res.status(401).json({ error: "Token de Google inválido" });
-    }
-    if (error.code === "ER_DUP_ENTRY") {
-      console.log("Google Sign-Up: Duplicate entry detected");
-      return res.status(400).json({ error: "Usuario ya registrado" });
-    }
-    res.status(500).json({ error: "Error en el servidor" });
   }
 };

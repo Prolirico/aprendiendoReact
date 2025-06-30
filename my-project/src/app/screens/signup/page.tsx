@@ -12,7 +12,7 @@ const GOOGLE_CLIENT_ID =
 
 export default function SignUpPage() {
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(""); // Nuevo estado para mensajes de éxito
+  const [success, setSuccess] = useState("");
   const router = useRouter();
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
@@ -29,18 +29,16 @@ export default function SignUpPage() {
       console.log("Google Sign-Up: Response:", response.data);
 
       if (response.data.message === "Google Sign-Up successful") {
-        // Registro exitoso, mostrar mensaje y redirigir a login
         setSuccess("Registro exitoso. Redirigiendo al inicio de sesión...");
-        setTimeout(() => {
-          router.push("/screens/login");
-        }, 2000); // Redirige después de 2 segundos
+        setTimeout(() => router.push("/screens/login"), 2000);
       } else {
         console.error("Google Sign-Up: Unexpected response:", response.data);
         setError("Error en el registro: Respuesta inesperada");
       }
     } catch (err: any) {
       const errorMessage =
-        err.response?.data?.error || "Error en el registro con Google";
+        err.response?.data?.error ||
+        "Error en el registro con Google: " + (err.message || "Desconocido");
       console.error("Google Sign-Up: Error details:", {
         message: err.message,
         response: err.response?.data,

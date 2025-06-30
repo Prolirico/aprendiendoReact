@@ -51,7 +51,12 @@ export default function LoginPage() {
         response: err.response?.data,
         status: err.response?.status,
       });
-      setError(errorMessage);
+      if (errorMessage === "Usuario no registrado") {
+        setError("Usuario no registrado. Redirigiendo al registro...");
+        setTimeout(() => router.push("/screens/signup"), 2000);
+      } else {
+        setError(errorMessage);
+      }
     }
   };
 
@@ -67,23 +72,7 @@ export default function LoginPage() {
           <p className={styles.loginText} id="heading">
             Iniciar Sesión
           </p>
-          {error && (
-            <p className={styles.error}>
-              {error}
-              {error === "Usuario no registrado" && (
-                <span>
-                  {" "}
-                  <button
-                    type="button"
-                    onClick={() => router.push("/screens/signup")}
-                    className={styles.loginLinkButton}
-                  >
-                    Regístrate
-                  </button>
-                </span>
-              )}
-            </p>
-          )}
+          {error && <p className={styles.error}>{error}</p>}
           <div className={styles.googleLoginButton}>
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
