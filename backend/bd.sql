@@ -332,6 +332,30 @@ CREATE TABLE `auditoria` (
   CONSTRAINT `fk_auditoria_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id_usuario`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- ---------------------------------------------------------------------
+-- Tabla de los domminios aceptados para registro en el Login de alumnos
+-- ---------------------------------------------------------------------
+
+CREATE TABLE dominiosUniversidades (
+    id_dominio INT AUTO_INCREMENT PRIMARY KEY,
+    dominio VARCHAR(255) NOT NULL UNIQUE,
+    estatus ENUM('activo', 'inactivo') DEFAULT 'activo',
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Inserting initial Querétaro university domains
+INSERT INTO dominiosUniversidades (dominio, estatus) VALUES
+('upsrj.edu.mx', 'activo'),
+('upq.mx', 'activo'),
+('utcorregidora.edu.mx', 'activo'),
+('utsrj.edu.mx', 'activo'),
+('uteq.edu.mx', 'activo'),
+('soyunaq.mx', 'activo'),
+('unaq.mx', 'activo'),
+('queretaro.tecnm.mx', 'activo'),
+('uaq.mx', 'activo');
+
 -- --------------------------------------------------------
 -- Insertar categorías por defecto
 -- --------------------------------------------------------
