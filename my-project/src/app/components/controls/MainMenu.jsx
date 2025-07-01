@@ -24,16 +24,16 @@ function MainMenu() {
       {open && (
         <div className={styles.dropdown}>
           <Link href="/option1">
-            <button className={styles.menuItem}>Opción 1</button>
+            <button className={styles.menuItem}>Estudiante</button>
           </Link>
           <Link href="/option2">
-            <button className={styles.menuItem}>Opción 2</button>
+            <button className={styles.menuItem}>Docente</button>
           </Link>
           <Link href="/option3">
-            <button className={styles.menuItem}>Opción 3</button>
+            <button className={styles.menuItem}>Universidad</button>
           </Link>
           <Link href="/option4">
-            <button className={styles.menuItem}>Opción 4</button>
+            <button className={styles.menuItem}>SEDEQ</button>
           </Link>
         </div>
       )}

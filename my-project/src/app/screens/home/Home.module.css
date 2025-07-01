@@ -5,26 +5,28 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    position: relative;
+    overflow: hidden;
 }
 
+/* Header */
 .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 9vh;
+    min-height: 60px; /* Flexible height */
     background-color: white;
     border-bottom: 1px solid transparent;
-    padding: 0 16px;
+    padding: 0 clamp(8px, 2vw, 16px); /* Responsive padding */
 }
 .headerLeft {
-    flex: 0 0 20%;
+    flex: 0 0 auto; /* Allow logo to size naturally */
     display: flex;
     align-items: center;
 }
 .headerLeft img {
-    width: 100%;
+    width: clamp(100px, 20vw, 150px); /* Responsive logo size */
     height: auto;
-    max-height: 9vh;
     object-fit: contain;
 }
 .headerCenter {
@@ -33,41 +35,151 @@
     justify-content: center;
     align-items: center;
     text-align: center;
-    margin: 0 20px;
-    font-size: 1.5rem;
+    margin: 0 clamp(10px, 2vw, 20px);
+    font-size: clamp(1rem, 3vw, 1.25rem); /* Responsive font size */
     font-family: "JetBrains Mono", monospace;
     font-weight: 800;
     font-style: italic;
 }
 .headerRight {
-    flex: 0 0 20%;
+    flex: 0 0 auto;
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 16px;
+    gap: clamp(8px, 2vw, 16px); /* Responsive gap */
 }
 
-/*Contenido*/
+/* Content */
 .contenidoIntro {
-    height: 64vh;
-    padding: 1rem;
+    min-height: 50vh; /* Flexible height */
+    padding: clamp(1rem, 3vw, 2rem);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 .contenidoHome {
-    height: 82vh;
-    padding: 1rem;
-    background-color: white;
+    min-height: 40vh; /* Flexible height */
+    padding: clamp(1rem, 3vw, 2rem);
+    color: white;
+}
+.contenidoHomeAprendizaje {
+    min-height: 60vh; /* Flexible height */
+    padding: clamp(1rem, 3vw, 2rem);
+    color: white;
+    position: relative;
+    z-index: 1;
+    text-align: center;
+}
+.contenidoHomeAprendizaje::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url(/assets/wallpaperContenidoHome.jpg);
+    background-position: center;
+    background-size: cover;
+    filter: blur(2px) brightness(0.7) saturate(65%);
+    z-index: -1;
+}
+.contenidoText {
+    margin-left: 1rem; /* Default for mobile */
+    margin-right: 1rem;
+    max-width: 1200px; /* Constrain content width for large screens */
+    margin-left: auto; /* Center content */
+    margin-right: auto;
+}
+.titulosContenido {
+    font-size: clamp(1.5rem, 4vw, 2rem);
 }
 .FiltrosCursos {
     display: flex;
     align-items: center;
-    gap: 20px; /* Use gap to add space between items */
+    gap: clamp(10px, 2vw, 20px);
 }
 
-/*Footer*/
+/* Footer */
 .contenidoFooter {
-    padding: 1rem;
-    background-color: #f0f0f0;
+    display: flex;
+    flex-direction: row;
+    padding: clamp(1rem, 3vw, 2rem);
+    background-color: #185d96;
+    color: white;
     text-align: center;
     border-top: 1px solid #ccc;
-    height: 9vh;
+    min-height: 15vh; /* Flexible height */
+}
+.contenidoFooter1,
+.contenidoFooter2 {
+    flex: 1;
+    padding: clamp(0.5rem, 2vw, 1rem);
+    text-align: left;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        padding: 8px;
+        min-height: auto;
+    }
+
+    .headerLeft,
+    .headerRight {
+        flex: 0 0 100%;
+        justify-content: center;
+        margin: 8px 0;
+    }
+
+    .headerCenter {
+        font-size: clamp(0.875rem, 2.5vw, 1rem);
+        margin: 8px 0;
+    }
+
+    .contenidoHomeAprendizaje {
+        padding: 1rem;
+    }
+
+    .contenidoText {
+        margin-left: 8rem; /* 8rem for desktop */
+        margin-right: 8rem;
+    }
+
+    .contenidoFooter {
+        flex-direction: column;
+        min-height: auto;
+    }
+
+    .contenidoFooter1,
+    .contenidoFooter2 {
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Adjust font sizes for animations */
+    .contenidoHomeAprendizaje .text-6xl {
+        font-size: clamp(2rem, 6vw, 3rem);
+    }
+}
+
+@media (max-width: 480px) {
+    .headerLeft img {
+        width: clamp(80px, 15vw, 100px);
+    }
+
+    .headerCenter {
+        font-size: clamp(0.75rem, 2vw, 0.875rem);
+    }
+
+    .contenidoIntro,
+    .contenidoHome,
+    .contenidoHomeAprendizaje {
+        padding: 0.5rem;
+    }
+
+    .contenidoHomeAprendizaje > div {
+        margin-left: clamp(1rem, 5vw, 2rem);
+        margin-right: clamp(1rem, 5vw, 2rem);
+    }
 }
