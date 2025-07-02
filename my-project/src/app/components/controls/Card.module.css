@@ -171,6 +171,7 @@
     text-align: center;
     width: 100%;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0);
+    padding-right: 3rem;
 }
 
 .coursePreview {
@@ -295,25 +296,29 @@
     }
 }
 
-/* Responsive adjustments */
+/* Responsive tablet */
 @media (max-width: 768px) {
     .title {
         font-size: 3rem; /* Slightly smaller title for tablets */
+        margin-right: 25%;
     }
 
     .description {
         font-size: 1rem; /* Smaller description for tablets */
         margin-bottom: 0.5rem;
+        text-align: center;
+        padding-right: 12rem;
     }
 
     .bottomText {
         font-size: 10px; /* Smaller font for bottom text */
         letter-spacing: 8px; /* Adjusted letter spacing */
         padding: 0px 8px 0px 12px;
+        left: 36%;
     }
 
     .card:hover .bottomText {
-        letter-spacing: 4px; /* Further reduced spacing on hover for smaller screens */
+        letter-spacing: 2px; /* Further reduced spacing on hover for smaller screens */
     }
 
     .content {
@@ -337,22 +342,26 @@
 
 @media (max-width: 480px) {
     .title {
-        font-size: 2.2rem; /* Even smaller title for mobile phones */
+        font-size: 1.7rem; /* Even smaller title for mobile phones */
+        padding-right: 9rem;
     }
 
     .description {
-        font-size: 0.9rem; /* Smaller description for mobile phones */
+        font-size: 0.8rem; /* Smaller description for mobile phones */
+        text-align: center;
+        padding-right: 24rem;
+        padding-left: 2.5rem;
     }
 
     .bottomText {
         font-size: 9px; /* Smallest font for bottom text */
-        letter-spacing: 5px; /* Adjusted letter spacing */
-        padding: 0px 6px 0px 10px;
-        bottom: 15px; /* Adjust bottom position */
+        padding: 0px 0px 0px 10px; /* Arriba/Derecha/Abajo/Izquierda
+        bottom: 2rem; /* Adjust bottom position */
+        left: 9%;
     }
 
     .card:hover .bottomText {
-        letter-spacing: 2px; /* Further reduced spacing on hover for mobile */
+        letter-spacing: 8px; /* Further reduced spacing on hover for mobile */
         transform: translateX(-50%); /* Ensure it stays centered */
     }
 
