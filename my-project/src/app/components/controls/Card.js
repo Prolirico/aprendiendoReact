@@ -59,7 +59,7 @@ const Card = ({
           <p className={styles.description}>{description}</p>
         </div>
       </div>
-      <span className={styles.bottomText}>Explora nuestros cursos</span>
+      <span className={styles.bottomText}>{bottomText}</span>
     </div>
   );
 };
