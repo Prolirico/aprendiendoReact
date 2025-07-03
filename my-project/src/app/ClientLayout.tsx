@@ -10,6 +10,7 @@ import TeacherDashboard from "./components/dashboards/TeacherDashboard";
 import UniversityDashboard from "./components/dashboards/UniversityDashboard";
 import SEDEQDashboard from "./components/dashboards/SEDEQDashboard";
 import LogoSEDEQ from "../assets/Secretaria-de-educacion-Queretaro.png";
+import Image from "next/image";
 
 const handleAnimationComplete = () => {
   console.log("All letters have animated!");
@@ -85,7 +86,7 @@ export default function ClientLayout({ children }) {
     <>
       <nav className="flex items-center justify-between w-full h-[9vh] bg-white text-black px-4">
         <div className="flex-shrink-0 w-[20%]">
-          <img
+          <Image
             src={LogoSEDEQ.src}
             alt="Logo SEDEQ"
             className="w-full h-auto max-h-[9vh] object-contain"

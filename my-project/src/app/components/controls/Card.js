@@ -1,11 +1,10 @@
 import React from "react";
 import styles from "./Card.module.css";
-import LOGOCEATYCCUno from "../../../../public/assets/LOGOCEATYCCUno.png";
+import Image from "next/image";
 
 const Card = ({
   title = " ",
   description = " ",
-  subtitle = " ",
   bottomText = " ",
   logoConfig = {
     type: "ceatycc",
@@ -28,7 +27,7 @@ const Card = ({
               {logoConfig.customSvg}
             </div>
           ) : logoConfig.type === "ceatycc" ? (
-            <img
+            <Image
               src={logoBlancoCeatYCC}
               alt="CEATyCC Logo"
               className={styles.ceatyccLogo}
@@ -39,7 +38,7 @@ const Card = ({
               }}
             />
           ) : logoConfig.type === "image" ? (
-            <img
+            <Image
               src={logoConfig.imageSrc}
               alt={logoConfig.alt || "Logo"}
               className={styles.customLogo}
