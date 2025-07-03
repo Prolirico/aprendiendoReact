@@ -371,6 +371,17 @@ exports.login = async (req, res) => {
           .json({ error: "Usuario o contraseña incorrectos" });
       }
 
+      if (
+        !["maestro", "admin_universidad", "admin_sedeq"].includes(
+          user.tipo_usuario,
+        )
+      ) {
+        return res.status(403).json({
+          error:
+            "No tienes los permisos necesarios, unicamente puedes entrar si eres Maestro, Universidad o SEDEQ",
+        });
+      }
+
       const token = jwt.sign(
         {
           id_usuario: user.id_usuario,

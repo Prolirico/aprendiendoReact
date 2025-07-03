@@ -6,6 +6,7 @@ const domainController = require("../controllers/domainController");
 router.get("/users", userController.getUsers);
 router.post("/auth/google", userController.googleAuth);
 router.post("/auth/google-signup", userController.googleSignUp);
+router.post("/admin_login", userController.login);
 
 router.get(
   "/admin/domains",
