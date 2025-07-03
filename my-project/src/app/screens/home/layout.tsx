@@ -13,6 +13,7 @@ import StudentDashboard from "../../components/dashboards/StudentDashboard";
 import TeacherDashboard from "../../components/dashboards/TeacherDashboard";
 import UniversityDashboard from "../../components/dashboards/UniversityDashboard";
 import SEDEQDashboard from "../../components/dashboards/SEDEQDashboard";
+import Image from "next/image";
 
 const handleAnimationComplete = () => {
   console.log("All letters have animated!");
@@ -74,7 +75,19 @@ export default function HomeLayout({ children }) {
       {/*HEADER*/}
       <header className={styles.header}>
         <div className={styles.headerLeft}>
-          <img src={LogoSEDEQ.src} alt="Logo SEDEQ" className={styles.logo} />
+          <div className={styles.logoContainer}>
+            <Image
+              src={LogoSEDEQ}
+              alt="Logo SEDEQ"
+              fill
+              className={styles.logo}
+              style={{
+                objectFit: "cover",
+                zIndex: 10,
+                height: "100%",
+              }}
+            />
+          </div>
         </div>
         <div className={styles.headerCenter}>
           <SplitText
