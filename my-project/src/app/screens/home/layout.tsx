@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import styles from "./Home.module.css";
 import SplitText from "../../components/controls/SplitText";
 import UserMenu from "../../components/controls/UserMenu";
@@ -19,7 +18,11 @@ const handleAnimationComplete = () => {
   console.log("All letters have animated!");
 };
 
-export default function HomeLayout({ children }) {
+export default function HomeLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
