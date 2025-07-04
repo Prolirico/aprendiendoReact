@@ -149,7 +149,6 @@ export default function HomeLayout({
             revealDirection="center"
           />
         </div>
-        <p></p>
       </div>
 
       {/*FOOTER */}
