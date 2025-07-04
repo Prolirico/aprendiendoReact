@@ -105,12 +105,6 @@ export default function AdminLoginPage() {
             {loading ? "Iniciando..." : "Iniciar Sesión"}
           </button>
         </form>
-
-        {/* Información de debugging (eliminar en producción) */}
-        <div style={{ marginTop: "20px", fontSize: "12px", color: "#666" }}>
-          <p>API URL: {API_URL}</p>
-          <p>Endpoint: {`${API_URL}/admin_login`}</p>
-        </div>
       </div>
     </div>
   );

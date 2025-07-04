@@ -1,8 +1,12 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
-import axios from "axios";
+import {
+  GoogleOAuthProvider,
+  GoogleLogin,
+  CredentialResponse,
+} from "@react-oauth/google";
+import axios, { AxiosError } from "axios";
 import styles from "./Login.module.css";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
@@ -10,21 +14,41 @@ const GOOGLE_CLIENT_ID =
   process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
   "768061039087-q59g2dbarenff9j3epsvc2gp208fiu2k.apps.googleusercontent.com";
 
+interface User {
+  id_usuario: number;
+  username: string;
+  tipo_usuario: string;
+}
+
+interface AuthResponse {
+  token: string;
+  user: User;
+}
+
+interface ErrorResponse {
+  error?: string;
+}
+
 export default function LoginPage() {
   const [error, setError] = useState("");
   const router = useRouter();
 
-  const handleGoogleSuccess = async (credentialResponse: any) => {
+  const handleGoogleSuccess = async (
+    credentialResponse: CredentialResponse,
+  ) => {
     setError("");
     console.log(
-      "Google Sign-In: Token received:",
+      "Inicio de sesión con Google: Token recibido:",
       credentialResponse.credential,
     );
     try {
-      const response = await axios.post(`${API_URL}/auth/google`, {
-        token: credentialResponse.credential,
-      });
-      console.log("Google Sign-In: Response:", response.data);
+      const response = await axios.post<AuthResponse>(
+        `${API_URL}/auth/google`,
+        {
+          token: credentialResponse.credential,
+        },
+      );
+      console.log("Inicio de sesión con Google: Respuesta:", response.data);
 
       if (response.data.token) {
         localStorage.setItem("token", response.data.token);
@@ -36,20 +60,28 @@ export default function LoginPage() {
             role: response.data.user.tipo_usuario,
           }),
         );
-        console.log("Google Sign-In: User authenticated:", response.data.user);
+        console.log(
+          "Inicio de sesión con Google: Usuario autenticado:",
+          response.data.user,
+        );
         router.push("/screens/home");
       } else {
-        console.error("Google Sign-In: No token in response:", response.data);
+        console.error(
+          "Inicio de sesión con Google: No se recibió token:",
+          response.data,
+        );
         setError("Error al iniciar sesión: No se recibió token");
       }
-    } catch (err: any) {
+    } catch (err) {
+      const error = err as AxiosError<ErrorResponse>;
       const errorMessage =
-        err.response?.data?.error ||
-        "Error al iniciar sesión con Google: " + (err.message || "Desconocido");
-      console.error("Google Sign-In: Error details:", {
-        message: err.message,
-        response: err.response?.data,
-        status: err.response?.status,
+        error.response?.data?.error ||
+        "Error al iniciar sesión con Google: " +
+          (error.message || "Desconocido");
+      console.error("Inicio de sesión con Google: Detalles del error:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
       });
       if (errorMessage === "Usuario no registrado") {
         setError("Usuario no registrado. Redirigiendo al registro...");
@@ -62,7 +94,9 @@ export default function LoginPage() {
 
   const handleGoogleError = () => {
     setError("Error al autenticarse con Google");
-    console.error("Google Sign-In: Failed to authenticate with Google");
+    console.error(
+      "Inicio de sesión con Google: Falló la autenticación con Google",
+    );
   };
 
   return (
