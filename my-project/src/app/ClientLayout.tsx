@@ -16,25 +16,40 @@ const handleAnimationComplete = () => {
   console.log("All letters have animated!");
 };
 
-export default function ClientLayout({ children }) {
-  const [user, setUser] = useState(null);
+interface User {
+  id: string;
+  role: string; // Permitimos cualquier string, ya que roleMap lo mapeará
+}
+
+export default function ClientLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [user, setUser] = useState<User | null>(null);
   const pathname = usePathname();
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    console.log("Stored user:", storedUser); // Depuración
-    if (storedUser) {
-      // Mapear roles del backend a los esperados
-      const roleMap = {
-        alumno: "ALUMNO",
-        maestro: "MAESTRO",
-        admin_universidad: "UNIVERSIDAD",
-        admin_sedeq: "SEDEQ",
-      };
-      storedUser.role = roleMap[storedUser.role] || storedUser.role;
-      setUser(storedUser);
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      try {
+        const storedUser: User = JSON.parse(userData);
+        console.log("Stored user:", storedUser);
+        if (storedUser) {
+          const roleMap: { [key: string]: string } = {
+            alumno: "ALUMNO",
+            maestro: "MAESTRO",
+            admin_universidad: "UNIVERSIDAD",
+            admin_sedeq: "SEDEQ",
+          };
+          storedUser.role = roleMap[storedUser.role] || storedUser.role;
+          setUser(storedUser);
+        }
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+      }
     }
-    document.body.removeAttribute("cz-shortcut-listen"); // Eliminar atributo problemático
+    document.body.removeAttribute("cz-shortcut-listen");
   }, []);
 
   const publicRoutes = [
@@ -44,9 +59,9 @@ export default function ClientLayout({ children }) {
   ];
 
   const renderContent = () => {
-    console.log("Current pathname:", pathname); // Depuración
+    console.log("Current pathname:", pathname);
     if (publicRoutes.includes(pathname)) {
-      console.log("Rendering children for public route:", pathname); // Depuración
+      console.log("Rendering children for public route:", pathname);
       return children;
     }
 
@@ -65,7 +80,7 @@ export default function ClientLayout({ children }) {
       );
     }
 
-    console.log("Rendering dashboard for role:", user.role); // Depuración
+    console.log("Rendering dashboard for role:", user.role);
     switch (user.role) {
       case "ALUMNO":
         return <StudentDashboard userId={user.id} />;

@@ -1,3 +1,4 @@
+// app/screens/home/layout.tsx
 "use client";
 import { useState, useEffect } from "react";
 import styles from "./Home.module.css";
@@ -18,26 +19,76 @@ const handleAnimationComplete = () => {
   console.log("All letters have animated!");
 };
 
-export default function HomeLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [user, setUser] = useState(null);
+// Define the possible keys for our roleMap
+type RoleMapKeys = "alumno" | "maestro" | "admin_universidad" | "admin_sedeq";
+
+// Define the mapped user role type
+type MappedUserRole = "ALUMNO" | "MAESTRO" | "UNIVERSIDAD" | "SEDEQ" | string;
+
+// Define a type for the user object that will be stored in component state
+interface UserState {
+  id: string | number;
+  role: MappedUserRole;
+  // Add any other properties that are essential for your UserState.
+  // For example, if 'name' is always present and needed:
+  // name: string;
+}
+
+// Define a type for the raw data from localStorage.
+// This can be more lenient if localStorage might contain extra properties.
+interface RawStoredUserData {
+  id: string | number;
+  role: "alumno" | "maestro" | "admin_universidad" | "admin_sedeq" | string; // This is the raw role from storage
+  name?: string; // Optional properties that might exist
+  email?: string;
+  // Add other specific properties you expect instead of using 'any'
+  // If you need to allow completely unknown properties, use 'unknown' instead of 'any'
+  [key: string]: unknown; // Allow any other properties that might be in localStorage
+}
+
+export default function HomeLayout() {
+  const [user, setUser] = useState<UserState | null>(null);
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    console.log("Stored user:", storedUser);
-    if (storedUser) {
-      // Mapear roles del backend a los esperados
-      const roleMap = {
-        alumno: "ALUMNO",
-        maestro: "MAESTRO",
-        admin_universidad: "UNIVERSIDAD",
-        admin_sedeq: "SEDEQ",
-      };
-      storedUser.role = roleMap[storedUser.role] || storedUser.role;
-      setUser(storedUser);
+    const storedUserString = localStorage.getItem("user");
+    if (storedUserString) {
+      try {
+        // Parse the raw data first
+        const rawStoredUser: RawStoredUserData = JSON.parse(storedUserString);
+        console.log("Stored user:", rawStoredUser);
+
+        // Check if essential properties exist and the role is valid for mapping
+        if (rawStoredUser && rawStoredUser.role) {
+          const roleMap: Record<RoleMapKeys, string> = {
+            alumno: "ALUMNO",
+            maestro: "MAESTRO",
+            admin_universidad: "UNIVERSIDAD",
+            admin_sedeq: "SEDEQ",
+          };
+
+          const mappedRole = roleMap[rawStoredUser.role as RoleMapKeys];
+
+          // Construct the UserState object, mapping the role
+          const userToSet: UserState = {
+            id: rawStoredUser.id,
+            role: mappedRole || rawStoredUser.role,
+            // If UserState had other specific properties you needed from rawStoredUser,
+            // you would add them here, e.g.:
+            // name: rawStoredUser.name,
+            // If rawStoredUser has properties not defined in UserState, they will be omitted
+            // unless UserState has an index signature, which we've tried to avoid for `any`.
+          };
+
+          setUser(userToSet);
+        } else {
+          // Handle cases where storedUser exists but is malformed (e.g., missing role)
+          console.error("Malformed user data in localStorage.");
+          localStorage.removeItem("user");
+        }
+      } catch (error) {
+        console.error("Failed to parse user from localStorage:", error);
+        localStorage.removeItem("user");
+      }
     }
     document.body.removeAttribute("cz-shortcut-listen");
   }, []);
@@ -50,13 +101,18 @@ export default function HomeLayout({
             title="Bienvenido"
             description="Ingresa a tu cuenta para desbloquear todas las oportunidades que tenemos para ti."
             bottomText="Explora nuestros cursos"
-            logoConfig={{ type: "none" }}
+            logoConfig={{
+              type: "none",
+              customSvg: null,
+              width: 0,
+              height: 0,
+            }}
           />
         </main>
       );
     }
 
-    console.log("Rendering dashboard for role:", user.role); // Depuración
+    console.log("Rendering dashboard for role:", user.role);
     switch (user.role) {
       case "ALUMNO":
         return <StudentDashboard userId={user.id} />;
@@ -130,6 +186,11 @@ export default function HomeLayout({
           direction="top"
           onAnimationComplete={handleAnimationComplete}
           className="text-6xl mb-12"
+          animationFrom={{ filter: "blur(10px)", opacity: 0, y: -50 }}
+          animationTo={[
+            { filter: "blur(5px)", opacity: 0.5, y: 5 },
+            { filter: "blur(0px)", opacity: 1, y: 0 },
+          ]}
         />
         <div className={styles.contenidoText}>
           <DecryptedText

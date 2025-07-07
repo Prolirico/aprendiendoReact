@@ -1,7 +1,3 @@
 export default function HomePage() {
-  return (
-    <div>
-      <p>Hola</p>
-    </div>
-  );
+  return null; // O return <></>;
 }

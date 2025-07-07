@@ -1,9 +1,16 @@
 "use client";
-import React, { useState } from "react";
-import { motion } from "motion/react";
+import React, { useState, FC, ReactNode } from "react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-export const PinContainer = ({
+interface PinContainerProps {
+  children: ReactNode;
+  title?: string; // Assuming title, href, className, and containerClassName are optional strings
+  href?: string;
+  className?: string;
+  containerClassName?: string;
+}
+export const PinContainer: FC<PinContainerProps> = ({
   children,
   title,
   href,
@@ -51,8 +58,11 @@ export const PinContainer = ({
     </a>
   );
 };
-
-export const PinPerspective = ({ title, href }) => {
+interface PinPerspectiveProps {
+  title?: string;
+  href?: string;
+}
+export const PinPerspective: FC<PinPerspectiveProps> = ({ title, href }) => {
   // Definimos la función handleClick aquí
   const handleClick = () => {
     window.open(href, "_blank");

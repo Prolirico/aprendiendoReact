@@ -1,11 +1,15 @@
 // Frontend - AdminLogin.jsx (versión con debugging)
 "use client";
-import React, { useState } from "react";
+import React, { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import axios, { AxiosError } from "axios"; // Import AxiosError
 import styles from "./AdminLogin.module.css";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
+interface ApiErrorResponse {
+  error?: string; // Assuming the error message is a string and might be optional
+}
 
 export default function AdminLoginPage() {
   const [username, setUsername] = useState("");
@@ -14,7 +18,7 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
@@ -41,30 +45,43 @@ export default function AdminLoginPage() {
 
       // Redirigir al dashboard correspondiente según el rol
       if (user.tipo_usuario === "maestro") {
-        router.push("/dashboards/TeacherDashboard");
+        router.push("/screens/home");
       } else if (user.tipo_usuario === "admin_universidad") {
-        router.push("/dashboards/UniversityDashboard");
+        router.push("/screens/home");
       } else if (user.tipo_usuario === "admin_sedeq") {
-        router.push("/dashboards/SEDEQDashboard");
+        router.push("/screens/home");
       } else {
         setError(
           "No tienes los permisos necesarios, unicamente puedes entrar si eres Maestro, Universidad o SEDEQ",
         );
       }
     } catch (err) {
-      console.error("Error completo:", err);
-      console.error("Error response:", err.response?.data);
-      console.error("Error status:", err.response?.status);
+      // err is of type unknown here
+      // Type guard to check if err is an AxiosError
+      if (axios.isAxiosError(err)) {
+        const axiosError = err as AxiosError<ApiErrorResponse>;
+        console.error("Error completo:", axiosError);
+        console.error("Error response:", axiosError.response?.data);
+        console.error("Error status:", axiosError.response?.status);
 
-      if (err.code === "ECONNREFUSED" || err.code === "ERR_NETWORK") {
-        setError(
-          "No se puede conectar al servidor. Verifica que el backend esté ejecutándose.",
-        );
+        if (
+          axiosError.code === "ECONNREFUSED" ||
+          axiosError.code === "ERR_NETWORK"
+        ) {
+          setError(
+            "No se puede conectar al servidor. Verifica que el backend esté ejecutándose.",
+          );
+        } else {
+          // Safely access data from response if it exists
+          const errorMessage =
+            axiosError.response?.data?.error ||
+            "Error de conexión o credenciales incorrectas";
+          setError(errorMessage);
+        }
       } else {
-        const errorMessage =
-          err.response?.data?.error ||
-          "Error de conexión o credenciales incorrectas";
-        setError(errorMessage);
+        // Handle other types of errors
+        console.error("An unexpected error occurred:", err);
+        setError("Ocurrió un error inesperado.");
       }
     } finally {
       setLoading(false);
