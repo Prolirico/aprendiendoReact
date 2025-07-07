@@ -29,9 +29,7 @@ type MappedUserRole = "ALUMNO" | "MAESTRO" | "UNIVERSIDAD" | "SEDEQ" | string;
 interface UserState {
   id: string | number;
   role: MappedUserRole;
-  // Add any other properties that are essential for your UserState.
-  // For example, if 'name' is always present and needed:
-  // name: string;
+  username: string;
 }
 
 // Define a type for the raw data from localStorage.
@@ -72,11 +70,7 @@ export default function HomeLayout() {
           const userToSet: UserState = {
             id: rawStoredUser.id,
             role: mappedRole || rawStoredUser.role,
-            // If UserState had other specific properties you needed from rawStoredUser,
-            // you would add them here, e.g.:
-            // name: rawStoredUser.name,
-            // If rawStoredUser has properties not defined in UserState, they will be omitted
-            // unless UserState has an index signature, which we've tried to avoid for `any`.
+            username: rawStoredUser.username,
           };
 
           setUser(userToSet);

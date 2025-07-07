@@ -35,3 +35,14 @@
 .menuItem:hover {
     background-color: #f0f0f0;
 }
+.userInfo {
+    display: flex;
+    flex-direction: column; /* Nombre y rol en líneas separadas */
+    gap: 5px; /* Espacio entre nombre y rol */
+    padding: 10px;
+}
+
+.role {
+    color: #666;
+    font-size: 0.9em;
+}
