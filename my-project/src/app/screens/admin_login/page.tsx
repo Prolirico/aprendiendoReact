@@ -11,6 +11,13 @@ interface ApiErrorResponse {
   error?: string; // Assuming the error message is a string and might be optional
 }
 
+interface UserDataForLocalStorage {
+  id: string | number;
+  role: "alumno" | "maestro" | "admin_universidad" | "admin_sedeq" | string;
+  username: string;
+  // Add any other properties that HomeLayout might need from the user object
+}
+
 export default function AdminLoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -43,21 +50,28 @@ export default function AdminLoginPage() {
         localStorage.setItem("token", response.data.token);
       }
 
-      // Redirigir al dashboard correspondiente según el rol
-      if (user.tipo_usuario === "maestro") {
-        router.push("/screens/home");
-      } else if (user.tipo_usuario === "admin_universidad") {
-        router.push("/screens/home");
-      } else if (user.tipo_usuario === "admin_sedeq") {
+      if (response.data.token) {
+        localStorage.setItem("token", response.data.token);
+      }
+
+      // Prepare user data for localStorage, ensuring the role matches expected values
+      if (user) {
+        const userData: UserDataForLocalStorage = {
+          id: user.id, // Assuming the user object has an 'id'
+          role: user.tipo_usuario, // Use the tipo_usuario directly as it matches the expected roles
+          username: user.username, // Assuming the user object has a 'username'
+          // Add other user properties if needed by HomeLayout
+        };
+
+        localStorage.setItem("user", JSON.stringify(userData));
+
+        // Redirect to the home page
         router.push("/screens/home");
       } else {
-        setError(
-          "No tienes los permisos necesarios, unicamente puedes entrar si eres Maestro, Universidad o SEDEQ",
-        );
+        // Handle cases where user data might be missing in the response
+        setError("Información de usuario no recibida del servidor.");
       }
     } catch (err) {
-      // err is of type unknown here
-      // Type guard to check if err is an AxiosError
       if (axios.isAxiosError(err)) {
         const axiosError = err as AxiosError<ApiErrorResponse>;
         console.error("Error completo:", axiosError);
@@ -72,14 +86,12 @@ export default function AdminLoginPage() {
             "No se puede conectar al servidor. Verifica que el backend esté ejecutándose.",
           );
         } else {
-          // Safely access data from response if it exists
           const errorMessage =
             axiosError.response?.data?.error ||
             "Error de conexión o credenciales incorrectas";
           setError(errorMessage);
         }
       } else {
-        // Handle other types of errors
         console.error("An unexpected error occurred:", err);
         setError("Ocurrió un error inesperado.");
       }
