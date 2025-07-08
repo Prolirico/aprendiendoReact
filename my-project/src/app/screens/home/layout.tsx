@@ -65,12 +65,16 @@ export default function HomeLayout() {
           };
 
           const mappedRole = roleMap[rawStoredUser.role as RoleMapKeys];
+          const usernameString =
+            typeof rawStoredUser.username === "string"
+              ? rawStoredUser.username
+              : "Usuario Desconocido";
 
           // Construct the UserState object, mapping the role
           const userToSet: UserState = {
             id: rawStoredUser.id,
             role: mappedRole || rawStoredUser.role,
-            username: rawStoredUser.username,
+            username: usernameString,
           };
 
           setUser(userToSet);
