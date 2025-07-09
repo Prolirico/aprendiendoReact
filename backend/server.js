@@ -14,9 +14,11 @@ const userRoutes = require("./routes/userRoutes");
 app.use("/api", userRoutes);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, "0.0.0.0", () =>
+  console.log(`Server running on port ${PORT}`),
+);
 
-// Configuración del pool de conexiones
+// Configuración LOCAL
 const dbConfig = {
   host: "localhost",
   port: 3306,
@@ -25,9 +27,30 @@ const dbConfig = {
   database: "microCredenciales",
   connectionLimit: 10, // Número máximo de conexiones en el pool
 };
-
+{
+  /*
+// COnfiguracion Servidor
+const dbConfig = {
+  host: process.env.DB_HOST || "localhost",
+  port: process.env.DB_PORT || 3306,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  connectionLimit: 10,
+};
+*/
+}
 // Crear pool de conexiones
 const pool = mysql.createPool(dbConfig);
+pool
+  .getConnection()
+  .then((connection) => {
+    console.log("✅ Database connected successfully");
+    connection.release();
+  })
+  .catch((error) => {
+    console.error("❌ Database connection failed:", error);
+  });
 
 // Clave JWT desde variable de entorno
 const JWT_SECRET =
