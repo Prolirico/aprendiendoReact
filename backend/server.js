@@ -14,15 +14,13 @@ const userRoutes = require("./routes/userRoutes");
 app.use("/api", userRoutes);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, "0.0.0.0", () =>
-  console.log(`Server running on port ${PORT}`),
-);
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 // Configuración LOCAL
 const dbConfig = {
   host: "localhost",
   port: 3306,
-  user: "Axel",
+  user: "root",
   password: "$Yy@pJB5Poqs", // Reemplaza con tu contraseña real o usa .env
   database: "microCredenciales",
   connectionLimit: 10, // Número máximo de conexiones en el pool
@@ -30,7 +28,7 @@ const dbConfig = {
 {
   /*
 // COnfiguracion Servidor
-const dbConfig = {
+  const dbConfig = {
   host: process.env.DB_HOST || "localhost",
   port: process.env.DB_PORT || 3306,
   user: process.env.DB_USER,
