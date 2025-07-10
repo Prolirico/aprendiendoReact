@@ -13,10 +13,10 @@ function SEDEQDashboard({ userId }) {
   useEffect(() => {}, [userId]);
 
   return (
-    <div className={styles.section}>
-      <h1>Dashboard SEDEQ</h1>
+    <div className={styles.modulos}>
+      <h1>Dashboard SEDEQ1</h1>
       <section>
-        <ManejoUniversidades />
+        <ManejoUniversidades userId={userId} canEdit={true} />
       </section>
     </div>
   );

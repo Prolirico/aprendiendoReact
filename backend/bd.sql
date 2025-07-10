@@ -36,6 +36,7 @@ CREATE TABLE `universidad` (
   PRIMARY KEY (`id_universidad`),
   UNIQUE KEY `uk_clave_universidad` (`clave_universidad`),
   UNIQUE KEY `uk_email_contacto` (`email_contacto`),
+  COLUMN 'logo_url' VARCHAR(255) NULL AFTER 'ubicacion',
   INDEX `idx_nombre` (`nombre`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
