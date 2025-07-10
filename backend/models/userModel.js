@@ -102,6 +102,21 @@ class User {
     );
     return rows.length > 0 ? rows[0] : null;
   }
+
+  /**
+   * Deletes the admin user associated with a specific university.
+   * To be used within a transaction.
+   * @param {number} id_universidad - The ID of the university whose admin should be deleted.
+   * @param {object} connection - The database connection from the transaction pool.
+   * @returns {Promise<object>} The result of the delete operation.
+   */
+  static async deleteAdminByUniversityId(id_universidad, connection) {
+    const [result] = await connection.execute(
+      "DELETE FROM usuario WHERE id_universidad = ? AND tipo_usuario = 'admin_universidad'",
+      [id_universidad],
+    );
+    return result;
+  }
 }
 
 module.exports = User;

@@ -40,6 +40,7 @@ function ManejoUniversidades() {
   const [currentUniversity, setCurrentUniversity] = useState(
     initialUniversityState,
   );
+  const [deleteAdminCheckbox, setDeleteAdminCheckbox] = useState(false); // New state for the checkbox
 
   // Logo file state for form handling
   const [logoFile, setLogoFile] = useState(null);
@@ -102,13 +103,11 @@ function ManejoUniversidades() {
   // Modal handlers
   const handleOpenModal = (university = null) => {
     if (university) {
-      // When editing, populate form and clear password for security
       setCurrentUniversity({ ...university, password: "" });
       setLogoPreview(
         university.logo_url ? `${SERVER_URL}${university.logo_url}` : "",
       );
     } else {
-      // When adding, use the initial empty state
       setCurrentUniversity(initialUniversityState);
       setLogoPreview("");
     }
@@ -122,6 +121,7 @@ function ManejoUniversidades() {
 
   const handleOpenDeleteModal = (university) => {
     setCurrentUniversity(university);
+    setDeleteAdminCheckbox(false); // Reset checkbox state every time modal opens
     setIsDeleteModalOpen(true);
   };
 
@@ -154,24 +154,19 @@ function ManejoUniversidades() {
   // Form submission (Create/Update)
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-
     const formData = new FormData();
     const isEditing = !!currentUniversity.id_universidad;
 
-    // Append all fields from the state to formData
     Object.keys(currentUniversity).forEach((key) => {
-      // Don't append fields that are not part of the backend model or handled separately
       if (
         key !== "id_universidad" &&
         key !== "logo_url" &&
         key !== "password"
       ) {
-        // Ensure null values are sent as empty strings if needed by backend, or handle appropriately
         formData.append(key, currentUniversity[key] || "");
       }
     });
 
-    // Only append password if it's been entered
     if (currentUniversity.password) {
       formData.append("password", currentUniversity.password);
     }
@@ -186,23 +181,16 @@ function ManejoUniversidades() {
     const method = isEditing ? "PUT" : "POST";
 
     try {
-      const response = await fetch(url, {
-        method: method,
-        body: formData,
-      });
-
+      const response = await fetch(url, { method, body: formData });
       const result = await response.json();
-
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error(result.error || "An unknown error occurred.");
-      }
-
       showToast(
         `University ${isEditing ? "updated" : "created"} successfully!`,
         "success",
       );
       handleCloseModal();
-      fetchUniversities(); // Refresh the list
+      fetchUniversities();
     } catch (err) {
       console.error("Form submission error:", err);
       showToast(`Error: ${err.message}`, "error");
@@ -213,19 +201,15 @@ function ManejoUniversidades() {
   const handleConfirmDelete = async () => {
     if (!currentUniversity || !currentUniversity.id_universidad) return;
 
-    try {
-      const response = await fetch(
-        `${API_URL}/${currentUniversity.id_universidad}`,
-        {
-          method: "DELETE",
-        },
-      );
+    // Append the query parameter based on the checkbox state
+    const url = `${API_URL}/${currentUniversity.id_universidad}?deleteAdminUser=${deleteAdminCheckbox}`;
 
+    try {
+      const response = await fetch(url, { method: "DELETE" });
       if (!response.ok) {
         const result = await response.json();
         throw new Error(result.error || "Failed to delete.");
       }
-
       showToast("University deleted successfully!", "success");
       handleCloseDeleteModal();
       if (universities.length === 1 && page > 1) {
@@ -248,7 +232,6 @@ function ManejoUniversidades() {
         </div>
       );
     }
-
     if (error) {
       return (
         <div className={styles.emptyState}>
@@ -264,7 +247,6 @@ function ManejoUniversidades() {
         </div>
       );
     }
-
     if (universities.length === 0) {
       return (
         <div className={styles.emptyState}>
@@ -284,10 +266,8 @@ function ManejoUniversidades() {
         </div>
       );
     }
-
     return (
       <>
-        {/* Mobile View */}
         <div className={styles.mobileView}>
           {universities.map((uni) => (
             <div key={uni.id_universidad} className={styles.universityCard}>
@@ -329,8 +309,6 @@ function ManejoUniversidades() {
             </div>
           ))}
         </div>
-
-        {/* Desktop View */}
         <div className={styles.desktopView}>
           <table className={styles.table}>
             <thead>
@@ -452,7 +430,6 @@ function ManejoUniversidades() {
         )}
       </main>
 
-      {/* Add/Edit Modal */}
       {isModalOpen && (
         <div className={styles.modalBackdrop} onClick={handleCloseModal}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
@@ -468,7 +445,6 @@ function ManejoUniversidades() {
             </div>
             <form onSubmit={handleFormSubmit} className={styles.form}>
               <div className={styles.formGrid}>
-                {/* University Details */}
                 <div
                   className={styles.formGroup}
                   style={{ gridColumn: "1 / -1" }}
@@ -504,8 +480,6 @@ function ManejoUniversidades() {
                     onChange={handleInputChange}
                   />
                 </div>
-
-                {/* Administrator Credentials */}
                 <div
                   className={styles.formGroup}
                   style={{
@@ -546,8 +520,6 @@ function ManejoUniversidades() {
                     required={!currentUniversity.id_universidad}
                   />
                 </div>
-
-                {/* Additional University Info */}
                 <div
                   className={styles.formGroup}
                   style={{
@@ -597,7 +569,6 @@ function ManejoUniversidades() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && (
         <div className={styles.modalBackdrop} onClick={handleCloseDeleteModal}>
           <div
@@ -610,10 +581,24 @@ function ManejoUniversidades() {
               </div>
               <h3>Confirm Deletion</h3>
               <p>
-                Are you sure you want to delete{" "}
-                <strong>{currentUniversity.nombre}</strong>? This action cannot
+                You are about to delete{" "}
+                <strong>{currentUniversity.nombre}</strong>. This action cannot
                 be undone.
               </p>
+              {currentUniversity.email_admin && (
+                <div className={styles.deleteCheckboxContainer}>
+                  <input
+                    type="checkbox"
+                    id="deleteAdmin"
+                    checked={deleteAdminCheckbox}
+                    onChange={(e) => setDeleteAdminCheckbox(e.target.checked)}
+                  />
+                  <label htmlFor="deleteAdmin">
+                    Also delete the associated admin user account (
+                    <strong>{currentUniversity.email_admin}</strong>)?
+                  </label>
+                </div>
+              )}
             </div>
             <div className={styles.deleteActions}>
               <button
@@ -626,14 +611,13 @@ function ManejoUniversidades() {
                 onClick={handleConfirmDelete}
                 className={styles.confirmDeleteButton}
               >
-                Yes, Delete
+                Confirm Delete
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Toast Notification */}
       {toast.show && (
         <div className={styles.toast}>
           <div

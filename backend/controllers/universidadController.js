@@ -177,8 +177,6 @@ exports.updateUniversidad = async (req, res) => {
     await Universidad.update(id, universityUpdateData, connection);
 
     // 2. Update/Create Admin User
-    // We pass email_admin and password even if they are empty/null.
-    // The model handles the logic of whether to update or not.
     await User.createOrUpdateAdmin(id, email_admin, password, connection);
 
     await connection.commit();
@@ -197,12 +195,15 @@ exports.updateUniversidad = async (req, res) => {
   }
 };
 
-// @desc    Delete a university
+// @desc    Delete a university and optionally its admin user
 // @route   DELETE /api/universidades/:id
-// @access  Private/Admin (should be protected)
+// @access  Private/Admin
 exports.deleteUniversidad = async (req, res) => {
+  let connection;
   try {
     const { id } = req.params;
+    const { deleteAdminUser } = req.query; // e.g., ?deleteAdminUser=true
+
     const university = await Universidad.findById(id);
     if (!university) {
       const err = new Error("University not found");
@@ -211,7 +212,26 @@ exports.deleteUniversidad = async (req, res) => {
       throw err;
     }
 
-    const result = await Universidad.remove(id);
+    let result;
+    if (deleteAdminUser === "true") {
+      // Transactional delete: User AND University
+      connection = await pool.getConnection();
+      await connection.beginTransaction();
+
+      await User.deleteAdminByUniversityId(id, connection);
+      // We also need to execute the university delete using the same connection
+      [result] = await connection.execute(
+        "DELETE FROM universidad WHERE id_universidad = ?",
+        [id],
+      );
+
+      await connection.commit();
+      connection.release();
+    } else {
+      // Non-transactional: Just delete the university.
+      // DB will handle setting user's id_universidad to NULL.
+      result = await Universidad.remove(id);
+    }
 
     if (result.affectedRows === 0) {
       const err = new Error("Deletion failed, university not found.");
@@ -230,6 +250,6 @@ exports.deleteUniversidad = async (req, res) => {
 
     res.status(200).json({ message: "University deleted successfully" });
   } catch (error) {
-    await handleError(res, error, "Failed to delete university", null);
+    await handleError(res, error, "Failed to delete university", connection);
   }
 };
