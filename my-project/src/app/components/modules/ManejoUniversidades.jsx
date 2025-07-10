@@ -5,7 +5,7 @@ import styles from "./ManejoUniversidades.module.css";
 const API_URL = "http://localhost:5000/api/universidades";
 const SERVER_URL = "http://localhost:5000";
 
-// Initial state for the form, including new admin fields
+// Initial state for the form, including all fields from the database
 const initialUniversityState = {
   id_universidad: null,
   nombre: "",
@@ -15,8 +15,8 @@ const initialUniversityState = {
   email_contacto: "",
   ubicacion: "",
   logo_url: "",
-  email_admin: "", // Admin user's email
-  password: "", // Admin user's password
+  email_admin: "",
+  password: "",
 };
 
 function ManejoUniversidades() {
@@ -40,7 +40,7 @@ function ManejoUniversidades() {
   const [currentUniversity, setCurrentUniversity] = useState(
     initialUniversityState,
   );
-  const [deleteAdminCheckbox, setDeleteAdminCheckbox] = useState(false); // New state for the checkbox
+  const [deleteAdminCheckbox, setDeleteAdminCheckbox] = useState(false);
 
   // Logo file state for form handling
   const [logoFile, setLogoFile] = useState(null);
@@ -81,18 +81,16 @@ function ManejoUniversidades() {
       setTotalUniversities(data.total);
     } catch (err) {
       setError(err.message);
-      setUniversities([]); // Clear data on error
+      setUniversities([]);
     } finally {
       setLoading(false);
     }
   }, [page, debouncedSearchTerm]);
 
-  // Effect to run fetchUniversities when page or debounced search term changes
   useEffect(() => {
     fetchUniversities();
   }, [fetchUniversities]);
 
-  // Show toast notifications
   const showToast = (message, type = "success") => {
     setToast({ show: true, message, type });
     setTimeout(() => {
@@ -100,7 +98,6 @@ function ManejoUniversidades() {
     }, 3000);
   };
 
-  // Modal handlers
   const handleOpenModal = (university = null) => {
     if (university) {
       setCurrentUniversity({ ...university, password: "" });
@@ -115,21 +112,16 @@ function ManejoUniversidades() {
     setIsModalOpen(true);
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
+  const handleCloseModal = () => setIsModalOpen(false);
 
   const handleOpenDeleteModal = (university) => {
     setCurrentUniversity(university);
-    setDeleteAdminCheckbox(false); // Reset checkbox state every time modal opens
+    setDeleteAdminCheckbox(false);
     setIsDeleteModalOpen(true);
   };
 
-  const handleCloseDeleteModal = () => {
-    setIsDeleteModalOpen(false);
-  };
+  const handleCloseDeleteModal = () => setIsDeleteModalOpen(false);
 
-  // Form input handlers
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setCurrentUniversity((prev) => ({ ...prev, [name]: value }));
@@ -151,7 +143,6 @@ function ManejoUniversidades() {
     }
   };
 
-  // Form submission (Create/Update)
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
@@ -170,7 +161,6 @@ function ManejoUniversidades() {
     if (currentUniversity.password) {
       formData.append("password", currentUniversity.password);
     }
-
     if (logoFile) {
       formData.append("logo", logoFile);
     }
@@ -192,16 +182,12 @@ function ManejoUniversidades() {
       handleCloseModal();
       fetchUniversities();
     } catch (err) {
-      console.error("Form submission error:", err);
       showToast(`Error: ${err.message}`, "error");
     }
   };
 
-  // Delete handler
   const handleConfirmDelete = async () => {
     if (!currentUniversity || !currentUniversity.id_universidad) return;
-
-    // Append the query parameter based on the checkbox state
     const url = `${API_URL}/${currentUniversity.id_universidad}?deleteAdminUser=${deleteAdminCheckbox}`;
 
     try {
@@ -218,7 +204,6 @@ function ManejoUniversidades() {
         fetchUniversities();
       }
     } catch (err) {
-      console.error("Delete error:", err);
       showToast(`Error: ${err.message}`, "error");
     }
   };
@@ -228,7 +213,7 @@ function ManejoUniversidades() {
       return (
         <div className={styles.loadingState}>
           <div className={styles.spinner}></div>
-          <p>Loading universities...</p>
+          <p>Cargando Universidades...</p>
         </div>
       );
     }
@@ -236,13 +221,13 @@ function ManejoUniversidades() {
       return (
         <div className={styles.emptyState}>
           <i className="fas fa-exclamation-triangle"></i>
-          <h3>An Error Occurred</h3>
+          <h3>Un error ha ocurrido</h3>
           <p>{error}</p>
           <button
             onClick={() => fetchUniversities()}
             className={styles.emptyStateButton}
           >
-            Try Again
+            Intenta Otra Vez
           </button>
         </div>
       );
@@ -251,17 +236,13 @@ function ManejoUniversidades() {
       return (
         <div className={styles.emptyState}>
           <i className="fas fa-university"></i>
-          <h3>No Universities Found</h3>
-          <p>
-            {debouncedSearchTerm
-              ? "Try adjusting your search term."
-              : "Get started by adding a new university."}
-          </p>
+          <h3>No se encontraron universidades</h3>
+          <p>Comienza agregando una nueva universidad.</p>
           <button
             onClick={() => handleOpenModal()}
             className={styles.emptyStateButton}
           >
-            <i className="fas fa-plus"></i> Add University
+            <i className="fas fa-plus"></i> Agregar Universidades
           </button>
         </div>
       );
@@ -285,10 +266,6 @@ function ManejoUniversidades() {
                 </div>
                 <h3 className={styles.universityName}>{uni.nombre}</h3>
                 <p className={styles.universityInfo}>
-                  <i className="fas fa-map-marker-alt"></i>{" "}
-                  {uni.ubicacion || "N/A"}
-                </p>
-                <p className={styles.universityInfo}>
                   <i className="fas fa-id-card"></i> {uni.clave_universidad}
                 </p>
               </div>
@@ -297,13 +274,13 @@ function ManejoUniversidades() {
                   onClick={() => handleOpenModal(uni)}
                   className={styles.editButton}
                 >
-                  <i className="fas fa-edit"></i> Edit
+                  <i className="fas fa-edit"></i> Editar
                 </button>
                 <button
                   onClick={() => handleOpenDeleteModal(uni)}
                   className={styles.deleteButton}
                 >
-                  <i className="fas fa-trash"></i> Delete
+                  <i className="fas fa-trash"></i> Borrar
                 </button>
               </div>
             </div>
@@ -314,10 +291,10 @@ function ManejoUniversidades() {
             <thead>
               <tr>
                 <th>Logo</th>
-                <th>Name</th>
-                <th>University Key</th>
-                <th>Admin Email</th>
-                <th>Actions</th>
+                <th>Nombre</th>
+                <th>Clave de Universidad</th>
+                <th>Email del Administrador</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -366,9 +343,9 @@ function ManejoUniversidades() {
     <div className={styles.container}>
       <header className={styles.header}>
         <div className={styles.headerContent}>
-          <h1 className={styles.title}>University Management</h1>
+          <h1 className={styles.title}>Manejo de Universidades</h1>
           <div className={styles.userInfo}>
-            <span className={styles.userName}>Axel</span>
+            <span className={styles.userName}>SEDEQ</span>
             <button className={styles.userButton}>
               <i className="fas fa-user"></i>
             </button>
@@ -382,22 +359,20 @@ function ManejoUniversidades() {
             onClick={() => handleOpenModal()}
             className={styles.addButton}
           >
-            <i className="fas fa-plus"></i> Add University
+            <i className="fas fa-plus"></i> Agregar Universidades
           </button>
           <div className={styles.searchContainer}>
             <i className="fas fa-search"></i>
             <input
               type="text"
-              placeholder="Search by name or location..."
+              placeholder="Search by name..."
               className={styles.searchInput}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </div>
-
         {renderContent()}
-
         {universities.length > 0 && totalPages > 1 && (
           <div className={styles.pagination}>
             <div className={styles.paginationInfo}>
@@ -413,17 +388,17 @@ function ManejoUniversidades() {
                 disabled={page <= 1}
                 className={styles.pageButton}
               >
-                Previous
+                Antes
               </button>
               <span className={styles.pageButton} style={{ cursor: "default" }}>
-                Page {page} of {totalPages}
+                Pagina {page} de {totalPages}
               </span>
               <button
                 onClick={() => setPage(page + 1)}
                 disabled={page >= totalPages}
                 className={styles.pageButton}
               >
-                Next
+                Despues
               </button>
             </div>
           </div>
@@ -445,11 +420,12 @@ function ManejoUniversidades() {
             </div>
             <form onSubmit={handleFormSubmit} className={styles.form}>
               <div className={styles.formGrid}>
+                {/* Section 1: Core University Info */}
                 <div
                   className={styles.formGroup}
                   style={{ gridColumn: "1 / -1" }}
                 >
-                  <label htmlFor="nombre">University Name *</label>
+                  <label htmlFor="nombre">Nombre de la Universidad</label>
                   <input
                     type="text"
                     id="nombre"
@@ -460,7 +436,9 @@ function ManejoUniversidades() {
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label htmlFor="clave_universidad">University Key *</label>
+                  <label htmlFor="clave_universidad">
+                    Clave de la Universidad
+                  </label>
                   <input
                     type="text"
                     id="clave_universidad"
@@ -471,7 +449,20 @@ function ManejoUniversidades() {
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label htmlFor="email_contacto">Public Contact Email</label>
+                  <label htmlFor="telefono">Numero de contacto</label>
+                  <input
+                    type="tel"
+                    id="telefono"
+                    name="telefono"
+                    value={currentUniversity.telefono || ""}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div
+                  className={styles.formGroup}
+                  style={{ gridColumn: "1 / -1" }}
+                >
+                  <label htmlFor="email_contacto">Correo de contacto</label>
                   <input
                     type="email"
                     id="email_contacto"
@@ -480,54 +471,45 @@ function ManejoUniversidades() {
                     onChange={handleInputChange}
                   />
                 </div>
+
+                {/* Section 2: Location Info */}
                 <div
                   className={styles.formGroup}
-                  style={{
-                    gridColumn: "1 / -1",
-                    borderTop: "1px solid #e5e7eb",
-                    paddingTop: "1rem",
-                    marginTop: "0.5rem",
-                  }}
+                  style={{ gridColumn: "1 / -1" }}
                 >
-                  <label htmlFor="email_admin">
-                    Administrator Email (for login) *
-                  </label>
-                  <input
-                    type="email"
-                    id="email_admin"
-                    name="email_admin"
-                    value={currentUniversity.email_admin || ""}
+                  <label htmlFor="direccion">Direccion</label>
+                  <textarea
+                    id="direccion"
+                    name="direccion"
+                    rows="3"
+                    value={currentUniversity.direccion || ""}
                     onChange={handleInputChange}
-                    required
-                  />
+                  ></textarea>
                 </div>
                 <div
                   className={styles.formGroup}
                   style={{ gridColumn: "1 / -1" }}
                 >
-                  <label htmlFor="password">Password</label>
+                  <label htmlFor="ubicacion">Google Maps URL</label>
                   <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    value={currentUniversity.password || ""}
+                    type="url"
+                    id="ubicacion"
+                    name="ubicacion"
+                    placeholder="https://www.google.com/maps/embed?pb=..."
+                    value={currentUniversity.ubicacion || ""}
                     onChange={handleInputChange}
-                    placeholder={
-                      currentUniversity.id_universidad
-                        ? "Leave blank to keep current password"
-                        : ""
-                    }
-                    required={!currentUniversity.id_universidad}
                   />
+                  <span className={styles.fieldHelp}>
+                    {
+                      "Find place in Google Maps > Share > Embed a map > Copy SRC url."
+                    }
+                  </span>
                 </div>
+
+                {/* Section 3: Logo */}
                 <div
                   className={styles.formGroup}
-                  style={{
-                    gridColumn: "1 / -1",
-                    borderTop: "1px solid #e5e7eb",
-                    paddingTop: "1rem",
-                    marginTop: "0.5rem",
-                  }}
+                  style={{ gridColumn: "1 / -1" }}
                 >
                   <label htmlFor="logo">Logo</label>
                   <input
@@ -546,10 +528,52 @@ function ManejoUniversidades() {
                         onClick={removeLogo}
                         className={styles.removeImageButton}
                       >
-                        <i className="fas fa-times"></i> Remove Image
+                        <i className="fas fa-times"></i> Borrar Imagen
                       </button>
                     </div>
                   )}
+                </div>
+
+                {/* Section 4: Administrator Account */}
+                <div
+                  className={styles.formGroup}
+                  style={{
+                    gridColumn: "1 / -1",
+                    borderTop: "1px solid #e5e7eb",
+                    paddingTop: "1rem",
+                    marginTop: "0.5rem",
+                  }}
+                >
+                  <label htmlFor="email_admin">
+                    Email del Administrator (para login)
+                  </label>
+                  <input
+                    type="email"
+                    id="email_admin"
+                    name="email_admin"
+                    value={currentUniversity.email_admin || ""}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div
+                  className={styles.formGroup}
+                  style={{ gridColumn: "1 / -1" }}
+                >
+                  <label htmlFor="password">Contraseña</label>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    value={currentUniversity.password || ""}
+                    onChange={handleInputChange}
+                    placeholder={
+                      currentUniversity.id_universidad
+                        ? "Leave blank to keep current password"
+                        : ""
+                    }
+                    required={!currentUniversity.id_universidad}
+                  />
                 </div>
               </div>
               <div className={styles.formActions}>
@@ -561,7 +585,7 @@ function ManejoUniversidades() {
                   Cancel
                 </button>
                 <button type="submit" className={styles.saveButton}>
-                  <i className="fas fa-save"></i> Save Changes
+                  <i className="fas fa-save"></i> Guardar Cambios
                 </button>
               </div>
             </form>
@@ -579,11 +603,11 @@ function ManejoUniversidades() {
               <div className={styles.deleteIcon}>
                 <i className="fas fa-trash-alt"></i>
               </div>
-              <h3>Confirm Deletion</h3>
+              <h3>Confirmar Eliminación</h3>
               <p>
-                You are about to delete{" "}
-                <strong>{currentUniversity.nombre}</strong>. This action cannot
-                be undone.
+                Estas seguro de eliminar{" "}
+                <strong>{currentUniversity.nombre}</strong>. Esta acción no se
+                puede deshacer.
               </p>
               {currentUniversity.email_admin && (
                 <div className={styles.deleteCheckboxContainer}>
@@ -594,7 +618,7 @@ function ManejoUniversidades() {
                     onChange={(e) => setDeleteAdminCheckbox(e.target.checked)}
                   />
                   <label htmlFor="deleteAdmin">
-                    Also delete the associated admin user account (
+                    Desea eliminar el usuario administrador asociado (
                     <strong>{currentUniversity.email_admin}</strong>)?
                   </label>
                 </div>
@@ -605,13 +629,13 @@ function ManejoUniversidades() {
                 onClick={handleCloseDeleteModal}
                 className={styles.cancelButton}
               >
-                Cancel
+                Cancelar
               </button>
               <button
                 onClick={handleConfirmDelete}
                 className={styles.confirmDeleteButton}
               >
-                Confirm Delete
+                Confirmar Eliminación
               </button>
             </div>
           </div>
@@ -621,16 +645,10 @@ function ManejoUniversidades() {
       {toast.show && (
         <div className={styles.toast}>
           <div
-            className={`${styles.toastContent} ${
-              styles[toast.type] || styles.success
-            }`}
+            className={`${styles.toastContent} ${styles[toast.type] || styles.success}`}
           >
             <i
-              className={`fas ${
-                toast.type === "success"
-                  ? "fa-check-circle"
-                  : "fa-exclamation-circle"
-              }`}
+              className={`fas ${toast.type === "success" ? "fa-check-circle" : "fa-exclamation-circle"}`}
             ></i>
             <p>{toast.message}</p>
           </div>
