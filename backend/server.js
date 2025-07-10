@@ -1,54 +1,28 @@
 const express = require("express");
-const mysql = require("mysql2/promise");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
+const path = require("path");
 require("dotenv").config(); // Para cargar variables de entorno
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
+// Servir archivos estáticos (para los logos)
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 // Rutas
 const userRoutes = require("./routes/userRoutes");
+const universidadRoutes = require("./routes/universidadRoutes");
 app.use("/api", userRoutes);
+app.use("/api/universidades", universidadRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-// Configuración LOCAL
-const dbConfig = {
-  host: "localhost",
-  port: 3306,
-  user: "root",
-  password: "$Yy@pJB5Poqs", // Reemplaza con tu contraseña real o usa .env
-  database: "microCredenciales",
-  connectionLimit: 10, // Número máximo de conexiones en el pool
-};
-{
-  /*
-// COnfiguracion Servidor
-  const dbConfig = {
-  host: process.env.DB_HOST || "localhost",
-  port: process.env.DB_PORT || 3306,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  connectionLimit: 10,
-};
-*/
-}
-// Crear pool de conexiones
-const pool = mysql.createPool(dbConfig);
-pool
-  .getConnection()
-  .then((connection) => {
-    console.log("✅ Database connected successfully");
-    connection.release();
-  })
-  .catch((error) => {
-    console.error("❌ Database connection failed:", error);
-  });
+// El pool de conexiones ahora se importa desde su propio módulo en config/db.js
+const pool = require("./config/db");
 
 // Clave JWT desde variable de entorno
 const JWT_SECRET =

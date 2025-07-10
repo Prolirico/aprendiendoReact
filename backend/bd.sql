@@ -58,7 +58,9 @@ CREATE TABLE `usuario` (
   PRIMARY KEY (`id_usuario`),
   UNIQUE KEY `uk_username` (`username`),
   UNIQUE KEY `uk_email` (`email`),
-  INDEX `idx_tipo_estatus` (`tipo_usuario`, `estatus`)
+  INDEX `idx_tipo_estatus` (`tipo_usuario`, `estatus`),
+  COLUMN 'id_universidad' INT UNSIGNED NULL DEFAULT NULL AFTER 'estatus',
+  CONSTRAINT `fk_usuario_universidad` FOREIGN KEY (`id_universidad`) REFERENCES `universidad` (`id_universidad`) ON DELETE SET NULL ON UPDATE CASCADE,
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------

@@ -1,795 +1,595 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import styles from "./ManejoUniversidades.module.css";
 
+// Define the base URL of your backend API
+const API_URL = "http://localhost:5000/api/universidades";
+const SERVER_URL = "http://localhost:5000";
+
+// Initial state for the form, including new admin fields
+const initialUniversityState = {
+  id_universidad: null,
+  nombre: "",
+  clave_universidad: "",
+  direccion: "",
+  telefono: "",
+  email_contacto: "",
+  ubicacion: "",
+  logo_url: "",
+  email_admin: "", // Admin user's email
+  password: "", // Admin user's password
+};
+
 function ManejoUniversidades() {
-  // State variables
+  // Data and loading state
   const [universities, setUniversities] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalUniversities, setTotalUniversities] = useState(0);
+
+  // Search and debounce state
   const [searchTerm, setSearchTerm] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [editingUniversityId, setEditingUniversityId] = useState(null);
-  const [universityToDelete, setUniversityToDelete] = useState(null);
-  const [fileBase64, setFileBase64] = useState(null);
-  const [toast, setToast] = useState({
-    show: false,
-    type: "",
-    title: "",
-    message: "",
-  });
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
 
-  // Form state
-  const [formData, setFormData] = useState({
-    nombre: "",
-    claveUniversidad: "",
-    ubicacion: "",
-    direccion: "",
-    telefono: "",
-    emailContacto: "",
-    logo: null,
-    email: "",
-    password: "",
-  });
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [currentUniversity, setCurrentUniversity] = useState(
+    initialUniversityState,
+  );
 
-  const itemsPerPage = 5;
+  // Logo file state for form handling
+  const [logoFile, setLogoFile] = useState(null);
+  const [logoPreview, setLogoPreview] = useState("");
 
-  // Initialize component
+  // Toast notification state
+  const [toast, setToast] = useState({ show: false, message: "", type: "" });
+
+  // Debounce search term
   useEffect(() => {
-    loadUniversities();
-  }, []);
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setPage(1); // Reset to first page on new search
+    }, 500);
 
-  // Load universities from localStorage
-  const loadUniversities = () => {
-    setIsLoading(true);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchTerm]);
 
-    // Simulate API call
+  // Fetch universities from the backend API
+  const fetchUniversities = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const url = `${API_URL}?page=${page}&limit=10&searchTerm=${debouncedSearchTerm}`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(
+          errData.error ||
+            `Failed to fetch data: ${response.status} ${response.statusText}`,
+        );
+      }
+      const data = await response.json();
+      setUniversities(data.universities);
+      setTotalPages(data.totalPages);
+      setTotalUniversities(data.total);
+    } catch (err) {
+      setError(err.message);
+      setUniversities([]); // Clear data on error
+    } finally {
+      setLoading(false);
+    }
+  }, [page, debouncedSearchTerm]);
+
+  // Effect to run fetchUniversities when page or debounced search term changes
+  useEffect(() => {
+    fetchUniversities();
+  }, [fetchUniversities]);
+
+  // Show toast notifications
+  const showToast = (message, type = "success") => {
+    setToast({ show: true, message, type });
     setTimeout(() => {
-      const storedUniversities = localStorage.getItem("universities");
-      const loadedUniversities = storedUniversities
-        ? JSON.parse(storedUniversities)
-        : [];
-      setUniversities(loadedUniversities);
-      setIsLoading(false);
-    }, 800);
+      setToast({ show: false, message: "", type: "" });
+    }, 3000);
   };
 
-  // Get filtered universities based on search
-  const getFilteredUniversities = () => {
-    if (!searchTerm.trim()) return universities;
-
-    const search = searchTerm.toLowerCase();
-    return universities.filter(
-      (uni) =>
-        uni.nombre.toLowerCase().includes(search) ||
-        uni.claveUniversidad.toLowerCase().includes(search) ||
-        uni.ubicacion.toLowerCase().includes(search),
-    );
+  // Modal handlers
+  const handleOpenModal = (university = null) => {
+    if (university) {
+      // When editing, populate form and clear password for security
+      setCurrentUniversity({ ...university, password: "" });
+      setLogoPreview(
+        university.logo_url ? `${SERVER_URL}${university.logo_url}` : "",
+      );
+    } else {
+      // When adding, use the initial empty state
+      setCurrentUniversity(initialUniversityState);
+      setLogoPreview("");
+    }
+    setLogoFile(null);
+    setIsModalOpen(true);
   };
 
-  // Get paginated universities
-  const getPaginatedUniversities = () => {
-    const filteredUniversities = getFilteredUniversities();
-    const start = (currentPage - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-    return filteredUniversities.slice(start, end);
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
   };
 
-  // Calculate pagination info
-  const getPaginationInfo = () => {
-    const filteredUniversities = getFilteredUniversities();
-    const totalItems = filteredUniversities.length;
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-    const start = (currentPage - 1) * itemsPerPage + 1;
-    const end = Math.min(start + itemsPerPage - 1, totalItems);
-
-    return { totalItems, totalPages, start, end };
+  const handleOpenDeleteModal = (university) => {
+    setCurrentUniversity(university);
+    setIsDeleteModalOpen(true);
   };
 
-  // Handle form input changes
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+  };
+
+  // Form input handlers
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setCurrentUniversity((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle file selection
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (!file) {
-      setFileBase64(null);
-      return;
+    if (file) {
+      setLogoFile(file);
+      setLogoPreview(URL.createObjectURL(file));
     }
-
-    // Validate file type
-    if (!file.type.match("image.*")) {
-      showToast(
-        "error",
-        "Error de archivo",
-        "Por favor selecciona una imagen válida.",
-      );
-      e.target.value = "";
-      return;
-    }
-
-    // Validate file size (25MB max)
-    if (file.size > 25 * 1024 * 1024) {
-      showToast(
-        "error",
-        "Error de archivo",
-        "El archivo excede el tamaño máximo de 25MB.",
-      );
-      e.target.value = "";
-      return;
-    }
-
-    // Convert to base64
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setFileBase64(event.target.result);
-    };
-    reader.readAsDataURL(file);
   };
 
-  // Handle form submission
-  const handleSubmit = (e) => {
+  const removeLogo = () => {
+    setLogoFile(null);
+    setLogoPreview("");
+    if (currentUniversity.id_universidad) {
+      setCurrentUniversity((prev) => ({ ...prev, logo_url: "" }));
+    }
+  };
+
+  // Form submission (Create/Update)
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate form
-    if (!validateForm()) return;
+    const formData = new FormData();
+    const isEditing = !!currentUniversity.id_universidad;
 
-    if (editingUniversityId) {
-      updateUniversity();
-    } else {
-      addUniversity();
-    }
-  };
-
-  // Validate form data
-  const validateForm = () => {
-    // Check required fields
-    const requiredFields = [
-      "nombre",
-      "claveUniversidad",
-      "ubicacion",
-      "direccion",
-      "telefono",
-      "emailContacto",
-      "email",
-    ];
-    for (const field of requiredFields) {
-      if (!formData[field].trim()) {
-        showToast(
-          "error",
-          "Error de validación",
-          `El campo ${getFieldName(field)} es obligatorio.`,
-        );
-        return false;
+    // Append all fields from the state to formData
+    Object.keys(currentUniversity).forEach((key) => {
+      // Don't append fields that are not part of the backend model or handled separately
+      if (
+        key !== "id_universidad" &&
+        key !== "logo_url" &&
+        key !== "password"
+      ) {
+        // Ensure null values are sent as empty strings if needed by backend, or handle appropriately
+        formData.append(key, currentUniversity[key] || "");
       }
+    });
+
+    // Only append password if it's been entered
+    if (currentUniversity.password) {
+      formData.append("password", currentUniversity.password);
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.emailContacto)) {
-      showToast(
-        "error",
-        "Error de validación",
-        "El formato del correo electrónico es incorrecto.",
-      );
-      return false;
+    if (logoFile) {
+      formData.append("logo", logoFile);
     }
 
-    // Check if clave universidad is unique
-    const existingWithSameKey = universities.find(
-      (uni) =>
-        uni.claveUniversidad === formData.claveUniversidad &&
-        uni.id !== editingUniversityId,
-    );
-    if (existingWithSameKey) {
-      showToast(
-        "error",
-        "Error de validación",
-        "La clave de universidad ya existe en el sistema.",
-      );
-      return false;
-    }
+    const url = isEditing
+      ? `${API_URL}/${currentUniversity.id_universidad}`
+      : API_URL;
+    const method = isEditing ? "PUT" : "POST";
 
-    // Check if email is unique
-    const existingWithSameEmail = universities.find(
-      (uni) =>
-        uni.emailContacto === formData.emailContacto &&
-        uni.id !== editingUniversityId,
-    );
-    if (existingWithSameEmail) {
-      showToast(
-        "error",
-        "Error de validación",
-        "El correo electrónico ya existe en el sistema.",
-      );
-      return false;
-    }
+    try {
+      const response = await fetch(url, {
+        method: method,
+        body: formData,
+      });
 
-    // Validate admin email format
-    if (!emailRegex.test(formData.email)) {
-      showToast(
-        "error",
-        "Error de validación",
-        "El formato del Correo Electrónico del Administrador es incorrecto.",
-      );
-      return false;
-    }
+      const result = await response.json();
 
-    // Password is required for new universities
-    if (!editingUniversityId && !formData.password.trim()) {
-      showToast(
-        "error",
-        "Error de validación",
-        "El campo Contraseña es obligatorio para nuevas universidades.",
-      );
-      return false;
-    }
-
-    // Check if admin email is unique
-    const existingWithSameAdminEmail = universities.find(
-      (uni) => uni.email === formData.email && uni.id !== editingUniversityId,
-    );
-    if (existingWithSameAdminEmail) {
-      showToast(
-        "error",
-        "Error de validación",
-        "El correo del administrador ya está en uso.",
-      );
-      return false;
-    }
-
-    return true;
-  };
-
-  // Get field display name
-  const getFieldName = (key) => {
-    const fieldNames = {
-      nombre: "Nombre",
-      claveUniversidad: "Clave Universidad",
-      ubicacion: "Ubicación",
-      direccion: "Dirección",
-      telefono: "Teléfono",
-      emailContacto: "Email Contacto",
-      email: "Correo Electrónico del Administrador",
-    };
-    return fieldNames[key] || key;
-  };
-
-  // Add new university
-  const addUniversity = () => {
-    const now = new Date().toISOString();
-    const newUniversity = {
-      id: generateId(),
-      ...formData,
-      logo: fileBase64,
-      fechaRegistro: now,
-      fechaActualizacion: now,
-    };
-
-    const updatedUniversities = [...universities, newUniversity];
-    setUniversities(updatedUniversities);
-    localStorage.setItem("universities", JSON.stringify(updatedUniversities));
-
-    closeModal();
-    showToast(
-      "success",
-      "Universidad agregada",
-      "La universidad ha sido agregada correctamente.",
-    );
-  };
-
-  // Update existing university
-  const updateUniversity = () => {
-    const updatedUniversities = universities.map((uni) => {
-      if (uni.id === editingUniversityId) {
-        // Separate password to handle it conditionally
-        const { password, ...restOfForm } = formData;
-        const updatedUniversity = {
-          ...uni,
-          ...restOfForm,
-          logo: fileBase64,
-          fechaActualizacion: new Date().toISOString(),
-        };
-
-        // Only update password if a new one is provided
-        if (password) {
-          updatedUniversity.password = password;
-        }
-
-        return updatedUniversity;
+      if (!response.ok) {
+        throw new Error(result.error || "An unknown error occurred.");
       }
-      return uni;
-    });
 
-    setUniversities(updatedUniversities);
-    localStorage.setItem("universities", JSON.stringify(updatedUniversities));
-
-    closeModal();
-    showToast(
-      "success",
-      "Universidad actualizada",
-      "La información ha sido actualizada correctamente.",
-    );
+      showToast(
+        `University ${isEditing ? "updated" : "created"} successfully!`,
+        "success",
+      );
+      handleCloseModal();
+      fetchUniversities(); // Refresh the list
+    } catch (err) {
+      console.error("Form submission error:", err);
+      showToast(`Error: ${err.message}`, "error");
+    }
   };
 
-  // Delete university
-  const deleteUniversity = (id) => {
-    const updatedUniversities = universities.filter((uni) => uni.id !== id);
-    setUniversities(updatedUniversities);
-    localStorage.setItem("universities", JSON.stringify(updatedUniversities));
+  // Delete handler
+  const handleConfirmDelete = async () => {
+    if (!currentUniversity || !currentUniversity.id_universidad) return;
 
-    closeDeleteModal();
-    showToast(
-      "success",
-      "Universidad eliminada",
-      "La universidad ha sido eliminada correctamente.",
-    );
+    try {
+      const response = await fetch(
+        `${API_URL}/${currentUniversity.id_universidad}`,
+        {
+          method: "DELETE",
+        },
+      );
+
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result.error || "Failed to delete.");
+      }
+
+      showToast("University deleted successfully!", "success");
+      handleCloseDeleteModal();
+      if (universities.length === 1 && page > 1) {
+        setPage(page - 1);
+      } else {
+        fetchUniversities();
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
+      showToast(`Error: ${err.message}`, "error");
+    }
   };
 
-  // Open add modal
-  const openAddModal = () => {
-    setEditingUniversityId(null);
-    setFormData({
-      nombre: "",
-      claveUniversidad: "",
-      ubicacion: "",
-      direccion: "",
-      telefono: "",
-      emailContacto: "",
-      logo: null,
-      email: "",
-      password: "",
-    });
-    setFileBase64(null);
-    setShowModal(true);
-  };
-
-  // Open edit modal
-  const openEditModal = (university) => {
-    setEditingUniversityId(university.id);
-    setFormData({
-      nombre: university.nombre,
-      claveUniversidad: university.claveUniversidad,
-      ubicacion: university.ubicacion,
-      direccion: university.direccion,
-      telefono: university.telefono,
-      emailContacto: university.emailContacto,
-      logo: university.logo,
-      email: university.email || "",
-      password: "", // Always clear password on edit for security
-    });
-    setFileBase64(university.logo);
-    setShowModal(true);
-  };
-
-  // Close modal
-  const closeModal = () => {
-    setShowModal(false);
-    setEditingUniversityId(null);
-    setFileBase64(null);
-  };
-
-  // Open delete modal
-  const openDeleteModal = (university) => {
-    setUniversityToDelete(university);
-    setShowDeleteModal(true);
-  };
-
-  // Close delete modal
-  const closeDeleteModal = () => {
-    setShowDeleteModal(false);
-    setUniversityToDelete(null);
-  };
-
-  // Show toast notification
-  const showToast = (type, title, message) => {
-    setToast({ show: true, type, title, message });
-    setTimeout(() => {
-      setToast({ show: false, type: "", title: "", message: "" });
-    }, 5000);
-  };
-
-  // Generate unique ID
-  const generateId = () => {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
-  };
-
-  // Handle search
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1);
-  };
-
-  // Handle page change
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
-  // Get page numbers for pagination
-  const getPageNumbers = () => {
-    const { totalPages } = getPaginationInfo();
-    const pages = [];
-
-    let startPage = Math.max(1, currentPage - 2);
-    let endPage = Math.min(totalPages, startPage + 4);
-
-    if (endPage - startPage < 4 && startPage > 1) {
-      startPage = Math.max(1, endPage - 4);
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <div className={styles.loadingState}>
+          <div className={styles.spinner}></div>
+          <p>Loading universities...</p>
+        </div>
+      );
     }
 
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
+    if (error) {
+      return (
+        <div className={styles.emptyState}>
+          <i className="fas fa-exclamation-triangle"></i>
+          <h3>An Error Occurred</h3>
+          <p>{error}</p>
+          <button
+            onClick={() => fetchUniversities()}
+            className={styles.emptyStateButton}
+          >
+            Try Again
+          </button>
+        </div>
+      );
     }
 
-    return pages;
-  };
+    if (universities.length === 0) {
+      return (
+        <div className={styles.emptyState}>
+          <i className="fas fa-university"></i>
+          <h3>No Universities Found</h3>
+          <p>
+            {debouncedSearchTerm
+              ? "Try adjusting your search term."
+              : "Get started by adding a new university."}
+          </p>
+          <button
+            onClick={() => handleOpenModal()}
+            className={styles.emptyStateButton}
+          >
+            <i className="fas fa-plus"></i> Add University
+          </button>
+        </div>
+      );
+    }
 
-  const { totalItems, totalPages, start, end } = getPaginationInfo();
-  const paginatedUniversities = getPaginatedUniversities();
+    return (
+      <>
+        {/* Mobile View */}
+        <div className={styles.mobileView}>
+          {universities.map((uni) => (
+            <div key={uni.id_universidad} className={styles.universityCard}>
+              <div className={styles.cardContent}>
+                <div className={styles.logoContainer}>
+                  <img
+                    src={
+                      uni.logo_url
+                        ? `${SERVER_URL}${uni.logo_url}`
+                        : "/placeholder-logo.png"
+                    }
+                    alt={`${uni.nombre} Logo`}
+                    className={styles.logo}
+                  />
+                </div>
+                <h3 className={styles.universityName}>{uni.nombre}</h3>
+                <p className={styles.universityInfo}>
+                  <i className="fas fa-map-marker-alt"></i>{" "}
+                  {uni.ubicacion || "N/A"}
+                </p>
+                <p className={styles.universityInfo}>
+                  <i className="fas fa-id-card"></i> {uni.clave_universidad}
+                </p>
+              </div>
+              <div className={styles.cardActions}>
+                <button
+                  onClick={() => handleOpenModal(uni)}
+                  className={styles.editButton}
+                >
+                  <i className="fas fa-edit"></i> Edit
+                </button>
+                <button
+                  onClick={() => handleOpenDeleteModal(uni)}
+                  className={styles.deleteButton}
+                >
+                  <i className="fas fa-trash"></i> Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop View */}
+        <div className={styles.desktopView}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Logo</th>
+                <th>Name</th>
+                <th>University Key</th>
+                <th>Admin Email</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {universities.map((uni) => (
+                <tr key={uni.id_universidad}>
+                  <td>
+                    <img
+                      src={
+                        uni.logo_url
+                          ? `${SERVER_URL}${uni.logo_url}`
+                          : "/placeholder-logo.png"
+                      }
+                      alt={`${uni.nombre} Logo`}
+                      className={styles.tableLogo}
+                    />
+                  </td>
+                  <td>{uni.nombre}</td>
+                  <td>{uni.clave_universidad}</td>
+                  <td>{uni.email_admin || "N/A"}</td>
+                  <td>
+                    <div className={styles.tableActions}>
+                      <button
+                        onClick={() => handleOpenModal(uni)}
+                        className={styles.editButton}
+                      >
+                        <i className="fas fa-edit"></i>
+                      </button>
+                      <button
+                        onClick={() => handleOpenDeleteModal(uni)}
+                        className={styles.deleteButton}
+                      >
+                        <i className="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </>
+    );
+  };
 
   return (
     <div className={styles.container}>
-      {/* Header */}
       <header className={styles.header}>
         <div className={styles.headerContent}>
-          <h1 className={styles.title}>Gestión de Universidades</h1>
+          <h1 className={styles.title}>University Management</h1>
           <div className={styles.userInfo}>
-            <span className={styles.userName}>SEDEQ Admin</span>
+            <span className={styles.userName}>Axel</span>
             <button className={styles.userButton}>
-              <i className="fas fa-user-circle"></i>
+              <i className="fas fa-user"></i>
             </button>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
       <main className={styles.main}>
-        {/* Toolbar */}
         <div className={styles.toolbar}>
-          <button className={styles.addButton} onClick={openAddModal}>
-            <i className="fas fa-plus"></i> Agregar Universidad
+          <button
+            onClick={() => handleOpenModal()}
+            className={styles.addButton}
+          >
+            <i className="fas fa-plus"></i> Add University
           </button>
-
           <div className={styles.searchContainer}>
-            <input
-              type="search"
-              placeholder="Buscar universidad..."
-              value={searchTerm}
-              onChange={handleSearch}
-              className={styles.searchInput}
-            />
             <i className="fas fa-search"></i>
+            <input
+              type="text"
+              placeholder="Search by name or location..."
+              className={styles.searchInput}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
         </div>
 
-        {/* Content */}
-        {isLoading ? (
-          <div className={styles.loadingState}>
-            <div className={styles.spinner}></div>
-            <p>Cargando universidades...</p>
+        {renderContent()}
+
+        {universities.length > 0 && totalPages > 1 && (
+          <div className={styles.pagination}>
+            <div className={styles.paginationInfo}>
+              Showing{" "}
+              <strong>
+                {(page - 1) * 10 + 1}-{Math.min(page * 10, totalUniversities)}
+              </strong>{" "}
+              of <strong>{totalUniversities}</strong>
+            </div>
+            <div className={styles.paginationControls}>
+              <button
+                onClick={() => setPage(page - 1)}
+                disabled={page <= 1}
+                className={styles.pageButton}
+              >
+                Previous
+              </button>
+              <span className={styles.pageButton} style={{ cursor: "default" }}>
+                Page {page} of {totalPages}
+              </span>
+              <button
+                onClick={() => setPage(page + 1)}
+                disabled={page >= totalPages}
+                className={styles.pageButton}
+              >
+                Next
+              </button>
+            </div>
           </div>
-        ) : paginatedUniversities.length === 0 ? (
-          <div className={styles.emptyState}>
-            <i className="fas fa-university"></i>
-            <h3>No hay universidades registradas</h3>
-            <p>Comienza agregando una nueva universidad al sistema</p>
-            <button className={styles.emptyStateButton} onClick={openAddModal}>
-              <i className="fas fa-plus"></i> Agregar Universidad
-            </button>
-          </div>
-        ) : (
-          <>
-            {/* Mobile View */}
-            <div className={styles.mobileView}>
-              {paginatedUniversities.map((university) => (
-                <div key={university.id} className={styles.universityCard}>
-                  <div className={styles.cardContent}>
-                    <div className={styles.logoContainer}>
-                      <img
-                        src={
-                          university.logo ||
-                          "https://cdn.pixabay.com/photo/2018/05/08/21/29/university-3384014_1280.png"
-                        }
-                        alt={university.nombre}
-                        className={styles.logo}
-                      />
-                    </div>
-                    <h3 className={styles.universityName}>
-                      {university.nombre}
-                    </h3>
-                    <div className={styles.universityInfo}>
-                      <i className="fas fa-key"></i>{" "}
-                      {university.claveUniversidad}
-                    </div>
-                    <div className={styles.universityInfo}>
-                      <i className="fas fa-map-marker-alt"></i>{" "}
-                      {university.ubicacion}
-                    </div>
-                    <div className={styles.cardActions}>
-                      <button
-                        className={styles.editButton}
-                        onClick={() => openEditModal(university)}
-                      >
-                        <i className="fas fa-edit"></i> Editar
-                      </button>
-                      <button
-                        className={styles.deleteButton}
-                        onClick={() => openDeleteModal(university)}
-                      >
-                        <i className="fas fa-trash-alt"></i> Eliminar
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Desktop View */}
-            <div className={styles.desktopView}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>Logo</th>
-                    <th>Nombre</th>
-                    <th>Clave</th>
-                    <th>Ubicación</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginatedUniversities.map((university) => (
-                    <tr key={university.id}>
-                      <td>
-                        <img
-                          src={
-                            university.logo ||
-                            "https://cdn.pixabay.com/photo/2018/05/08/21/29/university-3384014_1280.png"
-                          }
-                          alt={university.nombre}
-                          className={styles.tableLogo}
-                        />
-                      </td>
-                      <td className={styles.universityName}>
-                        {university.nombre}
-                      </td>
-                      <td>{university.claveUniversidad}</td>
-                      <td>{university.ubicacion}</td>
-                      <td className={styles.tableActions}>
-                        <button
-                          className={styles.editButton}
-                          onClick={() => openEditModal(university)}
-                        >
-                          <i className="fas fa-edit"></i>
-                        </button>
-                        <button
-                          className={styles.deleteButton}
-                          onClick={() => openDeleteModal(university)}
-                        >
-                          <i className="fas fa-trash-alt"></i>
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Pagination */}
-            <div className={styles.pagination}>
-              <div className={styles.paginationInfo}>
-                Mostrando {start}-{end} de {totalItems} universidades
-              </div>
-              <div className={styles.paginationControls}>
-                <button
-                  className={styles.pageButton}
-                  disabled={currentPage <= 1}
-                  onClick={() => handlePageChange(currentPage - 1)}
-                >
-                  <i className="fas fa-chevron-left"></i>
-                </button>
-
-                {getPageNumbers().map((page) => (
-                  <button
-                    key={page}
-                    className={`${styles.pageButton} ${currentPage === page ? styles.activePageButton : ""}`}
-                    onClick={() => handlePageChange(page)}
-                  >
-                    {page}
-                  </button>
-                ))}
-
-                <button
-                  className={styles.pageButton}
-                  disabled={currentPage >= totalPages}
-                  onClick={() => handlePageChange(currentPage + 1)}
-                >
-                  <i className="fas fa-chevron-right"></i>
-                </button>
-              </div>
-            </div>
-          </>
         )}
       </main>
 
-      {/* Modal */}
-      {showModal && (
-        <div className={styles.modalBackdrop} onClick={closeModal}>
+      {/* Add/Edit Modal */}
+      {isModalOpen && (
+        <div className={styles.modalBackdrop} onClick={handleCloseModal}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <h3>
-                {editingUniversityId
-                  ? "Editar Universidad"
-                  : "Agregar Universidad"}
+                {currentUniversity.id_universidad
+                  ? "Edit University"
+                  : "Add New University"}
               </h3>
-              <button className={styles.closeButton} onClick={closeModal}>
+              <button onClick={handleCloseModal} className={styles.closeButton}>
                 <i className="fas fa-times"></i>
               </button>
             </div>
-
-            <form onSubmit={handleSubmit} className={styles.form}>
+            <form onSubmit={handleFormSubmit} className={styles.form}>
               <div className={styles.formGrid}>
-                <div className={styles.formGroup}>
-                  <label htmlFor="nombre">Nombre *</label>
+                {/* University Details */}
+                <div
+                  className={styles.formGroup}
+                  style={{ gridColumn: "1 / -1" }}
+                >
+                  <label htmlFor="nombre">University Name *</label>
                   <input
                     type="text"
                     id="nombre"
                     name="nombre"
-                    value={formData.nombre}
+                    value={currentUniversity.nombre}
                     onChange={handleInputChange}
-                    maxLength="150"
                     required
                   />
-                  <span className={styles.fieldHelp}>
-                    Máximo 150 caracteres
-                  </span>
                 </div>
-
                 <div className={styles.formGroup}>
-                  <label htmlFor="claveUniversidad">Clave Universidad *</label>
+                  <label htmlFor="clave_universidad">University Key *</label>
                   <input
                     type="text"
-                    id="claveUniversidad"
-                    name="claveUniversidad"
-                    value={formData.claveUniversidad}
+                    id="clave_universidad"
+                    name="clave_universidad"
+                    value={currentUniversity.clave_universidad}
                     onChange={handleInputChange}
-                    maxLength="20"
-                    required
-                  />
-                  <span className={styles.fieldHelp}>Máximo 20 caracteres</span>
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label htmlFor="ubicacion">Ubicación *</label>
-                  <input
-                    type="text"
-                    id="ubicacion"
-                    name="ubicacion"
-                    value={formData.ubicacion}
-                    onChange={handleInputChange}
-                    maxLength="100"
-                    required
-                  />
-                  <span className={styles.fieldHelp}>
-                    Máximo 100 caracteres
-                  </span>
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label htmlFor="direccion">Dirección *</label>
-                  <textarea
-                    id="direccion"
-                    name="direccion"
-                    value={formData.direccion}
-                    onChange={handleInputChange}
-                    rows="3"
                     required
                   />
                 </div>
-
                 <div className={styles.formGroup}>
-                  <label htmlFor="telefono">Teléfono *</label>
-                  <input
-                    type="text"
-                    id="telefono"
-                    name="telefono"
-                    value={formData.telefono}
-                    onChange={handleInputChange}
-                    maxLength="20"
-                    required
-                  />
-                  <span className={styles.fieldHelp}>Máximo 20 caracteres</span>
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label htmlFor="emailContacto">Email Contacto *</label>
+                  <label htmlFor="email_contacto">Public Contact Email</label>
                   <input
                     type="email"
-                    id="emailContacto"
-                    name="emailContacto"
-                    value={formData.emailContacto}
+                    id="email_contacto"
+                    name="email_contacto"
+                    value={currentUniversity.email_contacto || ""}
                     onChange={handleInputChange}
-                    maxLength="100"
-                    required
                   />
-                  <span className={styles.fieldHelp}>
-                    Máximo 100 caracteres
-                  </span>
                 </div>
 
-                <div className={styles.formGroup}>
-                  <label htmlFor="email">
-                    Correo Electrónico Administrador *
+                {/* Administrator Credentials */}
+                <div
+                  className={styles.formGroup}
+                  style={{
+                    gridColumn: "1 / -1",
+                    borderTop: "1px solid #e5e7eb",
+                    paddingTop: "1rem",
+                    marginTop: "0.5rem",
+                  }}
+                >
+                  <label htmlFor="email_admin">
+                    Administrator Email (for login) *
                   </label>
                   <input
                     type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
+                    id="email_admin"
+                    name="email_admin"
+                    value={currentUniversity.email_admin || ""}
                     onChange={handleInputChange}
-                    maxLength="100"
                     required
                   />
                 </div>
-
-                <div className={styles.formGroup}>
-                  <label htmlFor="password">Contraseña</label>
+                <div
+                  className={styles.formGroup}
+                  style={{ gridColumn: "1 / -1" }}
+                >
+                  <label htmlFor="password">Password</label>
                   <input
                     type="password"
                     id="password"
                     name="password"
-                    value={formData.password}
+                    value={currentUniversity.password || ""}
                     onChange={handleInputChange}
-                    placeholder="Dejar en blanco para no cambiar"
+                    placeholder={
+                      currentUniversity.id_universidad
+                        ? "Leave blank to keep current password"
+                        : ""
+                    }
+                    required={!currentUniversity.id_universidad}
                   />
-                  <span className={styles.fieldHelp}>
-                    Solo se requiere si se desea establecer o cambiar.
-                  </span>
                 </div>
 
-                <div className={styles.formGroup}>
-                  <label htmlFor="logoFile">Logo</label>
+                {/* Additional University Info */}
+                <div
+                  className={styles.formGroup}
+                  style={{
+                    gridColumn: "1 / -1",
+                    borderTop: "1px solid #e5e7eb",
+                    paddingTop: "1rem",
+                    marginTop: "0.5rem",
+                  }}
+                >
+                  <label htmlFor="logo">Logo</label>
                   <input
                     type="file"
-                    id="logoFile"
+                    id="logo"
+                    name="logo"
                     accept="image/*"
                     onChange={handleFileChange}
                     className={styles.fileInput}
                   />
-                  <span className={styles.fieldHelp}>
-                    Máximo 25 MB. Formatos: JPG, PNG, GIF
-                  </span>
-
-                  {fileBase64 && (
+                  {logoPreview && (
                     <div className={styles.logoPreview}>
-                      <img src={fileBase64} alt="Logo preview" />
+                      <img src={logoPreview} alt="Logo Preview" />
                       <button
                         type="button"
+                        onClick={removeLogo}
                         className={styles.removeImageButton}
-                        onClick={() => setFileBase64(null)}
                       >
-                        <i className="fas fa-trash-alt"></i> Eliminar imagen
+                        <i className="fas fa-times"></i> Remove Image
                       </button>
                     </div>
                   )}
                 </div>
               </div>
-
               <div className={styles.formActions}>
                 <button
                   type="button"
+                  onClick={handleCloseModal}
                   className={styles.cancelButton}
-                  onClick={closeModal}
                 >
-                  Cancelar
+                  Cancel
                 </button>
                 <button type="submit" className={styles.saveButton}>
-                  Guardar
+                  <i className="fas fa-save"></i> Save Changes
                 </button>
               </div>
             </form>
@@ -797,37 +597,37 @@ function ManejoUniversidades() {
         </div>
       )}
 
-      {/* Delete Modal */}
-      {showDeleteModal && universityToDelete && (
-        <div className={styles.modalBackdrop} onClick={closeDeleteModal}>
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && (
+        <div className={styles.modalBackdrop} onClick={handleCloseDeleteModal}>
           <div
             className={styles.deleteModal}
             onClick={(e) => e.stopPropagation()}
           >
             <div className={styles.deleteModalContent}>
               <div className={styles.deleteIcon}>
-                <i className="fas fa-exclamation-triangle"></i>
+                <i className="fas fa-trash-alt"></i>
               </div>
-              <h3>Confirmar eliminación</h3>
+              <h3>Confirm Deletion</h3>
               <p>
-                ¿Estás seguro de que deseas eliminar la universidad{" "}
-                <strong>{universityToDelete.nombre}</strong>? Esta acción no se
-                puede deshacer.
+                Are you sure you want to delete{" "}
+                <strong>{currentUniversity.nombre}</strong>? This action cannot
+                be undone.
               </p>
-              <div className={styles.deleteActions}>
-                <button
-                  className={styles.cancelButton}
-                  onClick={closeDeleteModal}
-                >
-                  Cancelar
-                </button>
-                <button
-                  className={styles.confirmDeleteButton}
-                  onClick={() => deleteUniversity(universityToDelete.id)}
-                >
-                  Eliminar
-                </button>
-              </div>
+            </div>
+            <div className={styles.deleteActions}>
+              <button
+                onClick={handleCloseDeleteModal}
+                className={styles.cancelButton}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className={styles.confirmDeleteButton}
+              >
+                Yes, Delete
+              </button>
             </div>
           </div>
         </div>
@@ -836,27 +636,19 @@ function ManejoUniversidades() {
       {/* Toast Notification */}
       {toast.show && (
         <div className={styles.toast}>
-          <div className={`${styles.toastContent} ${styles[toast.type]}`}>
+          <div
+            className={`${styles.toastContent} ${
+              styles[toast.type] || styles.success
+            }`}
+          >
             <i
               className={`fas ${
                 toast.type === "success"
                   ? "fa-check-circle"
-                  : toast.type === "error"
-                    ? "fa-exclamation-circle"
-                    : "fa-info-circle"
+                  : "fa-exclamation-circle"
               }`}
             ></i>
-            <div>
-              <h4>{toast.title}</h4>
-              <p>{toast.message}</p>
-            </div>
-            <button
-              onClick={() =>
-                setToast({ show: false, type: "", title: "", message: "" })
-              }
-            >
-              <i className="fas fa-times"></i>
-            </button>
+            <p>{toast.message}</p>
           </div>
         </div>
       )}
