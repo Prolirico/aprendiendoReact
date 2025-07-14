@@ -115,7 +115,7 @@ export default function AdminLoginPage() {
         <form onSubmit={handleLogin}>
           <input
             type="text"
-            placeholder="Usuario o Correo"
+            placeholder="Correo"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required

@@ -6,6 +6,7 @@ const {
   createUniversidad,
   updateUniversidad,
   deleteUniversidad,
+  deleteUniversidadAdmin,
 } = require("../controllers/universidadController");
 
 // Middleware for handling file uploads, e.g., for university logos
@@ -70,5 +71,8 @@ router
   .get(getUniversidadById)
   .put(upload.single("logo"), updateUniversidad)
   .delete(deleteUniversidad);
+
+// Route for deleting just the admin of a university
+router.route("/:id/admin").delete(deleteUniversidadAdmin);
 
 module.exports = router;
