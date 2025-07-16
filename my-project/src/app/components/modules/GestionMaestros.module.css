@@ -700,7 +700,39 @@
     cursor: pointer;
     padding: 0.25rem;
 }
+/* Highlight active page */
+.activePage {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+}
 
+/* Disabled button styling */
+.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Clear search button */
+.clearSearchButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+}
+
+.clearSearchButton:hover {
+    color: #333;
+}
+
+/* Ensure search container supports clear button */
+.searchContainer {
+    position: relative;
+}
 /* Responsive Design */
 @media (min-width: 640px) {
     .title {
