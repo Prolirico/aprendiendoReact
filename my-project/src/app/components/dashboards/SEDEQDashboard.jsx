@@ -14,14 +14,19 @@ function SEDEQDashboard({ userId }) {
   useEffect(() => {}, [userId]);
 
   return (
-    <div className={styles.modulos}>
-      <h1>Dashboard SEDEQ1</h1>
-      <section>
-        <ManejoUniversidades userId={userId} canEdit={true} />
-      </section>
-      <section>
-        <GestionMaestros userId={userId} canEdit={true} />
-      </section>
+    <div className={styles.todo}>
+      <div className={styles.modulos}>
+        <h1>Gestion de Universidades</h1>
+        <section>
+          <ManejoUniversidades userId={userId} canEdit={true} />
+        </section>
+      </div>
+      <div className={styles.modulos}>
+        <h1>Gestion de Maestros</h1>
+        <section>
+          <GestionMaestros userId={userId} canEdit={true} />
+        </section>
+      </div>
     </div>
   );
 }
