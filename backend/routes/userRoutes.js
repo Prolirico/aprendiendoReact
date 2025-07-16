@@ -3,7 +3,10 @@ const router = express.Router();
 const userController = require("../controllers/userController");
 const domainController = require("../controllers/domainController");
 
-router.get("/users", userController.getUsers);
+router.get("/usuarios", userController.getUsers); // Ruta para obtener usuarios (incluyendo administradores)
+router.post("/usuarios", userController.createUser); // Ruta para crear nuevos usuarios (incluye admins)
+router.put("/usuarios/:id", userController.updateUser); // Ruta para actualizar usuarios
+router.delete("/usuarios/:id", userController.deleteUser); // Ruta para eliminar usuarios
 router.post("/auth/google", userController.googleAuth);
 router.post("/auth/google-signup", userController.googleSignUp);
 router.post("/admin_login", userController.login);

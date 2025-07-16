@@ -15,8 +15,11 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Rutas
 const userRoutes = require("./routes/userRoutes");
 const universidadRoutes = require("./routes/universidadRoutes");
+const maestroRoutes = require("./routes/maestroRoutes"); // Importar rutas de maestros
+
 app.use("/api", userRoutes);
 app.use("/api/universidades", universidadRoutes);
+app.use("/api/maestros", maestroRoutes); // Usar rutas de maestros
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

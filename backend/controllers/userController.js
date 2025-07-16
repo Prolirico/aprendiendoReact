@@ -5,6 +5,11 @@ const pool = require("../config/db");
 const cache = require("../config/cache");
 require("dotenv").config();
 
+const handleError = (res, error, message = "Error en el servidor") => {
+  console.error(error);
+  res.status(500).json({ error: message });
+};
+
 const JWT_SECRET =
   process.env.JWT_SECRET ||
   "0d86c1e9aaf0192c1234673d06d6ed452beb5ca2a12014cfa913818b114444bd7a6ee2c64fde53f98503a98a153754becdf0fe8ec53304adb233f0c4fec0bf31";
@@ -268,17 +273,267 @@ exports.googleSignUp = async (req, res) => {
 };
 
 exports.getUsers = async (req, res) => {
+  const {
+    page = 1,
+    limit = 10,
+    searchTerm = "",
+    tipo_usuario = "",
+  } = req.query;
+  const offset = (page - 1) * limit;
+
   try {
     const db = await pool.getConnection();
     try {
-      const [rows] = await db.execute("SELECT * FROM usuario");
-      res.json(rows);
+      let countSql = "SELECT COUNT(*) AS total FROM usuario WHERE 1=1";
+      let dataSql =
+        "SELECT u.id_usuario, u.username, u.email, u.tipo_usuario, u.estatus, u.fecha_creacion, u.fecha_actualizacion, u.google_id, u.id_universidad, uni.nombre AS nombre_universidad FROM usuario u LEFT JOIN universidad uni ON u.id_universidad = uni.id_universidad WHERE 1=1";
+      let params = [];
+
+      if (searchTerm) {
+        dataSql += " AND (u.username LIKE ? OR u.email LIKE ?)";
+        countSql += " AND (username LIKE ? OR email LIKE ?)";
+        params.push(`%${searchTerm}%`, `%${searchTerm}%`);
+      }
+
+      if (tipo_usuario && validTipoUsuario.includes(tipo_usuario)) {
+        dataSql += " AND u.tipo_usuario = ?";
+        countSql += " AND tipo_usuario = ?";
+        params.push(tipo_usuario);
+      }
+
+      const [totalResult] = await db.execute(countSql, params);
+      const total = totalResult[0].total;
+      const totalPages = Math.ceil(total / limit);
+
+      dataSql += ` ORDER BY u.fecha_creacion DESC LIMIT ? OFFSET ?`;
+      params.push(parseInt(limit), parseInt(offset));
+
+      const [users] = await db.execute(dataSql, params);
+
+      res.json({
+        users,
+        total,
+        page: parseInt(page),
+        totalPages,
+      });
     } finally {
       db.release();
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Error fetching users" });
+    res.status(500).json({ error: "Error al obtener usuarios" });
+  }
+};
+
+// @desc    Crear un nuevo usuario (para gestión administrativa)
+// @route   POST /api/usuarios
+// @access  Private (Admin only)
+exports.createUser = async (req, res) => {
+  const { email, password, tipo_usuario, estatus, id_universidad } = req.body;
+
+  if (!email || !password || !tipo_usuario) {
+    return res
+      .status(400)
+      .json({ error: "Email, contraseña y tipo de usuario son requeridos." });
+  }
+  if (!validTipoUsuario.includes(tipo_usuario)) {
+    return res.status(400).json({ error: "Tipo de usuario no válido." });
+  }
+  if (estatus && !validEstatus.includes(estatus)) {
+    return res.status(400).json({ error: "Estado no válido." });
+  }
+  // For admin_universidad, id_universidad is required
+  if (tipo_usuario === "admin_universidad" && !id_universidad) {
+    return res.status(400).json({
+      error: "Para 'admin_universidad', el ID de universidad es requerido.",
+    });
+  }
+
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    const username = email; // Use email as username for consistency or specify in frontend
+    const [existingUser] = await connection.execute(
+      "SELECT id_usuario FROM usuario WHERE email = ? OR username = ?",
+      [email, username],
+    );
+
+    if (existingUser.length > 0) {
+      await connection.rollback();
+      return res
+        .status(400)
+        .json({ error: "Ya existe un usuario con este email o username." });
+    }
+
+    const password_hash = await bcrypt.hash(password, 10);
+
+    const [result] = await connection.execute(
+      "INSERT INTO usuario (username, email, password_hash, tipo_usuario, estatus, id_universidad) VALUES (?, ?, ?, ?, ?, ?)",
+      [
+        username,
+        email,
+        password_hash,
+        tipo_usuario,
+        estatus || "activo",
+        id_universidad || null,
+      ],
+    );
+
+    await connection.commit();
+    res.status(201).json({
+      message: "Usuario creado con éxito.",
+      id_usuario: result.insertId,
+    });
+  } catch (error) {
+    if (connection) await connection.rollback();
+    if (error.code === "ER_DUP_ENTRY") {
+      return res
+        .status(400)
+        .json({ error: "Ya existe un usuario con este email o username." });
+    }
+    handleError(res, error, "Error al crear el usuario.");
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+// @desc    Actualizar un usuario (para gestión administrativa)
+// @route   PUT /api/usuarios/:id
+// @access  Private (Admin only)
+exports.updateUser = async (req, res) => {
+  const { id } = req.params;
+  const { email, password, tipo_usuario, estatus, id_universidad } = req.body;
+
+  if (!id) {
+    return res
+      .status(400)
+      .json({ error: "ID de usuario requerido para la actualización." });
+  }
+
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    const [existingUser] = await connection.execute(
+      "SELECT * FROM usuario WHERE id_usuario = ?",
+      [id],
+    );
+    if (existingUser.length === 0) {
+      await connection.rollback();
+      return res.status(404).json({ error: "Usuario no encontrado." });
+    }
+
+    const updates = [];
+    const params = [];
+
+    if (email) {
+      // Check for duplicate email/username if it's being changed
+      const [duplicateUser] = await connection.execute(
+        "SELECT id_usuario FROM usuario WHERE (email = ? OR username = ?) AND id_usuario != ?",
+        [email, email, id],
+      );
+      if (duplicateUser.length > 0) {
+        await connection.rollback();
+        return res
+          .status(400)
+          .json({ error: "El nuevo email o username ya está en uso." });
+      }
+      updates.push("email = ?", "username = ?");
+      params.push(email, email);
+    }
+    if (password) {
+      const password_hash = await bcrypt.hash(password, 10);
+      updates.push("password_hash = ?");
+      params.push(password_hash);
+    }
+    if (tipo_usuario && validTipoUsuario.includes(tipo_usuario)) {
+      updates.push("tipo_usuario = ?");
+      params.push(tipo_usuario);
+    }
+    if (estatus && validEstatus.includes(estatus)) {
+      updates.push("estatus = ?");
+      params.push(estatus);
+    }
+    // Handle id_universidad. Can be set to NULL for admin_sedeq, or linked for admin_universidad
+    // If id_universidad is explicitly null (e.g. from frontend form), set it to null in DB.
+    // If it's undefined, it means it wasn't passed, so don't update.
+    if (req.body.hasOwnProperty("id_universidad")) {
+      // Check if the key exists in the body
+      updates.push("id_universidad = ?");
+      params.push(id_universidad); // Will be null if sent as null
+    }
+
+    if (updates.length === 0) {
+      await connection.rollback();
+      return res.status(400).json({ error: "No hay datos para actualizar." });
+    }
+
+    params.push(id);
+    await connection.execute(
+      `UPDATE usuario SET ${updates.join(", ")} WHERE id_usuario = ?`,
+      params,
+    );
+
+    await connection.commit();
+    res.status(200).json({ message: "Usuario actualizado con éxito." });
+  } catch (error) {
+    if (connection) await connection.rollback();
+    if (error.code === "ER_DUP_ENTRY") {
+      return res.status(400).json({ error: "El email o username ya existe." });
+    }
+    handleError(res, error, "Error al actualizar el usuario.");
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+// @desc    Eliminar un usuario (para gestión administrativa)
+// @route   DELETE /api/usuarios/:id
+// @access  Private (Admin only)
+exports.deleteUser = async (req, res) => {
+  const { id } = req.params;
+
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    const [existingUser] = await connection.execute(
+      "SELECT id_usuario, tipo_usuario FROM usuario WHERE id_usuario = ?",
+      [id],
+    );
+    if (existingUser.length === 0) {
+      await connection.rollback();
+      return res.status(404).json({ error: "Usuario no encontrado." });
+    }
+
+    // Check if the user is an admin_sedeq. Prevent accidental deletion of primary admin.
+    // This is a safety measure. You might want to adjust it based on your exact requirements.
+    if (existingUser[0].tipo_usuario === "admin_sedeq") {
+      // You might want to check if it's the *last* admin_sedeq before allowing deletion
+      const [sedeqAdmins] = await connection.execute(
+        "SELECT COUNT(*) as count FROM usuario WHERE tipo_usuario = 'admin_sedeq'",
+      );
+      if (sedeqAdmins[0].count <= 1) {
+        await connection.rollback();
+        return res.status(403).json({
+          error: "No se puede eliminar el único administrador SEDEQ.",
+        });
+      }
+    }
+
+    await connection.execute("DELETE FROM usuario WHERE id_usuario = ?", [id]);
+
+    await connection.commit();
+    res.status(200).json({ message: "Usuario eliminado con éxito." });
+  } catch (error) {
+    if (connection) await connection.rollback();
+    handleError(res, error, "Error al eliminar el usuario.");
+  } finally {
+    if (connection) connection.release();
   }
 };
 
@@ -294,50 +549,53 @@ exports.signup = async (req, res) => {
   if (!validTipoUsuario.includes(tipo_usuario)) {
     return res.status(400).json({ error: "Tipo de usuario no válido" });
   }
-  if (!validEstatus.includes(estatus)) {
+  if (estatus && !validEstatus.includes(estatus)) {
     return res.status(400).json({ error: "Estado no válido" });
   }
 
+  let connection;
   try {
-    const db = await pool.getConnection();
-    try {
-      const [existingUser] = await db.execute(
-        "SELECT * FROM usuario WHERE username = ? OR email = ?",
-        [username, email],
-      );
-      if (existingUser.length > 0) {
-        return res
-          .status(400)
-          .json({ error: "Username or email already exists" });
-      }
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
 
-      const password_hash = await bcrypt.hash(password, 10);
-      const [result] = await db.execute(
-        "INSERT INTO usuario (username, email, password_hash, tipo_usuario, estatus) VALUES (?, ?, ?, ?, ?)",
-        [
-          username,
-          email,
-          password_hash,
-          tipo_usuario || "alumno",
-          estatus || "pendiente",
-        ],
-      );
-
-      res.status(201).json({
-        message: "User registered successfully",
-        userId: result.insertId,
-      });
-    } finally {
-      db.release();
+    const [existingUser] = await connection.execute(
+      "SELECT * FROM usuario WHERE username = ? OR email = ?",
+      [username, email],
+    );
+    if (existingUser.length > 0) {
+      await connection.rollback();
+      return res
+        .status(400)
+        .json({ error: "Username or email already exists" });
     }
+
+    const password_hash = await bcrypt.hash(password, 10);
+    const [result] = await connection.execute(
+      "INSERT INTO usuario (username, email, password_hash, tipo_usuario, estatus) VALUES (?, ?, ?, ?, ?)",
+      [
+        username,
+        email,
+        password_hash,
+        tipo_usuario || "alumno",
+        estatus || "pendiente",
+      ],
+    );
+
+    await connection.commit();
+    res.status(201).json({
+      message: "User registered successfully",
+      userId: result.insertId,
+    });
   } catch (error) {
+    if (connection) await connection.rollback();
     if (error.code === "ER_DUP_ENTRY") {
       return res
         .status(400)
         .json({ error: "Usuario o correo electrónico ya existen" });
     }
-    console.error(error);
-    res.status(500).json({ error: "Registro fallido" });
+    handleError(res, error, "Registro fallido");
+  } finally {
+    if (connection) connection.release();
   }
 };
 
@@ -363,6 +621,13 @@ exports.login = async (req, res) => {
       }
 
       const user = rows[0];
+
+      if (!user.password_hash) {
+        return res.status(401).json({
+          error: "Esta es una cuenta de Google. Inicia sesión con Google.",
+        });
+      }
+
       const isValid = await bcrypt.compare(password, user.password_hash);
 
       if (!isValid) {
@@ -410,7 +675,6 @@ exports.login = async (req, res) => {
       db.release();
     }
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Fallo el Login" });
+    handleError(res, error, "Fallo el Login");
   }
 };
