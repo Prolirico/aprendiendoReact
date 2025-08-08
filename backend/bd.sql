@@ -164,7 +164,7 @@ CREATE TABLE `curso` (
   `id_curso` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `id_maestro` INT UNSIGNED NOT NULL,
   `id_categoria` INT UNSIGNED,
-  `codigo_curso` VARCHAR(20) NOT NULL,
+  `codigo_curso` VARCHAR(20) NULL,
   `nombre_curso` VARCHAR(150) NOT NULL,
   `descripcion` TEXT,
   `objetivos` TEXT,

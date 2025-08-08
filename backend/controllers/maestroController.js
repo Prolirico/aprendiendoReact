@@ -60,6 +60,23 @@ exports.getMaestros = async (req, res) => {
   }
 };
 
+// Obtener una lista simple de todos los maestros (para dropdowns)
+exports.getMaestrosList = async (req, res) => {
+  try {
+    const db = await pool.getConnection();
+    try {
+      const [maestros] = await db.execute(
+        "SELECT id_maestro, nombre_completo FROM maestro ORDER BY nombre_completo ASC",
+      );
+      res.json(maestros);
+    } finally {
+      db.release();
+    }
+  } catch (error) {
+    handleError(res, error, "Error al obtener la lista de maestros");
+  }
+};
+
 // Crear un nuevo maestro
 exports.createMaestro = async (req, res) => {
   const {

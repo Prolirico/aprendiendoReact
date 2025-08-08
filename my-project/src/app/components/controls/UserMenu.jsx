@@ -72,6 +72,17 @@ function UserMenu({ user, onLogout }) {
                   Sign Up
                 </button>
               </Link>
+              <Link href="/screens/admin_login">
+                <button
+                  className={styles.menuItem}
+                  onClick={() => {
+                    console.log("Navigating to /screens/admin_login");
+                    setOpen(false);
+                  }}
+                >
+                  Admin Login
+                </button>
+              </Link>
             </>
           )}
         </div>

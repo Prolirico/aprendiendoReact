@@ -418,7 +418,7 @@
     background: white;
     border-radius: 0.5rem;
     max-width: 90%;
-    width: 500px;
+    width: 700px;
     max-height: 90vh;
     overflow-y: auto;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
@@ -800,6 +800,6 @@
     }
 
     .modal {
-        width: 600px;
+        width: 700px;
     }
 }

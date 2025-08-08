@@ -7,7 +7,7 @@ import styles from "./AdminLogin.module.css";
 
 {
   /*
-const API_URL =process.env.NEXT_PUBLIC_API_URL || "http://165.140.156.195:5000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://165.140.156.195/api";
 */
 }
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";

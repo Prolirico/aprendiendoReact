@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import styles from "./Dashboard.module.css";
 import ManejoUniversidades from "../modules/ManejoUniversidades";
 import GestionMaestros from "../modules/GestionMaestros";
+import GestionCursos from "../modules/GestionCursos";
+import CategoriasCursos from "../modules/CategoriasCursos";
 
 function SEDEQDashboard({ userId }) {
   const [data, setData] = useState({
@@ -25,6 +27,18 @@ function SEDEQDashboard({ userId }) {
         <h1>Gestion de Maestros</h1>
         <section>
           <GestionMaestros userId={userId} canEdit={true} />
+        </section>
+      </div>
+      <div className={styles.modulos}>
+        <h1>Gestión de Categorías</h1>
+        <section>
+          <CategoriasCursos />
+        </section>
+      </div>
+      <div className={styles.modulos}>
+        <h1>Gestion de Cursos</h1>
+        <section>
+          <GestionCursos userId={userId} canEdit={true} />
         </section>
       </div>
     </div>
