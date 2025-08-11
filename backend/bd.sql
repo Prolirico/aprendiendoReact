@@ -146,12 +146,11 @@ CREATE TABLE `categoria_curso` (
   `id_categoria` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `nombre_categoria` VARCHAR(100) NOT NULL,
   `descripcion` TEXT,
-  `tipo_categoria` ENUM('carrera', 'tipo_apoyo', 'area_conocimiento', 'nivel') NOT NULL DEFAULT 'area_conocimiento',
   `estatus` ENUM('activa', 'inactiva') DEFAULT 'activa',
+  `orden_prioridad` INT NULL,
   `fecha_creacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_categoria`),
-  UNIQUE KEY `uk_nombre_tipo` (`nombre_categoria`, `tipo_categoria`),
-  INDEX `idx_tipo_categoria` (`tipo_categoria`),
+  UNIQUE KEY `uk_nombre_tipo` (`nombre_categoria`),
   INDEX `idx_estatus` (`estatus`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 

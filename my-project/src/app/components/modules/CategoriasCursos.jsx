@@ -22,7 +22,6 @@ const initialFormState = {
   id_categoria: null,
   nombre_categoria: "",
   descripcion: "",
-  tipo_categoria: "area_conocimiento",
   estatus: "activa",
 };
 
@@ -161,10 +160,10 @@ function CategoriasCursos() {
 
       if (!response.ok) {
         const result = await response.json();
-        throw new Error(result.error || "La desactivación falló.");
+        throw new Error(result.error || "La eliminación falló.");
       }
 
-      showToast("Categoría desactivada con éxito", "success");
+      showToast("Categoría eliminada con éxito", "success");
       handleCloseDeleteModal();
       fetchCategories();
     } catch (err) {
@@ -214,8 +213,8 @@ function CategoriasCursos() {
         <table className={styles.table}>
           <thead>
             <tr>
+              <th>Número</th>
               <th>Nombre</th>
-              <th>Tipo</th>
               <th>Estatus</th>
               <th>Acciones</th>
             </tr>
@@ -223,8 +222,8 @@ function CategoriasCursos() {
           <tbody>
             {categories.map((cat) => (
               <tr key={cat.id_categoria}>
+                <td>{cat.orden_prioridad}</td>
                 <td>{cat.nombre_categoria}</td>
-                <td>{cat.tipo_categoria}</td>
                 <td>
                   <span
                     className={
@@ -244,14 +243,12 @@ function CategoriasCursos() {
                     >
                       <FontAwesomeIcon icon={faEdit} />
                     </button>
-                    {cat.estatus === "activa" && (
-                      <button
-                        onClick={() => handleOpenDeleteModal(cat)}
-                        className={styles.deleteButton}
-                      >
-                        <FontAwesomeIcon icon={faTrash} />
-                      </button>
-                    )}
+                    <button
+                      onClick={() => handleOpenDeleteModal(cat)}
+                      className={styles.deleteButton}
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -325,35 +322,32 @@ function CategoriasCursos() {
                   rows="3"
                 ></textarea>
               </div>
-              <div className={styles.formGroup}>
-                <label htmlFor="tipo_categoria">Tipo</label>
-                <select
-                  id="tipo_categoria"
-                  name="tipo_categoria"
-                  value={formState.tipo_categoria}
-                  onChange={handleFormChange}
-                >
-                  <option value="area_conocimiento">
-                    Área de Conocimiento
-                  </option>
-                  <option value="carrera">Carrera</option>
-                  <option value="tipo_apoyo">Tipo de Apoyo</option>
-                  <option value="nivel">Nivel</option>
-                </select>
-              </div>
               {isEditing && (
-                <div className={styles.formGroup}>
-                  <label htmlFor="estatus">Estatus</label>
-                  <select
-                    id="estatus"
-                    name="estatus"
-                    value={formState.estatus}
-                    onChange={handleFormChange}
-                  >
-                    <option value="activa">Activa</option>
-                    <option value="inactiva">Inactiva</option>
-                  </select>
-                </div>
+                <>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="orden_prioridad">Orden (Prioridad)</label>
+                    <input
+                      type="number"
+                      id="orden_prioridad"
+                      name="orden_prioridad"
+                      value={formState.orden_prioridad || ""}
+                      onChange={handleFormChange}
+                      min="1"
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="estatus">Estatus</label>
+                    <select
+                      id="estatus"
+                      name="estatus"
+                      value={formState.estatus}
+                      onChange={handleFormChange}
+                    >
+                      <option value="activa">Activa</option>
+                      <option value="inactiva">Inactiva</option>
+                    </select>
+                  </div>
+                </>
               )}
               <div
                 className={styles.formActions}
@@ -386,11 +380,11 @@ function CategoriasCursos() {
               <div className={styles.deleteIcon}>
                 <FontAwesomeIcon icon={faTrash} />
               </div>
-              <h3>Confirmar Desactivación</h3>
+              <h3>Confirmar Eliminación</h3>
               <p>
-                ¿Estás seguro de que quieres desactivar la categoría{" "}
-                <strong>{categoryToModify?.nombre_categoria}</strong>? No se
-                borrará, pero no podrá ser asignada a nuevos cursos.
+                ¿Estás seguro de que quieres eliminar la categoría{" "}
+                <strong>{categoryToModify?.nombre_categoria}</strong>? Esta
+                acción es permanente y no se puede deshacer.
               </p>
             </div>
             <div className={styles.deleteActions}>

@@ -2799,3 +2799,1465 @@
 [2025-08-08T17:17:27.214Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
 [2025-08-08T17:17:27.214Z] 📤 Respuesta [404]: {"error":"Route not found"}
 [2025-08-08T17:17:36.540Z] ⚠️ Señal SIGINT recibida, cerrando servidor...
+[2025-08-11T14:38:40.081Z] 🚀 Iniciando servidor...
+[2025-08-11T14:38:40.084Z] 📂 Entorno: development
+[2025-08-11T14:38:40.084Z] 📝 Variables de entorno cargadas
+[2025-08-11T14:38:40.084Z] 🔄 CORS configurado: "*"
+[2025-08-11T14:38:40.091Z] 📁 Servicio de archivos estáticos configurado en /uploads
+[2025-08-11T14:38:40.091Z] 🔄 Importando rutas...
+[2025-08-11T14:38:40.306Z] ✅ Rutas importadas correctamente
+[2025-08-11T14:38:40.306Z] 🔌 Rutas configuradas en la aplicación
+[2025-08-11T14:38:40.307Z] 💾 Conectando a la base de datos...
+[2025-08-11T14:38:40.307Z] ✅ Conexión a la base de datos establecida
+[2025-08-11T14:38:40.307Z] 🔑 Clave JWT configurada
+[2025-08-11T14:38:40.316Z] ✅ Servidor iniciado en 0.0.0.0:5000
+[2025-08-11T14:38:40.316Z] 🌐 Entorno: development
+[2025-08-11T14:38:40.316Z] 📡 Servidor listo para recibir conexiones
+[2025-08-11T14:39:19.516Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T14:39:19.529Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T14:39:19.534Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T14:39:19.557Z] 📨 GET /api/cursos
+[2025-08-11T14:39:19.564Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T14:39:19.568Z] 📨 GET /api/categorias/activas
+[2025-08-11T14:39:19.579Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T14:39:19.585Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T14:39:19.589Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T14:39:19.591Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","tipo_categoria":"carrera"},{"id_categoria":2,"nombre_categoria":"Servidores","tipo_categoria":"carrera"}]
+[2025-08-11T14:39:19.593Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T14:39:19.598Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T14:39:19.599Z] 📨 GET /api/categorias
+[2025-08-11T14:39:19.603Z] 📤 Respuesta [401]: {"error":"Token expirado. Por favor, inicia sesión de nuevo."}
+[2025-08-11T14:39:19.605Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T14:39:19.606Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T14:39:19.607Z] 📨 GET /api/cursos
+[2025-08-11T14:39:19.608Z] 📨 GET /api/categorias/activas
+[2025-08-11T14:39:19.608Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T14:39:19.610Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","tipo_categoria":"carrera"},{"id_categoria":2,"nombre_categoria":"Servidores","tipo_categoria":"carrera"}]
+[2025-08-11T14:39:19.611Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T14:39:19.613Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T14:39:19.615Z] 📨 GET /api/categorias
+[2025-08-11T14:39:19.616Z] 📤 Respuesta [401]: {"error":"Token expirado. Por favor, inicia sesión de nuevo."}
+[2025-08-11T14:39:19.620Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T14:39:19.621Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T14:39:19.623Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T14:39:19.624Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T14:39:19.626Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T14:39:19.628Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T14:39:19.634Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T14:39:19.637Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T14:39:19.650Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T14:39:19.656Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T14:39:19.657Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T14:39:19.658Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T14:39:19.659Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T14:39:19.661Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T14:39:19.661Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T14:47:39.102Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T14:47:39.103Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T14:47:39.107Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T14:47:39.108Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T14:47:39.117Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T14:47:39.118Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T14:47:39.122Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T14:47:39.124Z] 📨 GET /api/cursos
+[2025-08-11T14:47:39.125Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T14:47:39.126Z] 📨 GET /api/categorias/activas
+[2025-08-11T14:47:39.128Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T14:47:39.129Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T14:47:39.131Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","tipo_categoria":"carrera"},{"id_categoria":2,"nombre_categoria":"Servidores","tipo_categoria":"carrera"}]
+[2025-08-11T14:47:39.133Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T14:47:39.135Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T14:47:39.137Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T14:47:39.149Z] 📨 GET /api/cursos
+[2025-08-11T14:47:39.150Z] 📨 GET /api/categorias
+[2025-08-11T14:47:39.151Z] 📤 Respuesta [401]: {"error":"Token expirado. Por favor, inicia sesión de nuevo."}
+[2025-08-11T14:47:39.152Z] 📨 GET /api/categorias/activas
+[2025-08-11T14:47:39.153Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T14:47:39.155Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T14:47:39.156Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","tipo_categoria":"carrera"},{"id_categoria":2,"nombre_categoria":"Servidores","tipo_categoria":"carrera"}]
+[2025-08-11T14:47:39.158Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T14:47:39.159Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T14:47:39.162Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T14:47:39.163Z] 📨 GET /api/categorias
+[2025-08-11T14:47:39.164Z] 📤 Respuesta [401]: {"error":"Token expirado. Por favor, inicia sesión de nuevo."}
+[2025-08-11T14:47:39.167Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T14:47:39.170Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T14:47:39.174Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T14:47:39.177Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T14:47:39.387Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T14:47:39.389Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T14:47:39.392Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T14:47:39.392Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T14:47:39.393Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T14:47:39.394Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T14:47:39.394Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T14:47:42.297Z] 📨 GET /api/categorias
+[2025-08-11T14:47:42.298Z] 📤 Respuesta [401]: {"error":"Token expirado. Por favor, inicia sesión de nuevo."}
+[2025-08-11T14:47:42.449Z] 📨 GET /api/categorias
+[2025-08-11T14:47:42.450Z] 📤 Respuesta [401]: {"error":"Token expirado. Por favor, inicia sesión de nuevo."}
+[2025-08-11T14:47:42.618Z] 📨 GET /api/categorias
+[2025-08-11T14:47:42.619Z] 📤 Respuesta [401]: {"error":"Token expirado. Por favor, inicia sesión de nuevo."}
+[2025-08-11T14:47:42.783Z] 📨 GET /api/categorias
+[2025-08-11T14:47:42.784Z] 📤 Respuesta [401]: {"error":"Token expirado. Por favor, inicia sesión de nuevo."}
+[2025-08-11T14:47:42.930Z] 📨 GET /api/categorias
+[2025-08-11T14:47:42.931Z] 📤 Respuesta [401]: {"error":"Token expirado. Por favor, inicia sesión de nuevo."}
+[2025-08-11T14:47:43.061Z] 📨 GET /api/categorias
+[2025-08-11T14:47:43.062Z] 📤 Respuesta [401]: {"error":"Token expirado. Por favor, inicia sesión de nuevo."}
+[2025-08-11T14:47:43.200Z] 📨 GET /api/categorias
+[2025-08-11T14:47:43.202Z] 📤 Respuesta [401]: {"error":"Token expirado. Por favor, inicia sesión de nuevo."}
+[2025-08-11T14:47:43.513Z] 📨 GET /api/categorias
+[2025-08-11T14:47:43.514Z] 📤 Respuesta [401]: {"error":"Token expirado. Por favor, inicia sesión de nuevo."}
+[2025-08-11T14:47:57.956Z] 📨 POST /api/admin_login
+[2025-08-11T14:47:57.956Z] 📦 Body: {"loginId":"sedeq1","password":"********"}
+[2025-08-11T14:47:58.117Z] 📤 Respuesta [200]: {"message":"Login exitoso","token":"********","user":{"id_usuario":4,"username":"sedeq1","tipo_usuario":"admin_sedeq"}}
+[2025-08-11T14:47:58.486Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T14:47:58.489Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T14:47:58.491Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T14:47:58.493Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T14:47:58.497Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T14:47:58.500Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T14:47:58.503Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T14:47:58.506Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T14:47:58.509Z] 📨 GET /api/cursos
+[2025-08-11T14:47:58.511Z] 📨 GET /api/categorias/activas
+[2025-08-11T14:47:58.512Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T14:47:58.513Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","tipo_categoria":"carrera"},{"id_categoria":2,"nombre_categoria":"Servidores","tipo_categoria":"carrera"}]
+[2025-08-11T14:47:58.519Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T14:47:58.522Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T14:47:58.526Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T14:47:58.527Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T14:47:58.528Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T14:47:58.532Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T14:47:58.533Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T14:47:58.535Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T14:47:58.537Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T14:47:58.538Z] 📨 GET /api/categorias
+[2025-08-11T14:47:58.539Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T14:47:58.542Z] 📨 GET /api/cursos
+[2025-08-11T14:47:58.546Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","descripcion":"La ciberseguridad se refiere a cualquier tecnología, práctica y política para prevenir los ataques cibernéticos o mitigar su impac...
+[2025-08-11T14:47:58.547Z] 📨 GET /api/categorias/activas
+[2025-08-11T14:47:58.548Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T14:47:58.551Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T14:47:58.553Z] 📨 GET /api/categorias
+[2025-08-11T14:47:58.554Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T14:47:58.555Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","tipo_categoria":"carrera"},{"id_categoria":2,"nombre_categoria":"Servidores","tipo_categoria":"carrera"}]
+[2025-08-11T14:47:58.556Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","descripcion":"La ciberseguridad se refiere a cualquier tecnología, práctica y política para prevenir los ataques cibernéticos o mitigar su impac...
+[2025-08-11T14:47:58.673Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T14:47:58.675Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T14:47:58.676Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T14:47:58.677Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T14:47:58.677Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T14:47:58.678Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T14:47:58.678Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T14:59:38.156Z] 📨 GET /api/categorias
+[2025-08-11T14:59:38.158Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","descripcion":"La ciberseguridad se refiere a cualquier tecnología, práctica y política para prevenir los ataques cibernéticos o mitigar su impac...
+[2025-08-11T15:00:23.317Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T15:00:23.319Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:00:23.326Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:00:23.327Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T15:00:23.331Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:00:23.332Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T15:00:23.333Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:00:23.333Z] 📨 GET /api/categorias/activas
+[2025-08-11T15:00:23.334Z] 📨 GET /api/cursos
+[2025-08-11T15:00:23.334Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","tipo_categoria":"carrera"},{"id_categoria":2,"nombre_categoria":"Servidores","tipo_categoria":"carrera"}]
+[2025-08-11T15:00:23.335Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T15:00:23.337Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:00:23.339Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:00:23.340Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:00:23.341Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T15:00:23.341Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T15:00:23.342Z] 📨 GET /api/categorias/activas
+[2025-08-11T15:00:23.343Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T15:00:23.343Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:00:23.344Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","tipo_categoria":"carrera"},{"id_categoria":2,"nombre_categoria":"Servidores","tipo_categoria":"carrera"}]
+[2025-08-11T15:00:23.346Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:00:23.348Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:00:23.355Z] 📨 GET /api/cursos
+[2025-08-11T15:00:23.357Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T15:00:23.359Z] 📨 GET /api/categorias
+[2025-08-11T15:00:23.361Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","descripcion":"La ciberseguridad se refiere a cualquier tecnología, práctica y política para prevenir los ataques cibernéticos o mitigar su impac...
+[2025-08-11T15:00:23.362Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:00:23.364Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:00:23.371Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:00:23.371Z] 📨 GET /api/categorias
+[2025-08-11T15:00:23.373Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","descripcion":"La ciberseguridad se refiere a cualquier tecnología, práctica y política para prevenir los ataques cibernéticos o mitigar su impac...
+[2025-08-11T15:00:23.374Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:00:23.671Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T15:00:23.672Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T15:00:23.672Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T15:00:23.673Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T15:00:23.673Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T15:00:23.674Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T15:00:23.674Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T15:00:40.967Z] 📨 POST /api/categorias
+[2025-08-11T15:00:40.967Z] 📦 Body: {"id_categoria":null,"nombre_categoria":"Ingles","descripcion":"Contiene ingles","tipo_categoria":"area_conocimiento","estatus":"activa"}
+[2025-08-11T15:00:40.973Z] 📤 Respuesta [201]: {"id_categoria":3,"nombre_categoria":"Ingles","descripcion":"Contiene ingles","tipo_categoria":"area_conocimiento","estatus":"activa"}
+[2025-08-11T15:00:40.982Z] 📨 GET /api/categorias
+[2025-08-11T15:00:40.984Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","descripcion":"La ciberseguridad se refiere a cualquier tecnología, práctica y política para prevenir los ataques cibernéticos o mitigar su impac...
+[2025-08-11T15:05:14.904Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T15:05:14.909Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:05:14.910Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:05:14.913Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:05:14.914Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T15:05:14.915Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:05:14.925Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:05:14.926Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:05:14.929Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T15:05:14.930Z] 📨 GET /api/cursos
+[2025-08-11T15:05:14.932Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T15:05:14.935Z] 📨 GET /api/categorias/activas
+[2025-08-11T15:05:14.940Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:05:14.941Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T15:05:14.942Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","tipo_categoria":"carrera"},{"id_categoria":3,"nombre_categoria":"Ingles","tipo_categoria":"area_conocimiento"},{"id_categoria":2,"nombre_categor...
+[2025-08-11T15:05:14.943Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:05:14.944Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T15:05:14.945Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T15:05:14.947Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:05:14.948Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:05:14.949Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:05:14.951Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:05:14.953Z] 📨 GET /api/categorias
+[2025-08-11T15:05:14.955Z] 📨 GET /api/cursos
+[2025-08-11T15:05:14.956Z] 📨 GET /api/categorias/activas
+[2025-08-11T15:05:14.956Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:05:14.958Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","descripcion":"La ciberseguridad se refiere a cualquier tecnología, práctica y política para prevenir los ataques cibernéticos o mitigar su impac...
+[2025-08-11T15:05:14.960Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","tipo_categoria":"carrera"},{"id_categoria":3,"nombre_categoria":"Ingles","tipo_categoria":"area_conocimiento"},{"id_categoria":2,"nombre_categor...
+[2025-08-11T15:05:14.961Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T15:05:14.964Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:05:14.966Z] 📨 GET /api/categorias
+[2025-08-11T15:05:14.968Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","descripcion":"La ciberseguridad se refiere a cualquier tecnología, práctica y política para prevenir los ataques cibernéticos o mitigar su impac...
+[2025-08-11T15:05:15.063Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T15:05:15.065Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T15:05:15.065Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T15:05:15.065Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T15:05:15.066Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T15:05:15.067Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T15:05:15.067Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T15:06:08.658Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T15:06:08.662Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:06:08.663Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:06:08.665Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:06:08.667Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T15:06:08.670Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:06:08.672Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:06:08.674Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:06:08.687Z] 📨 GET /api/cursos
+[2025-08-11T15:06:08.688Z] 📨 GET /api/categorias/activas
+[2025-08-11T15:06:08.688Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T15:06:08.689Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","tipo_categoria":"carrera"},{"id_categoria":3,"nombre_categoria":"Ingles","tipo_categoria":"area_conocimiento"},{"id_categoria":2,"nombre_categor...
+[2025-08-11T15:06:08.690Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T15:06:08.692Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:06:08.693Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T15:06:08.694Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:06:08.696Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:06:08.699Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:06:08.705Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:06:08.708Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:06:08.710Z] 📨 GET /api/cursos
+[2025-08-11T15:06:08.710Z] 📨 GET /api/categorias/activas
+[2025-08-11T15:06:08.711Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T15:06:08.712Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","tipo_categoria":"carrera"},{"id_categoria":3,"nombre_categoria":"Ingles","tipo_categoria":"area_conocimiento"},{"id_categoria":2,"nombre_categor...
+[2025-08-11T15:06:08.714Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T15:06:08.715Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T15:06:08.718Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:06:08.719Z] 📨 GET /api/categorias
+[2025-08-11T15:06:08.720Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:06:08.722Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","descripcion":"La ciberseguridad se refiere a cualquier tecnología, práctica y política para prevenir los ataques cibernéticos o mitigar su impac...
+[2025-08-11T15:06:08.728Z] 📨 GET /api/categorias
+[2025-08-11T15:06:08.730Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","descripcion":"La ciberseguridad se refiere a cualquier tecnología, práctica y política para prevenir los ataques cibernéticos o mitigar su impac...
+[2025-08-11T15:06:08.980Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T15:06:08.981Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T15:06:08.983Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T15:06:08.983Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T15:06:08.983Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T15:06:08.984Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T15:06:08.984Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T15:06:21.249Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T15:06:21.251Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:06:21.253Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:06:21.254Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:06:21.258Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T15:06:21.261Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:06:21.263Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:06:21.266Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:06:21.281Z] 📨 GET /api/cursos
+[2025-08-11T15:06:21.284Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T15:06:21.294Z] 📨 GET /api/categorias/activas
+[2025-08-11T15:06:21.296Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","tipo_categoria":"carrera"},{"id_categoria":3,"nombre_categoria":"Ingles","tipo_categoria":"area_conocimiento"},{"id_categoria":2,"nombre_categor...
+[2025-08-11T15:06:21.297Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T15:06:21.298Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:06:21.300Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T15:06:21.302Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:06:21.304Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T15:06:21.305Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:06:21.305Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:06:21.307Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:06:21.309Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:06:21.312Z] 📨 GET /api/categorias/activas
+[2025-08-11T15:06:21.313Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:06:21.314Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T15:06:21.315Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","tipo_categoria":"carrera"},{"id_categoria":3,"nombre_categoria":"Ingles","tipo_categoria":"area_conocimiento"},{"id_categoria":2,"nombre_categor...
+[2025-08-11T15:06:21.316Z] 📨 GET /api/cursos
+[2025-08-11T15:06:21.318Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:06:21.320Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T15:06:21.326Z] 📨 GET /api/categorias
+[2025-08-11T15:06:21.328Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","descripcion":"La ciberseguridad se refiere a cualquier tecnología, práctica y política para prevenir los ataques cibernéticos o mitigar su impac...
+[2025-08-11T15:06:21.358Z] 📨 GET /api/categorias
+[2025-08-11T15:06:21.361Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","descripcion":"La ciberseguridad se refiere a cualquier tecnología, práctica y política para prevenir los ataques cibernéticos o mitigar su impac...
+[2025-08-11T15:06:21.505Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T15:06:21.603Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T15:06:21.604Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T15:06:21.605Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T15:06:21.606Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T15:06:21.608Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T15:06:21.608Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T15:06:42.463Z] 📨 GET /api/categorias
+[2025-08-11T15:06:42.465Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","descripcion":"La ciberseguridad se refiere a cualquier tecnología, práctica y política para prevenir los ataques cibernéticos o mitigar su impac...
+[2025-08-11T15:12:00.283Z] ⚠️ Señal SIGINT recibida, cerrando servidor...
+[2025-08-11T15:12:12.211Z] 🚀 Iniciando servidor...
+[2025-08-11T15:12:12.213Z] 📂 Entorno: development
+[2025-08-11T15:12:12.213Z] 📝 Variables de entorno cargadas
+[2025-08-11T15:12:12.213Z] 🔄 CORS configurado: "*"
+[2025-08-11T15:12:12.216Z] 📁 Servicio de archivos estáticos configurado en /uploads
+[2025-08-11T15:12:12.216Z] 🔄 Importando rutas...
+[2025-08-11T15:12:12.292Z] ✅ Rutas importadas correctamente
+[2025-08-11T15:12:12.292Z] 🔌 Rutas configuradas en la aplicación
+[2025-08-11T15:12:12.292Z] 💾 Conectando a la base de datos...
+[2025-08-11T15:12:12.293Z] ✅ Conexión a la base de datos establecida
+[2025-08-11T15:12:12.293Z] 🔑 Clave JWT configurada
+[2025-08-11T15:12:12.297Z] ✅ Servidor iniciado en 0.0.0.0:5000
+[2025-08-11T15:12:12.297Z] 🌐 Entorno: development
+[2025-08-11T15:12:12.297Z] 📡 Servidor listo para recibir conexiones
+[2025-08-11T15:12:31.196Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T15:12:31.207Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:12:31.223Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T15:12:31.229Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T15:12:31.232Z] 📨 GET /api/cursos
+[2025-08-11T15:12:31.237Z] 📨 GET /api/categorias/activas
+[2025-08-11T15:12:31.242Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:12:31.248Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:12:31.252Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T15:12:31.253Z] 📨 GET /api/categorias
+[2025-08-11T15:12:31.258Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:12:31.260Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:12:31.261Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad"},{"id_categoria":3,"nombre_categoria":"Ingles"},{"id_categoria":2,"nombre_categoria":"Servidores"}]
+[2025-08-11T15:12:31.262Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T15:12:31.262Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:12:31.265Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","descripcion":"La ciberseguridad se refiere a cualquier tecnología, práctica y política para prevenir los ataques cibernéticos o mitigar su impac...
+[2025-08-11T15:12:31.265Z] 📨 GET /api/cursos
+[2025-08-11T15:12:31.266Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T15:12:31.267Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T15:12:31.269Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T15:12:31.270Z] 📨 GET /api/categorias/activas
+[2025-08-11T15:12:31.270Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:12:31.271Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:12:31.272Z] 📨 GET /api/categorias
+[2025-08-11T15:12:31.274Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:12:31.275Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad"},{"id_categoria":3,"nombre_categoria":"Ingles"},{"id_categoria":2,"nombre_categoria":"Servidores"}]
+[2025-08-11T15:12:31.276Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:12:31.277Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","descripcion":"La ciberseguridad se refiere a cualquier tecnología, práctica y política para prevenir los ataques cibernéticos o mitigar su impac...
+[2025-08-11T15:12:31.278Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:12:31.280Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:12:31.281Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:12:31.283Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:12:31.310Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T15:12:31.312Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T15:12:31.314Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T15:12:31.314Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T15:12:31.316Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T15:12:31.316Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T15:12:31.316Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T15:15:44.264Z] 📨 DELETE /api/categorias/1
+[2025-08-11T15:15:44.270Z] 📤 Respuesta [200]: {"message":"Categoría desactivada con éxito."}
+[2025-08-11T15:15:44.280Z] 📨 GET /api/categorias
+[2025-08-11T15:15:44.282Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","descripcion":"La ciberseguridad se refiere a cualquier tecnología, práctica y política para prevenir los ataques cibernéticos o mitigar su impac...
+[2025-08-11T15:15:46.417Z] 📨 DELETE /api/categorias/3
+[2025-08-11T15:15:46.420Z] 📤 Respuesta [200]: {"message":"Categoría desactivada con éxito."}
+[2025-08-11T15:15:46.426Z] 📨 GET /api/categorias
+[2025-08-11T15:15:46.428Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","descripcion":"La ciberseguridad se refiere a cualquier tecnología, práctica y política para prevenir los ataques cibernéticos o mitigar su impac...
+[2025-08-11T15:15:51.573Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T15:15:51.583Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:15:51.593Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T15:15:51.594Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T15:15:51.595Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:15:51.605Z] 📨 GET /api/cursos
+[2025-08-11T15:15:51.607Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:15:51.609Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:15:51.610Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T15:15:51.611Z] 📨 GET /api/categorias/activas
+[2025-08-11T15:15:51.613Z] 📤 Respuesta [200]: [{"id_categoria":2,"nombre_categoria":"Servidores"}]
+[2025-08-11T15:15:51.615Z] 📨 GET /api/categorias
+[2025-08-11T15:15:51.616Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T15:15:51.618Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","descripcion":"La ciberseguridad se refiere a cualquier tecnología, práctica y política para prevenir los ataques cibernéticos o mitigar su impac...
+[2025-08-11T15:15:51.618Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:15:51.619Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:15:51.620Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T15:15:51.623Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T15:15:51.627Z] 📨 GET /api/categorias/activas
+[2025-08-11T15:15:51.628Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:15:51.630Z] 📨 GET /api/categorias
+[2025-08-11T15:15:51.631Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:15:51.632Z] 📨 GET /api/cursos
+[2025-08-11T15:15:51.632Z] 📤 Respuesta [200]: [{"id_categoria":2,"nombre_categoria":"Servidores"}]
+[2025-08-11T15:15:51.633Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:15:51.636Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","descripcion":"La ciberseguridad se refiere a cualquier tecnología, práctica y política para prevenir los ataques cibernéticos o mitigar su impac...
+[2025-08-11T15:15:51.639Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:15:51.640Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T15:15:51.649Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:15:51.653Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:15:51.657Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:15:51.661Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:15:51.768Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T15:15:51.771Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T15:15:51.771Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T15:15:51.771Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T15:15:51.773Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T15:15:51.774Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T15:15:51.774Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T15:35:00.835Z] 📨 DELETE /api/categorias/2
+[2025-08-11T15:35:00.841Z] 📤 Respuesta [200]: {"message":"Categoría desactivada con éxito."}
+[2025-08-11T15:35:00.849Z] 📨 GET /api/categorias
+[2025-08-11T15:35:00.851Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","descripcion":"La ciberseguridad se refiere a cualquier tecnología, práctica y política para prevenir los ataques cibernéticos o mitigar su impac...
+[2025-08-11T15:35:12.891Z] ⚠️ Señal SIGINT recibida, cerrando servidor...
+[2025-08-11T15:44:13.791Z] 🚀 Iniciando servidor...
+[2025-08-11T15:44:13.792Z] 📂 Entorno: development
+[2025-08-11T15:44:13.792Z] 📝 Variables de entorno cargadas
+[2025-08-11T15:44:13.792Z] 🔄 CORS configurado: "*"
+[2025-08-11T15:44:13.796Z] 📁 Servicio de archivos estáticos configurado en /uploads
+[2025-08-11T15:44:13.796Z] 🔄 Importando rutas...
+[2025-08-11T15:44:13.868Z] ✅ Rutas importadas correctamente
+[2025-08-11T15:44:13.869Z] 🔌 Rutas configuradas en la aplicación
+[2025-08-11T15:44:13.869Z] 💾 Conectando a la base de datos...
+[2025-08-11T15:44:13.869Z] ✅ Conexión a la base de datos establecida
+[2025-08-11T15:44:13.869Z] 🔑 Clave JWT configurada
+[2025-08-11T15:44:13.873Z] ✅ Servidor iniciado en 0.0.0.0:5000
+[2025-08-11T15:44:13.873Z] 🌐 Entorno: development
+[2025-08-11T15:44:13.873Z] 📡 Servidor listo para recibir conexiones
+[2025-08-11T15:44:33.327Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T15:44:33.339Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:44:33.347Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T15:44:33.367Z] 📨 GET /api/cursos
+[2025-08-11T15:44:33.373Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T15:44:33.375Z] 📨 GET /api/categorias/activas
+[2025-08-11T15:44:33.385Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:44:33.389Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:44:33.394Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:44:33.395Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T15:44:33.397Z] 📤 Respuesta [200]: []
+[2025-08-11T15:44:33.398Z] 📨 GET /api/categorias
+[2025-08-11T15:44:33.404Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T15:44:33.405Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:44:33.406Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T15:44:33.407Z] 📨 GET /api/cursos
+[2025-08-11T15:44:33.409Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","descripcion":"La ciberseguridad se refiere a cualquier tecnología, práctica y política para prevenir los ataques cibernéticos o mitigar su impac...
+[2025-08-11T15:44:33.412Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:44:33.415Z] 📨 GET /api/categorias/activas
+[2025-08-11T15:44:33.415Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T15:44:33.418Z] 📤 Respuesta [200]: []
+[2025-08-11T15:44:33.419Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T15:44:33.420Z] 📨 GET /api/categorias
+[2025-08-11T15:44:33.422Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T15:44:33.424Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:44:33.424Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:44:33.425Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:44:33.426Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","descripcion":"La ciberseguridad se refiere a cualquier tecnología, práctica y política para prevenir los ataques cibernéticos o mitigar su impac...
+[2025-08-11T15:44:33.427Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T15:44:33.428Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T15:44:33.429Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T15:44:33.429Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T15:44:33.431Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T15:44:33.431Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T15:44:33.432Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:44:33.436Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:44:33.437Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:44:33.441Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:44:33.442Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:44:38.694Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T15:44:38.697Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:44:38.698Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:44:38.699Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T15:44:38.700Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:44:38.701Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:44:38.702Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:44:38.703Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:44:38.707Z] 📨 GET /api/cursos
+[2025-08-11T15:44:38.709Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T15:44:38.710Z] 📨 GET /api/categorias/activas
+[2025-08-11T15:44:38.711Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T15:44:38.712Z] 📤 Respuesta [200]: []
+[2025-08-11T15:44:38.714Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:44:38.714Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T15:44:38.715Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:44:38.715Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T15:44:38.719Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:44:38.719Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:44:38.720Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:44:38.721Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T15:44:38.722Z] 📨 GET /api/cursos
+[2025-08-11T15:44:38.722Z] 📨 GET /api/categorias/activas
+[2025-08-11T15:44:38.723Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:44:38.723Z] 📨 GET /api/categorias
+[2025-08-11T15:44:38.725Z] 📤 Respuesta [200]: []
+[2025-08-11T15:44:38.727Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:44:38.728Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T15:44:38.728Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","descripcion":"La ciberseguridad se refiere a cualquier tecnología, práctica y política para prevenir los ataques cibernéticos o mitigar su impac...
+[2025-08-11T15:44:38.729Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:44:38.733Z] 📨 GET /api/categorias
+[2025-08-11T15:44:38.735Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","descripcion":"La ciberseguridad se refiere a cualquier tecnología, práctica y política para prevenir los ataques cibernéticos o mitigar su impac...
+[2025-08-11T15:44:38.822Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T15:44:38.865Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T15:44:38.865Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T15:44:38.865Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T15:44:38.866Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T15:44:38.867Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T15:44:38.867Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T15:44:51.454Z] 📨 PUT /api/categorias/1
+[2025-08-11T15:44:51.454Z] 📦 Body: {"id_categoria":1,"nombre_categoria":"Ciberseguridad","descripcion":"La ciberseguridad se refiere a cualquier tecnología, práctica y política para prevenir los ataques cibernéticos o mitigar su impacto. ","estatus":"activa","fecha_creacion":"2025-08-08T14:23:59.000Z","color_hex":null}
+[2025-08-11T15:44:51.458Z] 📤 Respuesta [200]: {"message":"Categoría actualizada con éxito."}
+[2025-08-11T15:44:51.468Z] 📨 GET /api/categorias
+[2025-08-11T15:44:51.469Z] 📤 Respuesta [200]: [{"id_categoria":1,"nombre_categoria":"Ciberseguridad","descripcion":"La ciberseguridad se refiere a cualquier tecnología, práctica y política para prevenir los ataques cibernéticos o mitigar su impac...
+[2025-08-11T15:44:54.361Z] 📨 DELETE /api/categorias/1
+[2025-08-11T15:44:54.365Z] 📤 Respuesta [200]: {"message":"Categoría eliminada con éxito."}
+[2025-08-11T15:44:54.372Z] 📨 GET /api/categorias
+[2025-08-11T15:44:54.373Z] 📤 Respuesta [200]: [{"id_categoria":3,"nombre_categoria":"Ingles","descripcion":"Contiene ingles","estatus":"inactiva","fecha_creacion":"2025-08-11T15:00:40.000Z","color_hex":null},{"id_categoria":2,"nombre_categoria":"...
+[2025-08-11T15:46:07.433Z] 📨 PUT /api/categorias/2
+[2025-08-11T15:46:07.433Z] 📦 Body: {"id_categoria":2,"nombre_categoria":"Servidores","descripcion":"Aprender de servidores","estatus":"activa","fecha_creacion":"2025-08-08T15:58:35.000Z","color_hex":null}
+[2025-08-11T15:46:07.437Z] 📤 Respuesta [200]: {"message":"Categoría actualizada con éxito."}
+[2025-08-11T15:46:07.446Z] 📨 GET /api/categorias
+[2025-08-11T15:46:07.448Z] 📤 Respuesta [200]: [{"id_categoria":3,"nombre_categoria":"Ingles","descripcion":"Contiene ingles","estatus":"inactiva","fecha_creacion":"2025-08-11T15:00:40.000Z","color_hex":null},{"id_categoria":2,"nombre_categoria":"...
+[2025-08-11T15:46:15.252Z] 📨 PUT /api/categorias/3
+[2025-08-11T15:46:15.252Z] 📦 Body: {"id_categoria":3,"nombre_categoria":"Ingles","descripcion":"Contiene ingles","estatus":"activa","fecha_creacion":"2025-08-11T15:00:40.000Z","color_hex":null}
+[2025-08-11T15:46:15.257Z] 📤 Respuesta [200]: {"message":"Categoría actualizada con éxito."}
+[2025-08-11T15:46:15.265Z] 📨 GET /api/categorias
+[2025-08-11T15:46:15.267Z] 📤 Respuesta [200]: [{"id_categoria":3,"nombre_categoria":"Ingles","descripcion":"Contiene ingles","estatus":"activa","fecha_creacion":"2025-08-11T15:00:40.000Z","color_hex":null},{"id_categoria":2,"nombre_categoria":"Se...
+[2025-08-11T15:46:26.590Z] 📨 POST /api/categorias
+[2025-08-11T15:46:26.590Z] 📦 Body: {"id_categoria":null,"nombre_categoria":"Prueba","descripcion":"prueba","estatus":"activa"}
+[2025-08-11T15:46:26.594Z] 📤 Respuesta [201]: {"id_categoria":4,"nombre_categoria":"Prueba","descripcion":"prueba","estatus":"activa"}
+[2025-08-11T15:46:26.600Z] 📨 GET /api/categorias
+[2025-08-11T15:46:26.601Z] 📤 Respuesta [200]: [{"id_categoria":3,"nombre_categoria":"Ingles","descripcion":"Contiene ingles","estatus":"activa","fecha_creacion":"2025-08-11T15:00:40.000Z","color_hex":null},{"id_categoria":4,"nombre_categoria":"Pr...
+[2025-08-11T15:46:34.546Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T15:46:34.548Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:46:34.549Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:46:34.550Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:46:34.553Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T15:46:34.556Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:46:34.557Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:46:34.558Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:46:34.563Z] 📨 GET /api/cursos
+[2025-08-11T15:46:34.565Z] 📨 GET /api/categorias/activas
+[2025-08-11T15:46:34.565Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T15:46:34.566Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T15:46:34.566Z] 📤 Respuesta [200]: [{"id_categoria":3,"nombre_categoria":"Ingles"},{"id_categoria":4,"nombre_categoria":"Prueba"},{"id_categoria":2,"nombre_categoria":"Servidores"}]
+[2025-08-11T15:46:34.567Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T15:46:34.568Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:46:34.570Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:46:34.573Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:46:34.573Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T15:46:34.575Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:46:34.575Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:46:34.576Z] 📨 GET /api/cursos
+[2025-08-11T15:46:34.578Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T15:46:34.579Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T15:46:34.579Z] 📨 GET /api/categorias/activas
+[2025-08-11T15:46:34.580Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:46:34.581Z] 📤 Respuesta [200]: [{"id_categoria":3,"nombre_categoria":"Ingles"},{"id_categoria":4,"nombre_categoria":"Prueba"},{"id_categoria":2,"nombre_categoria":"Servidores"}]
+[2025-08-11T15:46:34.581Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:46:34.582Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:46:34.583Z] 📨 GET /api/categorias
+[2025-08-11T15:46:34.584Z] 📤 Respuesta [200]: [{"id_categoria":3,"nombre_categoria":"Ingles","descripcion":"Contiene ingles","estatus":"activa","fecha_creacion":"2025-08-11T15:00:40.000Z","color_hex":null},{"id_categoria":4,"nombre_categoria":"Pr...
+[2025-08-11T15:46:34.590Z] 📨 GET /api/categorias
+[2025-08-11T15:46:34.592Z] 📤 Respuesta [200]: [{"id_categoria":3,"nombre_categoria":"Ingles","descripcion":"Contiene ingles","estatus":"activa","fecha_creacion":"2025-08-11T15:00:40.000Z","color_hex":null},{"id_categoria":4,"nombre_categoria":"Pr...
+[2025-08-11T15:46:34.709Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T15:46:34.710Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T15:46:34.711Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T15:46:34.711Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T15:46:34.711Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T15:46:34.712Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T15:46:34.712Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T15:46:56.644Z] 📨 POST /api/categorias
+[2025-08-11T15:46:56.644Z] 📦 Body: {"id_categoria":null,"nombre_categoria":"2prueba2","descripcion":"222","estatus":"activa"}
+[2025-08-11T15:46:56.648Z] 📤 Respuesta [201]: {"id_categoria":5,"nombre_categoria":"2prueba2","descripcion":"222","estatus":"activa"}
+[2025-08-11T15:46:56.654Z] 📨 GET /api/categorias
+[2025-08-11T15:46:56.655Z] 📤 Respuesta [200]: [{"id_categoria":5,"nombre_categoria":"2prueba2","descripcion":"222","estatus":"activa","fecha_creacion":"2025-08-11T15:46:56.000Z","color_hex":null},{"id_categoria":3,"nombre_categoria":"Ingles","des...
+[2025-08-11T15:47:01.907Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T15:47:01.908Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:47:01.910Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:47:01.911Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:47:01.912Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T15:47:01.913Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:47:01.915Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:47:01.917Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:47:01.921Z] 📨 GET /api/cursos
+[2025-08-11T15:47:01.922Z] 📨 GET /api/categorias/activas
+[2025-08-11T15:47:01.922Z] 📤 Respuesta [200]: [{"id_categoria":5,"nombre_categoria":"2prueba2"},{"id_categoria":3,"nombre_categoria":"Ingles"},{"id_categoria":4,"nombre_categoria":"Prueba"},{"id_categoria":2,"nombre_categoria":"Servidores"}]
+[2025-08-11T15:47:01.924Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T15:47:01.925Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T15:47:01.926Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T15:47:01.927Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:47:01.929Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:47:01.934Z] 📨 GET /api/cursos
+[2025-08-11T15:47:01.934Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:47:01.934Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T15:47:01.936Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T15:47:01.938Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:47:01.938Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:47:01.939Z] 📨 GET /api/categorias/activas
+[2025-08-11T15:47:01.940Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:47:01.941Z] 📨 GET /api/categorias
+[2025-08-11T15:47:01.942Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T15:47:01.943Z] 📤 Respuesta [200]: [{"id_categoria":5,"nombre_categoria":"2prueba2"},{"id_categoria":3,"nombre_categoria":"Ingles"},{"id_categoria":4,"nombre_categoria":"Prueba"},{"id_categoria":2,"nombre_categoria":"Servidores"}]
+[2025-08-11T15:47:01.943Z] 📤 Respuesta [200]: [{"id_categoria":5,"nombre_categoria":"2prueba2","descripcion":"222","estatus":"activa","fecha_creacion":"2025-08-11T15:46:56.000Z","color_hex":null},{"id_categoria":3,"nombre_categoria":"Ingles","des...
+[2025-08-11T15:47:01.944Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:47:01.945Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:47:01.959Z] 📨 GET /api/categorias
+[2025-08-11T15:47:01.960Z] 📤 Respuesta [200]: [{"id_categoria":5,"nombre_categoria":"2prueba2","descripcion":"222","estatus":"activa","fecha_creacion":"2025-08-11T15:46:56.000Z","color_hex":null},{"id_categoria":3,"nombre_categoria":"Ingles","des...
+[2025-08-11T15:47:02.011Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T15:47:02.024Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T15:47:02.024Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T15:47:02.024Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T15:47:02.025Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T15:47:02.025Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T15:47:02.025Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T15:47:16.658Z] 📨 DELETE /api/categorias/5
+[2025-08-11T15:47:16.662Z] 📤 Respuesta [200]: {"message":"Categoría eliminada con éxito."}
+[2025-08-11T15:47:16.671Z] 📨 GET /api/categorias
+[2025-08-11T15:47:16.672Z] 📤 Respuesta [200]: [{"id_categoria":3,"nombre_categoria":"Ingles","descripcion":"Contiene ingles","estatus":"activa","fecha_creacion":"2025-08-11T15:00:40.000Z","color_hex":null},{"id_categoria":4,"nombre_categoria":"Pr...
+[2025-08-11T15:47:18.646Z] 📨 DELETE /api/categorias/3
+[2025-08-11T15:47:18.650Z] 📤 Respuesta [200]: {"message":"Categoría eliminada con éxito."}
+[2025-08-11T15:47:18.656Z] 📨 GET /api/categorias
+[2025-08-11T15:47:18.657Z] 📤 Respuesta [200]: [{"id_categoria":4,"nombre_categoria":"Prueba","descripcion":"prueba","estatus":"activa","fecha_creacion":"2025-08-11T15:46:26.000Z","color_hex":null},{"id_categoria":2,"nombre_categoria":"Servidores"...
+[2025-08-11T15:47:20.342Z] 📨 DELETE /api/categorias/4
+[2025-08-11T15:47:20.348Z] 📤 Respuesta [200]: {"message":"Categoría eliminada con éxito."}
+[2025-08-11T15:47:20.353Z] 📨 GET /api/categorias
+[2025-08-11T15:47:20.354Z] 📤 Respuesta [200]: [{"id_categoria":2,"nombre_categoria":"Servidores","descripcion":"Aprender de servidores","estatus":"activa","fecha_creacion":"2025-08-08T15:58:35.000Z","color_hex":null}]
+[2025-08-11T15:47:22.783Z] 📨 DELETE /api/categorias/2
+[2025-08-11T15:47:22.786Z] 📤 Respuesta [200]: {"message":"Categoría eliminada con éxito."}
+[2025-08-11T15:47:22.794Z] 📨 GET /api/categorias
+[2025-08-11T15:47:22.796Z] 📤 Respuesta [200]: []
+[2025-08-11T15:54:19.502Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T15:54:19.503Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:54:19.505Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:54:19.506Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:54:19.511Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T15:54:19.513Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:54:19.513Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:54:19.514Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:54:19.523Z] 📨 GET /api/cursos
+[2025-08-11T15:54:19.524Z] 📨 GET /api/categorias/activas
+[2025-08-11T15:54:19.525Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T15:54:19.526Z] 📤 Respuesta [200]: []
+[2025-08-11T15:54:19.526Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T15:54:19.527Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:54:19.527Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T15:54:19.528Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T15:54:19.529Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:54:19.529Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:54:19.530Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:54:19.530Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:54:19.533Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T15:54:19.535Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T15:54:19.536Z] 📨 GET /api/cursos
+[2025-08-11T15:54:19.536Z] 📨 GET /api/categorias/activas
+[2025-08-11T15:54:19.536Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T15:54:19.537Z] 📤 Respuesta [200]: []
+[2025-08-11T15:54:19.537Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T15:54:19.538Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T15:54:19.549Z] 📨 GET /api/categorias
+[2025-08-11T15:54:19.549Z] 📤 Respuesta [401]: {"error":"Token expirado. Por favor, inicia sesión de nuevo."}
+[2025-08-11T15:54:19.557Z] 📨 GET /api/categorias
+[2025-08-11T15:54:19.558Z] 📤 Respuesta [401]: {"error":"Token expirado. Por favor, inicia sesión de nuevo."}
+[2025-08-11T15:54:19.644Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T15:54:19.644Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T15:54:19.645Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T15:54:19.645Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T15:54:19.645Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T15:54:19.646Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T15:54:19.646Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T16:07:20.188Z] ⚠️ Señal SIGINT recibida, cerrando servidor...
+[2025-08-11T16:24:59.359Z] 🚀 Iniciando servidor...
+[2025-08-11T16:24:59.360Z] 📂 Entorno: development
+[2025-08-11T16:24:59.360Z] 📝 Variables de entorno cargadas
+[2025-08-11T16:24:59.360Z] 🔄 CORS configurado: "*"
+[2025-08-11T16:24:59.364Z] 📁 Servicio de archivos estáticos configurado en /uploads
+[2025-08-11T16:24:59.364Z] 🔄 Importando rutas...
+[2025-08-11T16:24:59.438Z] ✅ Rutas importadas correctamente
+[2025-08-11T16:24:59.438Z] 🔌 Rutas configuradas en la aplicación
+[2025-08-11T16:24:59.438Z] 💾 Conectando a la base de datos...
+[2025-08-11T16:24:59.438Z] ✅ Conexión a la base de datos establecida
+[2025-08-11T16:24:59.438Z] 🔑 Clave JWT configurada
+[2025-08-11T16:24:59.442Z] ✅ Servidor iniciado en 0.0.0.0:5000
+[2025-08-11T16:24:59.442Z] 🌐 Entorno: development
+[2025-08-11T16:24:59.442Z] 📡 Servidor listo para recibir conexiones
+[2025-08-11T16:25:23.542Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T16:25:23.554Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:25:23.568Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T16:25:23.578Z] 📨 GET /api/cursos
+[2025-08-11T16:25:23.585Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T16:25:23.588Z] 📨 GET /api/categorias/activas
+[2025-08-11T16:25:23.591Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:25:23.598Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:25:23.602Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:25:23.604Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T16:25:23.605Z] 📨 GET /api/categorias
+[2025-08-11T16:25:23.609Z] 📤 Respuesta [401]: {"error":"Token expirado. Por favor, inicia sesión de nuevo."}
+[2025-08-11T16:25:23.611Z] 📤 Respuesta [200]: []
+[2025-08-11T16:25:23.612Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T16:25:23.612Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:25:23.613Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T16:25:23.615Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:25:23.617Z] 📨 GET /api/cursos
+[2025-08-11T16:25:23.619Z] 📨 GET /api/categorias
+[2025-08-11T16:25:23.620Z] 📤 Respuesta [401]: {"error":"Token expirado. Por favor, inicia sesión de nuevo."}
+[2025-08-11T16:25:23.621Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T16:25:23.622Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T16:25:23.623Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T16:25:23.623Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T16:25:23.625Z] 📨 GET /api/categorias/activas
+[2025-08-11T16:25:23.627Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:25:23.628Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T16:25:23.629Z] 📤 Respuesta [200]: []
+[2025-08-11T16:25:23.629Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T16:25:23.629Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T16:25:23.630Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:25:23.631Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:25:23.632Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T16:25:23.633Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T16:25:23.637Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:25:23.638Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:25:23.639Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:25:23.641Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:25:23.643Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:26:31.402Z] 📨 POST /api/admin_login
+[2025-08-11T16:26:31.402Z] 📦 Body: {"loginId":"sedeq1","password":"********"}
+[2025-08-11T16:26:31.481Z] 📤 Respuesta [200]: {"message":"Login exitoso","token":"********","user":{"id_usuario":4,"username":"sedeq1","tipo_usuario":"admin_sedeq"}}
+[2025-08-11T16:26:31.663Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T16:26:31.665Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:26:31.666Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:26:31.667Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:26:31.670Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T16:26:31.673Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:26:31.674Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:26:31.675Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:26:31.685Z] 📨 GET /api/cursos
+[2025-08-11T16:26:31.688Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T16:26:31.692Z] 📨 GET /api/categorias/activas
+[2025-08-11T16:26:31.693Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T16:26:31.694Z] 📤 Respuesta [200]: []
+[2025-08-11T16:26:31.695Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:26:31.701Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T16:26:31.702Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:26:31.704Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:26:31.705Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T16:26:31.706Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:26:31.706Z] 📨 GET /api/cursos
+[2025-08-11T16:26:31.708Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:26:31.709Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:26:31.710Z] 📨 GET /api/categorias/activas
+[2025-08-11T16:26:31.711Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T16:26:31.712Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T16:26:31.712Z] 📤 Respuesta [200]: []
+[2025-08-11T16:26:31.713Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:26:31.714Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:26:31.716Z] 📨 GET /api/categorias
+[2025-08-11T16:26:31.717Z] 📤 Respuesta [200]: []
+[2025-08-11T16:26:31.723Z] 📨 GET /api/categorias
+[2025-08-11T16:26:31.724Z] 📤 Respuesta [200]: []
+[2025-08-11T16:26:31.771Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T16:26:31.772Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T16:26:31.772Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T16:26:31.772Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T16:26:31.774Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T16:26:31.774Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T16:26:31.774Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T16:34:06.273Z] 📨 POST /api/categorias
+[2025-08-11T16:34:06.273Z] 📦 Body: {"id_categoria":null,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa"}
+[2025-08-11T16:34:06.278Z] 📤 Respuesta [201]: {"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","orden_prioridad":10,"estatus":"activa"}
+[2025-08-11T16:34:06.284Z] 📨 GET /api/categorias
+[2025-08-11T16:34:06.285Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":10,"fe...
+[2025-08-11T16:34:32.592Z] 📨 POST /api/categorias
+[2025-08-11T16:34:32.592Z] 📦 Body: {"id_categoria":null,"nombre_categoria":"Ciencia de Datos","descripcion":"Análisis e interpretación de datos para obtener información valiosa.","estatus":"activa"}
+[2025-08-11T16:34:32.597Z] 📤 Respuesta [201]: {"id_categoria":7,"nombre_categoria":"Ciencia de Datos","descripcion":"Análisis e interpretación de datos para obtener información valiosa.","orden_prioridad":11,"estatus":"activa"}
+[2025-08-11T16:34:32.602Z] 📨 GET /api/categorias
+[2025-08-11T16:34:32.603Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":10,"fe...
+[2025-08-11T16:39:52.967Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T16:39:52.969Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:39:52.971Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:39:52.973Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:39:52.974Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T16:39:52.976Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:39:52.977Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:39:52.979Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:39:52.993Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T16:39:52.994Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:39:52.995Z] 📨 GET /api/cursos
+[2025-08-11T16:39:52.996Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:39:52.997Z] 📨 GET /api/categorias/activas
+[2025-08-11T16:39:52.998Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:39:52.999Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T16:39:53.000Z] 📨 GET /api/categorias
+[2025-08-11T16:39:53.002Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T16:39:53.003Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T16:39:53.003Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial"},{"id_categoria":7,"nombre_categoria":"Ciencia de Datos"}]
+[2025-08-11T16:39:53.004Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":10,"fe...
+[2025-08-11T16:39:53.004Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:39:53.005Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:39:53.007Z] 📨 GET /api/cursos
+[2025-08-11T16:39:53.007Z] 📨 GET /api/categorias
+[2025-08-11T16:39:53.013Z] 📨 GET /api/categorias/activas
+[2025-08-11T16:39:53.014Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T16:39:53.016Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":10,"fe...
+[2025-08-11T16:39:53.016Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:39:53.018Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:39:53.018Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial"},{"id_categoria":7,"nombre_categoria":"Ciencia de Datos"}]
+[2025-08-11T16:39:53.023Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T16:39:53.025Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:39:53.236Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T16:39:53.237Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T16:39:53.237Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T16:39:53.238Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T16:39:53.238Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T16:39:53.239Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T16:39:53.239Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T16:42:08.096Z] 📨 POST /api/categorias
+[2025-08-11T16:42:08.096Z] 📦 Body: {"id_categoria":null,"nombre_categoria":"Cloud Computing","descripcion":"Uso de servicios y recursos informáticos a través de la nube.","estatus":"activa"}
+[2025-08-11T16:42:08.101Z] 📤 Respuesta [201]: {"id_categoria":8,"nombre_categoria":"Cloud Computing","descripcion":"Uso de servicios y recursos informáticos a través de la nube.","orden_prioridad":12,"estatus":"activa"}
+[2025-08-11T16:42:08.107Z] 📨 GET /api/categorias
+[2025-08-11T16:42:08.109Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":10,"fe...
+[2025-08-11T16:44:40.009Z] 📨 GET /api/categorias
+[2025-08-11T16:44:40.011Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":10,"fe...
+[2025-08-11T16:45:43.250Z] 📨 PUT /api/categorias/6
+[2025-08-11T16:45:43.250Z] 📦 Body: {"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":"1","fecha_creacion":"2025-08-11T16:34:06.000Z","color_hex":null}
+[2025-08-11T16:45:43.254Z] 📤 Respuesta [200]: {"message":"Categoría actualizada con éxito."}
+[2025-08-11T16:45:43.263Z] 📨 GET /api/categorias
+[2025-08-11T16:45:43.264Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T16:45:50.188Z] 📨 PUT /api/categorias/7
+[2025-08-11T16:45:50.188Z] 📦 Body: {"id_categoria":7,"nombre_categoria":"Ciencia de Datos","descripcion":"Análisis e interpretación de datos para obtener información valiosa.","estatus":"activa","orden_prioridad":"2","fecha_creacion":"2025-08-11T16:34:32.000Z","color_hex":null}
+[2025-08-11T16:45:50.191Z] 📤 Respuesta [200]: {"message":"Categoría actualizada con éxito."}
+[2025-08-11T16:45:50.200Z] 📨 GET /api/categorias
+[2025-08-11T16:45:50.201Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T16:46:01.053Z] 📨 PUT /api/categorias/8
+[2025-08-11T16:46:01.053Z] 📦 Body: {"id_categoria":8,"nombre_categoria":"Cloud Computing","descripcion":"Uso de servicios y recursos informáticos a través de la nube.","estatus":"activa","orden_prioridad":"3","fecha_creacion":"2025-08-11T16:42:08.000Z","color_hex":null}
+[2025-08-11T16:46:01.056Z] 📤 Respuesta [200]: {"message":"Categoría actualizada con éxito."}
+[2025-08-11T16:46:01.066Z] 📨 GET /api/categorias
+[2025-08-11T16:46:01.067Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T16:46:21.497Z] 📨 POST /api/categorias
+[2025-08-11T16:46:21.497Z] 📦 Body: {"id_categoria":null,"nombre_categoria":"Inglés","descripcion":"Desarrollo de habilidades lingüísticas para comunicación en inglés.","estatus":"activa"}
+[2025-08-11T16:46:21.501Z] 📤 Respuesta [201]: {"id_categoria":9,"nombre_categoria":"Inglés","descripcion":"Desarrollo de habilidades lingüísticas para comunicación en inglés.","orden_prioridad":10,"estatus":"activa"}
+[2025-08-11T16:46:21.507Z] 📨 GET /api/categorias
+[2025-08-11T16:46:21.508Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T16:46:31.904Z] 📨 PUT /api/categorias/9
+[2025-08-11T16:46:31.904Z] 📦 Body: {"id_categoria":9,"nombre_categoria":"Inglés","descripcion":"Desarrollo de habilidades lingüísticas para comunicación en inglés.","estatus":"activa","orden_prioridad":"4","fecha_creacion":"2025-08-11T16:46:21.000Z","color_hex":null}
+[2025-08-11T16:46:31.908Z] 📤 Respuesta [200]: {"message":"Categoría actualizada con éxito."}
+[2025-08-11T16:46:31.917Z] 📨 GET /api/categorias
+[2025-08-11T16:46:31.918Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T16:47:17.901Z] 📨 POST /api/categorias
+[2025-08-11T16:47:17.902Z] 📦 Body: {"id_categoria":null,"nombre_categoria":"Análisis de Datos","descripcion":"Procesamiento y evaluación de datos para la toma de decisiones","estatus":"activa"}
+[2025-08-11T16:47:17.906Z] 📤 Respuesta [201]: {"id_categoria":10,"nombre_categoria":"Análisis de Datos","descripcion":"Procesamiento y evaluación de datos para la toma de decisiones","orden_prioridad":10,"estatus":"activa"}
+[2025-08-11T16:47:17.911Z] 📨 GET /api/categorias
+[2025-08-11T16:47:17.913Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T16:47:24.839Z] 📨 PUT /api/categorias/10
+[2025-08-11T16:47:24.839Z] 📦 Body: {"id_categoria":10,"nombre_categoria":"Análisis de Datos","descripcion":"Procesamiento y evaluación de datos para la toma de decisiones.","estatus":"activa","orden_prioridad":10,"fecha_creacion":"2025-08-11T16:47:17.000Z","color_hex":null}
+[2025-08-11T16:47:24.842Z] 📤 Respuesta [200]: {"message":"Categoría actualizada con éxito."}
+[2025-08-11T16:47:24.857Z] 📨 GET /api/categorias
+[2025-08-11T16:47:24.858Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T16:47:36.445Z] 📨 PUT /api/categorias/10
+[2025-08-11T16:47:36.445Z] 📦 Body: {"id_categoria":10,"nombre_categoria":"Análisis de Datos","descripcion":"Procesamiento y evaluación de datos para la toma de decisiones.","estatus":"activa","orden_prioridad":"5","fecha_creacion":"2025-08-11T16:47:17.000Z","color_hex":null}
+[2025-08-11T16:47:36.448Z] 📤 Respuesta [200]: {"message":"Categoría actualizada con éxito."}
+[2025-08-11T16:47:36.456Z] 📨 GET /api/categorias
+[2025-08-11T16:47:36.457Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T16:47:50.922Z] 📨 PUT /api/categorias/10
+[2025-08-11T16:47:50.922Z] 📦 Body: {"id_categoria":10,"nombre_categoria":"Análisis de Datos","descripcion":"Procesamiento y evaluación de datos para la toma de decisiones.","estatus":"activa","orden_prioridad":"1","fecha_creacion":"2025-08-11T16:47:17.000Z","color_hex":null}
+[2025-08-11T16:47:50.925Z] 📤 Respuesta [200]: {"message":"Categoría actualizada con éxito."}
+[2025-08-11T16:47:50.934Z] 📨 GET /api/categorias
+[2025-08-11T16:47:50.936Z] 📤 Respuesta [200]: [{"id_categoria":10,"nombre_categoria":"Análisis de Datos","descripcion":"Procesamiento y evaluación de datos para la toma de decisiones.","estatus":"activa","orden_prioridad":1,"fecha_creacion":"2025...
+[2025-08-11T16:48:11.467Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T16:48:11.469Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:48:11.471Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:48:11.472Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T16:48:11.473Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:48:11.474Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:48:11.475Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:48:11.477Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:48:11.495Z] 📨 GET /api/cursos
+[2025-08-11T16:48:11.499Z] 📨 GET /api/categorias/activas
+[2025-08-11T16:48:11.502Z] 📤 Respuesta [200]: [{"id_categoria":10,"nombre_categoria":"Análisis de Datos"},{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial"},{"id_categoria":7,"nombre_categoria":"Ciencia de Datos"},{"id_categoria":8,"...
+[2025-08-11T16:48:11.503Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T16:48:11.505Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T16:48:11.507Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:48:11.508Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T16:48:11.508Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T16:48:11.511Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:48:11.512Z] 📨 GET /api/cursos
+[2025-08-11T16:48:11.515Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:48:11.516Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:48:11.518Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T16:48:11.519Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T16:48:11.521Z] 📨 GET /api/categorias
+[2025-08-11T16:48:11.523Z] 📨 GET /api/categorias/activas
+[2025-08-11T16:48:11.524Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:48:11.525Z] 📤 Respuesta [200]: [{"id_categoria":10,"nombre_categoria":"Análisis de Datos","descripcion":"Procesamiento y evaluación de datos para la toma de decisiones.","estatus":"activa","orden_prioridad":1,"fecha_creacion":"2025...
+[2025-08-11T16:48:11.526Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:48:11.526Z] 📤 Respuesta [200]: [{"id_categoria":10,"nombre_categoria":"Análisis de Datos"},{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial"},{"id_categoria":7,"nombre_categoria":"Ciencia de Datos"},{"id_categoria":8,"...
+[2025-08-11T16:48:11.527Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:48:11.528Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:48:11.529Z] 📨 GET /api/categorias
+[2025-08-11T16:48:11.531Z] 📤 Respuesta [200]: [{"id_categoria":10,"nombre_categoria":"Análisis de Datos","descripcion":"Procesamiento y evaluación de datos para la toma de decisiones.","estatus":"activa","orden_prioridad":1,"fecha_creacion":"2025...
+[2025-08-11T16:48:11.636Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T16:48:11.637Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T16:48:11.637Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T16:48:11.637Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T16:48:11.638Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T16:48:11.639Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T16:48:11.639Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T16:52:20.662Z] 📨 PUT /api/categorias/10
+[2025-08-11T16:52:20.662Z] 📦 Body: {"id_categoria":10,"nombre_categoria":"Análisis de Datos","descripcion":"Procesamiento y evaluación de datos para la toma de decisiones.","estatus":"activa","orden_prioridad":"5","fecha_creacion":"2025-08-11T16:47:17.000Z","color_hex":null}
+[2025-08-11T16:52:20.665Z] 📤 Respuesta [200]: {"message":"Categoría actualizada con éxito."}
+[2025-08-11T16:52:20.676Z] 📨 GET /api/categorias
+[2025-08-11T16:52:20.677Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T16:54:13.080Z] 📨 POST /api/categorias
+[2025-08-11T16:54:13.080Z] 📦 Body: {"id_categoria":null,"nombre_categoria":"Habilidades Blandas","descripcion":"Competencias interpersonales para un mejor desempeño profesional.","estatus":"activa"}
+[2025-08-11T16:54:13.085Z] 📤 Respuesta [201]: {"id_categoria":11,"nombre_categoria":"Habilidades Blandas","descripcion":"Competencias interpersonales para un mejor desempeño profesional.","orden_prioridad":10,"estatus":"activa"}
+[2025-08-11T16:54:13.091Z] 📨 GET /api/categorias
+[2025-08-11T16:54:13.092Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T16:54:21.197Z] 📨 PUT /api/categorias/11
+[2025-08-11T16:54:21.197Z] 📦 Body: {"id_categoria":11,"nombre_categoria":"Habilidades Blandas","descripcion":"Competencias interpersonales para un mejor desempeño profesional.","estatus":"activa","orden_prioridad":"6","fecha_creacion":"2025-08-11T16:54:13.000Z","color_hex":null}
+[2025-08-11T16:54:21.201Z] 📤 Respuesta [200]: {"message":"Categoría actualizada con éxito."}
+[2025-08-11T16:54:21.210Z] 📨 GET /api/categorias
+[2025-08-11T16:54:21.211Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T16:55:18.117Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T16:55:18.118Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:55:18.120Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:55:18.120Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:55:18.122Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T16:55:18.124Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:55:18.128Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:55:18.130Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:55:18.139Z] 📨 GET /api/cursos
+[2025-08-11T16:55:18.140Z] 📨 GET /api/categorias/activas
+[2025-08-11T16:55:18.141Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T16:55:18.142Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial"},{"id_categoria":7,"nombre_categoria":"Ciencia de Datos"},{"id_categoria":8,"nombre_categoria":"Cloud Computing"},{"id_categoria":9,"nom...
+[2025-08-11T16:55:18.142Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T16:55:18.144Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:55:18.148Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T16:55:18.149Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:55:18.151Z] 📨 GET /api/cursos
+[2025-08-11T16:55:18.151Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:55:18.152Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:55:18.153Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T16:55:18.154Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T16:55:18.155Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T16:55:18.156Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:55:18.157Z] 📨 GET /api/categorias/activas
+[2025-08-11T16:55:18.157Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:55:18.159Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:55:18.160Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial"},{"id_categoria":7,"nombre_categoria":"Ciencia de Datos"},{"id_categoria":8,"nombre_categoria":"Cloud Computing"},{"id_categoria":9,"nom...
+[2025-08-11T16:55:18.160Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:55:18.162Z] 📨 GET /api/categorias
+[2025-08-11T16:55:18.163Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T16:55:18.166Z] 📨 GET /api/categorias
+[2025-08-11T16:55:18.167Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T16:55:18.182Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T16:55:18.184Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T16:55:18.184Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T16:55:18.184Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T16:55:18.184Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T16:55:18.185Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T16:55:18.185Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T16:55:28.265Z] 📨 PUT /api/categorias/11
+[2025-08-11T16:55:28.265Z] 📦 Body: {"id_categoria":11,"nombre_categoria":"Habilidades Blandas","descripcion":"Competencias interpersonales para un mejor desempeño profesional.","estatus":"activa","orden_prioridad":"1","fecha_creacion":"2025-08-11T16:54:13.000Z","color_hex":null}
+[2025-08-11T16:55:28.268Z] 📤 Respuesta [200]: {"message":"Categoría actualizada con éxito."}
+[2025-08-11T16:55:28.278Z] 📨 GET /api/categorias
+[2025-08-11T16:55:28.279Z] 📤 Respuesta [200]: [{"id_categoria":11,"nombre_categoria":"Habilidades Blandas","descripcion":"Competencias interpersonales para un mejor desempeño profesional.","estatus":"activa","orden_prioridad":1,"fecha_creacion":"...
+[2025-08-11T16:55:44.860Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T16:55:44.862Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:55:44.863Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:55:44.865Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:55:44.866Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T16:55:44.867Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:55:44.868Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:55:44.869Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:55:44.872Z] 📨 GET /api/cursos
+[2025-08-11T16:55:44.873Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T16:55:44.874Z] 📨 GET /api/categorias/activas
+[2025-08-11T16:55:44.874Z] 📤 Respuesta [200]: [{"id_categoria":11,"nombre_categoria":"Habilidades Blandas"},{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial"},{"id_categoria":7,"nombre_categoria":"Ciencia de Datos"},{"id_categoria":8...
+[2025-08-11T16:55:44.875Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T16:55:44.876Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T16:55:44.878Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:55:44.879Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:55:44.879Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:55:44.880Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:55:44.881Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T16:55:44.881Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T16:55:44.882Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:55:44.883Z] 📨 GET /api/categorias/activas
+[2025-08-11T16:55:44.884Z] 📨 GET /api/cursos
+[2025-08-11T16:55:44.884Z] 📤 Respuesta [200]: [{"id_categoria":11,"nombre_categoria":"Habilidades Blandas"},{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial"},{"id_categoria":7,"nombre_categoria":"Ciencia de Datos"},{"id_categoria":8...
+[2025-08-11T16:55:44.885Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:55:44.886Z] 📨 GET /api/categorias
+[2025-08-11T16:55:44.887Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:55:44.888Z] 📤 Respuesta [200]: [{"id_categoria":11,"nombre_categoria":"Habilidades Blandas","descripcion":"Competencias interpersonales para un mejor desempeño profesional.","estatus":"activa","orden_prioridad":1,"fecha_creacion":"...
+[2025-08-11T16:55:44.888Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T16:55:44.889Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:55:44.894Z] 📨 GET /api/categorias
+[2025-08-11T16:55:44.896Z] 📤 Respuesta [200]: [{"id_categoria":11,"nombre_categoria":"Habilidades Blandas","descripcion":"Competencias interpersonales para un mejor desempeño profesional.","estatus":"activa","orden_prioridad":1,"fecha_creacion":"...
+[2025-08-11T16:55:44.981Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T16:55:45.035Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T16:55:45.036Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T16:55:45.036Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T16:55:45.037Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T16:55:45.037Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T16:55:45.037Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T16:56:04.535Z] 📨 PUT /api/categorias/11
+[2025-08-11T16:56:04.535Z] 📦 Body: {"id_categoria":11,"nombre_categoria":"Habilidades Blandas","descripcion":"Competencias interpersonales para un mejor desempeño profesional.","estatus":"activa","orden_prioridad":"6","fecha_creacion":"2025-08-11T16:54:13.000Z","color_hex":null}
+[2025-08-11T16:56:04.537Z] 📤 Respuesta [200]: {"message":"Categoría actualizada con éxito."}
+[2025-08-11T16:56:04.546Z] 📨 GET /api/categorias
+[2025-08-11T16:56:04.547Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T16:56:23.741Z] ⚠️ Señal SIGINT recibida, cerrando servidor...
+[2025-08-11T16:56:42.130Z] 🚀 Iniciando servidor...
+[2025-08-11T16:56:42.132Z] 📂 Entorno: development
+[2025-08-11T16:56:42.132Z] 📝 Variables de entorno cargadas
+[2025-08-11T16:56:42.132Z] 🔄 CORS configurado: "*"
+[2025-08-11T16:56:42.135Z] 📁 Servicio de archivos estáticos configurado en /uploads
+[2025-08-11T16:56:42.136Z] 🔄 Importando rutas...
+[2025-08-11T16:56:42.210Z] ✅ Rutas importadas correctamente
+[2025-08-11T16:56:42.210Z] 🔌 Rutas configuradas en la aplicación
+[2025-08-11T16:56:42.210Z] 💾 Conectando a la base de datos...
+[2025-08-11T16:56:42.210Z] ✅ Conexión a la base de datos establecida
+[2025-08-11T16:56:42.210Z] 🔑 Clave JWT configurada
+[2025-08-11T16:56:42.214Z] ✅ Servidor iniciado en 0.0.0.0:5000
+[2025-08-11T16:56:42.214Z] 🌐 Entorno: development
+[2025-08-11T16:56:42.214Z] 📡 Servidor listo para recibir conexiones
+[2025-08-11T16:57:17.934Z] 📨 POST /api/admin_login
+[2025-08-11T16:57:17.934Z] 📦 Body: {"loginId":"sedeq1","password":"********"}
+[2025-08-11T16:57:18.029Z] 📤 Respuesta [200]: {"message":"Login exitoso","token":"********","user":{"id_usuario":4,"username":"sedeq1","tipo_usuario":"admin_sedeq"}}
+[2025-08-11T16:57:18.217Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T16:57:18.220Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:57:18.224Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:57:18.226Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T16:57:18.230Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:57:18.232Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:57:18.234Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:57:18.235Z] 📨 GET /api/cursos
+[2025-08-11T16:57:18.241Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T16:57:18.242Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:57:18.242Z] 📨 GET /api/categorias/activas
+[2025-08-11T16:57:18.243Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T16:57:18.244Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial"},{"id_categoria":7,"nombre_categoria":"Ciencia de Datos"},{"id_categoria":8,"nombre_categoria":"Cloud Computing"},{"id_categoria":9,"nom...
+[2025-08-11T16:57:18.247Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:57:18.248Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T16:57:18.249Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:57:18.250Z] 📨 GET /api/cursos
+[2025-08-11T16:57:18.253Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:57:18.255Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T16:57:18.256Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:57:18.257Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:57:18.258Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T16:57:18.261Z] 📨 GET /api/categorias/activas
+[2025-08-11T16:57:18.262Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T16:57:18.263Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T16:57:18.264Z] 📨 GET /api/categorias
+[2025-08-11T16:57:18.267Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial"},{"id_categoria":7,"nombre_categoria":"Ciencia de Datos"},{"id_categoria":8,"nombre_categoria":"Cloud Computing"},{"id_categoria":9,"nom...
+[2025-08-11T16:57:18.270Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T16:57:18.272Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T16:57:18.276Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T16:57:18.278Z] 📨 GET /api/categorias
+[2025-08-11T16:57:18.280Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T16:57:18.304Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T16:57:18.307Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T16:57:18.308Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T16:57:18.308Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T16:57:18.309Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T16:57:18.309Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T16:57:18.309Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T16:57:32.816Z] 📨 PUT /api/categorias/6
+[2025-08-11T16:57:32.816Z] 📦 Body: {"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":"6","fecha_creacion":"2025-08-11T16:34:06.000Z","color_hex":null}
+[2025-08-11T16:57:32.822Z] 📤 Respuesta [200]: {"message":"Categoría actualizada y reordenada con éxito."}
+[2025-08-11T16:57:32.832Z] 📨 GET /api/categorias
+[2025-08-11T16:57:32.833Z] 📤 Respuesta [200]: [{"id_categoria":7,"nombre_categoria":"Ciencia de Datos","descripcion":"Análisis e interpretación de datos para obtener información valiosa.","estatus":"activa","orden_prioridad":1,"fecha_creacion":"2...
+[2025-08-11T16:57:53.970Z] 📨 PUT /api/categorias/6
+[2025-08-11T16:57:53.970Z] 📦 Body: {"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":"1","fecha_creacion":"2025-08-11T16:34:06.000Z","color_hex":null}
+[2025-08-11T16:57:53.974Z] 📤 Respuesta [200]: {"message":"Categoría actualizada y reordenada con éxito."}
+[2025-08-11T16:57:53.984Z] 📨 GET /api/categorias
+[2025-08-11T16:57:53.985Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T16:59:00.593Z] 📨 POST /api/categorias
+[2025-08-11T16:59:00.593Z] 📦 Body: {"id_categoria":null,"nombre_categoria":"Comunicación (Oral y Escrita)","descripcion":"Técnicas para expresar ideas de forma clara y efectiva.","estatus":"activa"}
+[2025-08-11T16:59:00.600Z] 📤 Respuesta [201]: {"id_categoria":12,"nombre_categoria":"Comunicación (Oral y Escrita)","descripcion":"Técnicas para expresar ideas de forma clara y efectiva.","orden_prioridad":7,"estatus":"activa"}
+[2025-08-11T16:59:00.605Z] 📨 GET /api/categorias
+[2025-08-11T16:59:00.608Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T17:00:20.323Z] 📨 POST /api/categorias
+[2025-08-11T17:00:20.323Z] 📦 Body: {"id_categoria":null,"nombre_categoria":"Gestión de Tiempo","descripcion":"Estrategias para organizar y optimizar el uso del tiempo.","estatus":"activa"}
+[2025-08-11T17:00:20.329Z] 📤 Respuesta [201]: {"id_categoria":13,"nombre_categoria":"Gestión de Tiempo","descripcion":"Estrategias para organizar y optimizar el uso del tiempo.","orden_prioridad":8,"estatus":"activa"}
+[2025-08-11T17:00:20.335Z] 📨 GET /api/categorias
+[2025-08-11T17:00:20.336Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T17:00:34.689Z] 📨 POST /api/categorias
+[2025-08-11T17:00:34.690Z] 📦 Body: {"id_categoria":null,"nombre_categoria":"Liderazgo","descripcion":"Habilidades para guiar, motivar y coordinar equipos.","estatus":"activa"}
+[2025-08-11T17:00:34.694Z] 📤 Respuesta [201]: {"id_categoria":14,"nombre_categoria":"Liderazgo","descripcion":"Habilidades para guiar, motivar y coordinar equipos.","orden_prioridad":9,"estatus":"activa"}
+[2025-08-11T17:00:34.699Z] 📨 GET /api/categorias
+[2025-08-11T17:00:34.700Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T17:01:05.691Z] 📨 POST /api/categorias
+[2025-08-11T17:01:05.691Z] 📦 Body: {"id_categoria":null,"nombre_categoria":"Salud y Bienestar","descripcion":"Prácticas para mejorar el estado físico, mental y emocional.","estatus":"activa"}
+[2025-08-11T17:01:05.695Z] 📤 Respuesta [201]: {"id_categoria":15,"nombre_categoria":"Salud y Bienestar","descripcion":"Prácticas para mejorar el estado físico, mental y emocional.","orden_prioridad":10,"estatus":"activa"}
+[2025-08-11T17:01:05.700Z] 📨 GET /api/categorias
+[2025-08-11T17:01:05.701Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T17:01:26.399Z] 📨 POST /api/categorias
+[2025-08-11T17:01:26.399Z] 📦 Body: {"id_categoria":null,"nombre_categoria":"Herramientas Ofimáticas","descripcion":"Uso eficiente de software de oficina para tareas laborales.","estatus":"activa"}
+[2025-08-11T17:01:26.403Z] 📤 Respuesta [201]: {"id_categoria":16,"nombre_categoria":"Herramientas Ofimáticas","descripcion":"Uso eficiente de software de oficina para tareas laborales.","orden_prioridad":11,"estatus":"activa"}
+[2025-08-11T17:01:26.409Z] 📨 GET /api/categorias
+[2025-08-11T17:01:26.411Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T17:01:43.038Z] 📨 POST /api/categorias
+[2025-08-11T17:01:43.038Z] 📦 Body: {"id_categoria":null,"nombre_categoria":"Manejo de Proyectos","descripcion":"Planificación, ejecución y seguimiento de proyectos.","estatus":"activa"}
+[2025-08-11T17:01:43.042Z] 📤 Respuesta [201]: {"id_categoria":17,"nombre_categoria":"Manejo de Proyectos","descripcion":"Planificación, ejecución y seguimiento de proyectos.","orden_prioridad":12,"estatus":"activa"}
+[2025-08-11T17:01:43.047Z] 📨 GET /api/categorias
+[2025-08-11T17:01:43.049Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T17:01:57.015Z] 📨 POST /api/categorias
+[2025-08-11T17:01:57.015Z] 📦 Body: {"id_categoria":null,"nombre_categoria":"Marketing","descripcion":"Estrategias para promocionar y posicionar productos o servicios.","estatus":"activa"}
+[2025-08-11T17:01:57.023Z] 📤 Respuesta [201]: {"id_categoria":18,"nombre_categoria":"Marketing","descripcion":"Estrategias para promocionar y posicionar productos o servicios.","orden_prioridad":13,"estatus":"activa"}
+[2025-08-11T17:01:57.029Z] 📨 GET /api/categorias
+[2025-08-11T17:01:57.030Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T17:05:32.830Z] 📨 GET /api/categorias
+[2025-08-11T17:05:32.832Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T17:05:59.671Z] 📨 GET /api/categorias
+[2025-08-11T17:05:59.672Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T17:08:40.152Z] 📨 POST /api/admin_login
+[2025-08-11T17:08:40.152Z] 📦 Body: {"loginId":"sedeq1","password":"********"}
+[2025-08-11T17:08:40.222Z] 📤 Respuesta [200]: {"message":"Login exitoso","token":"********","user":{"id_usuario":4,"username":"sedeq1","tipo_usuario":"admin_sedeq"}}
+[2025-08-11T17:08:40.423Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T17:08:40.425Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:08:40.426Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T17:08:40.427Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:08:40.430Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T17:08:40.433Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:08:40.434Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T17:08:40.435Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:08:40.440Z] 📨 GET /api/cursos
+[2025-08-11T17:08:40.441Z] 📨 GET /api/categorias/activas
+[2025-08-11T17:08:40.442Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T17:08:40.442Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial"},{"id_categoria":7,"nombre_categoria":"Ciencia de Datos"},{"id_categoria":8,"nombre_categoria":"Cloud Computing"},{"id_categoria":9,"nom...
+[2025-08-11T17:08:40.445Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T17:08:40.446Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:08:40.447Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T17:08:40.449Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:08:40.454Z] 📨 GET /api/cursos
+[2025-08-11T17:08:40.454Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T17:08:40.455Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T17:08:40.456Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T17:08:40.457Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T17:08:40.458Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:08:40.459Z] 📨 GET /api/categorias/activas
+[2025-08-11T17:08:40.460Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial"},{"id_categoria":7,"nombre_categoria":"Ciencia de Datos"},{"id_categoria":8,"nombre_categoria":"Cloud Computing"},{"id_categoria":9,"nom...
+[2025-08-11T17:08:40.461Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:08:40.462Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T17:08:40.463Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:08:40.465Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:08:40.470Z] 📨 GET /api/categorias
+[2025-08-11T17:08:40.472Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T17:08:40.478Z] 📨 GET /api/categorias
+[2025-08-11T17:08:40.479Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T17:08:40.493Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T17:08:40.495Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T17:08:40.496Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T17:08:40.496Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T17:08:40.498Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T17:08:40.499Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T17:08:40.499Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T17:17:57.293Z] 📨 GET /api/universidades?page=1&limit=10
+[2025-08-11T17:17:57.295Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:18:49.465Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T17:18:49.466Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T17:18:49.468Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:18:49.470Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:18:49.724Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T17:18:49.725Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T17:18:49.725Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T17:18:49.726Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T17:18:49.726Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T17:18:49.726Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T17:18:49.726Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T17:18:56.419Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T17:18:56.420Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T17:18:56.423Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:18:56.423Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:18:56.425Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T17:18:56.426Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:18:56.433Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T17:18:56.435Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:18:56.436Z] 📨 GET /api/cursos
+[2025-08-11T17:18:56.437Z] 📨 GET /api/categorias/activas
+[2025-08-11T17:18:56.437Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T17:18:56.438Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T17:18:56.439Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T17:18:56.440Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial"},{"id_categoria":7,"nombre_categoria":"Ciencia de Datos"},{"id_categoria":8,"nombre_categoria":"Cloud Computing"},{"id_categoria":9,"nom...
+[2025-08-11T17:18:56.441Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:18:56.442Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:18:56.446Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T17:18:56.448Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:18:56.449Z] 📨 GET /api/cursos
+[2025-08-11T17:18:56.450Z] 📨 GET /api/categorias/activas
+[2025-08-11T17:18:56.452Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T17:18:56.454Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial"},{"id_categoria":7,"nombre_categoria":"Ciencia de Datos"},{"id_categoria":8,"nombre_categoria":"Cloud Computing"},{"id_categoria":9,"nom...
+[2025-08-11T17:18:56.454Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T17:18:56.455Z] 📨 GET /api/categorias
+[2025-08-11T17:18:56.456Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T17:18:56.457Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T17:18:56.458Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T17:18:56.458Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:18:56.461Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:18:56.461Z] 📨 GET /api/categorias
+[2025-08-11T17:18:56.463Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T17:18:56.463Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:18:56.490Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T17:18:56.491Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T17:18:56.492Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T17:18:56.493Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T17:18:56.493Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T17:18:56.493Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T17:18:56.494Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T17:19:06.288Z] ⚠️ Señal SIGINT recibida, cerrando servidor...
+[2025-08-11T17:19:08.690Z] 🚀 Iniciando servidor...
+[2025-08-11T17:19:08.692Z] 📂 Entorno: development
+[2025-08-11T17:19:08.692Z] 📝 Variables de entorno cargadas
+[2025-08-11T17:19:08.692Z] 🔄 CORS configurado: "*"
+[2025-08-11T17:19:08.695Z] 📁 Servicio de archivos estáticos configurado en /uploads
+[2025-08-11T17:19:08.696Z] 🔄 Importando rutas...
+[2025-08-11T17:19:08.769Z] ✅ Rutas importadas correctamente
+[2025-08-11T17:19:08.769Z] 🔌 Rutas configuradas en la aplicación
+[2025-08-11T17:19:08.769Z] 💾 Conectando a la base de datos...
+[2025-08-11T17:19:08.769Z] ✅ Conexión a la base de datos establecida
+[2025-08-11T17:19:08.770Z] 🔑 Clave JWT configurada
+[2025-08-11T17:19:08.774Z] ✅ Servidor iniciado en 0.0.0.0:5000
+[2025-08-11T17:19:08.774Z] 🌐 Entorno: development
+[2025-08-11T17:19:08.774Z] 📡 Servidor listo para recibir conexiones
+[2025-08-11T17:19:32.218Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T17:19:32.233Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T17:19:32.257Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T17:19:32.265Z] 📨 GET /api/cursos
+[2025-08-11T17:19:32.272Z] 📨 GET /api/categorias/activas
+[2025-08-11T17:19:32.280Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:19:32.285Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T17:19:32.286Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:19:32.289Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T17:19:32.292Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:19:32.294Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T17:19:32.295Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial"},{"id_categoria":7,"nombre_categoria":"Ciencia de Datos"},{"id_categoria":8,"nombre_categoria":"Cloud Computing"},{"id_categoria":9,"nom...
+[2025-08-11T17:19:32.297Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T17:19:32.298Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T17:19:32.299Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:19:32.300Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:19:32.300Z] 📨 GET /api/cursos
+[2025-08-11T17:19:32.303Z] 📨 GET /api/categorias/activas
+[2025-08-11T17:19:32.305Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T17:19:32.307Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial"},{"id_categoria":7,"nombre_categoria":"Ciencia de Datos"},{"id_categoria":8,"nombre_categoria":"Cloud Computing"},{"id_categoria":9,"nom...
+[2025-08-11T17:19:32.309Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T17:19:32.310Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:19:32.311Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:19:32.313Z] 📨 GET /api/categorias
+[2025-08-11T17:19:32.318Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T17:19:32.320Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:19:32.322Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T17:19:32.325Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:19:32.329Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T17:19:32.332Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:19:32.346Z] 📨 GET /api/categorias
+[2025-08-11T17:19:32.352Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T17:19:32.554Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T17:19:32.555Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T17:19:32.555Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T17:19:32.558Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T17:19:32.558Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T17:19:32.559Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T17:19:32.559Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T17:23:22.169Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T17:23:22.172Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:23:22.188Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T17:23:22.190Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T17:23:22.190Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T17:23:22.190Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T17:23:22.191Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T17:23:22.191Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T17:23:22.191Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T17:27:18.178Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T17:27:18.180Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:27:18.199Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T17:27:18.200Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T17:27:18.200Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T17:27:18.201Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T17:27:18.201Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T17:27:18.201Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T17:27:20.983Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T17:27:20.985Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:27:21.007Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T17:27:21.008Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T17:27:21.008Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T17:27:21.009Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T17:27:21.009Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T17:27:21.009Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T17:27:23.827Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T17:27:23.829Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:27:23.831Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T17:27:23.833Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:27:23.836Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T17:27:23.838Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:27:23.840Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T17:27:23.843Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:27:23.853Z] 📨 GET /api/cursos
+[2025-08-11T17:27:23.854Z] 📨 GET /api/categorias/activas
+[2025-08-11T17:27:23.855Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial"},{"id_categoria":7,"nombre_categoria":"Ciencia de Datos"},{"id_categoria":8,"nombre_categoria":"Cloud Computing"},{"id_categoria":9,"nom...
+[2025-08-11T17:27:23.856Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T17:27:23.857Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T17:27:23.858Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T17:27:23.859Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T17:27:23.860Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:27:23.861Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T17:27:23.862Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:27:23.866Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:27:23.867Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:27:23.867Z] 📨 GET /api/cursos
+[2025-08-11T17:27:23.868Z] 📨 GET /api/categorias/activas
+[2025-08-11T17:27:23.869Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T17:27:23.870Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial"},{"id_categoria":7,"nombre_categoria":"Ciencia de Datos"},{"id_categoria":8,"nombre_categoria":"Cloud Computing"},{"id_categoria":9,"nom...
+[2025-08-11T17:27:23.872Z] 📨 GET /api/categorias
+[2025-08-11T17:27:23.873Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T17:27:23.875Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:27:23.876Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T17:27:23.876Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T17:27:23.877Z] 📨 GET /api/categorias
+[2025-08-11T17:27:23.878Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T17:27:23.879Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:27:23.900Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T17:27:23.901Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T17:27:23.903Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T17:27:23.904Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T17:27:23.904Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T17:27:23.905Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T17:27:23.905Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T17:35:26.427Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T17:35:26.430Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:35:28.445Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T17:35:28.447Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:35:28.455Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T17:35:28.458Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T17:35:28.459Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:35:28.460Z] 📨 GET /api/cursos
+[2025-08-11T17:35:28.462Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T17:35:28.462Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:35:28.463Z] 📨 GET /api/categorias/activas
+[2025-08-11T17:35:28.464Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T17:35:28.465Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T17:35:28.466Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial"},{"id_categoria":7,"nombre_categoria":"Ciencia de Datos"},{"id_categoria":8,"nombre_categoria":"Cloud Computing"},{"id_categoria":9,"nom...
+[2025-08-11T17:35:28.466Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T17:35:28.467Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:35:28.468Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:35:28.468Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T17:35:28.469Z] 📨 GET /api/cursos
+[2025-08-11T17:35:28.470Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:35:28.471Z] 📨 GET /api/categorias/activas
+[2025-08-11T17:35:28.471Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T17:35:28.472Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:35:28.472Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial"},{"id_categoria":7,"nombre_categoria":"Ciencia de Datos"},{"id_categoria":8,"nombre_categoria":"Cloud Computing"},{"id_categoria":9,"nom...
+[2025-08-11T17:35:28.476Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T17:35:28.477Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:35:28.478Z] 📨 GET /api/categorias
+[2025-08-11T17:35:28.479Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T17:35:28.483Z] 📨 GET /api/categorias
+[2025-08-11T17:35:28.485Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T17:35:34.640Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T17:35:34.642Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T17:35:34.644Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:35:34.646Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:35:34.646Z] 📨 GET /api/cursos
+[2025-08-11T17:35:34.647Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T17:35:34.647Z] 📨 GET /api/categorias/activas
+[2025-08-11T17:35:34.647Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T17:35:34.648Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial"},{"id_categoria":7,"nombre_categoria":"Ciencia de Datos"},{"id_categoria":8,"nombre_categoria":"Cloud Computing"},{"id_categoria":9,"nom...
+[2025-08-11T17:35:34.649Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T17:35:34.650Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:35:34.652Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:35:34.654Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T17:35:34.656Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T17:35:34.657Z] 📨 GET /api/categorias/activas
+[2025-08-11T17:35:34.658Z] 📨 GET /api/cursos
+[2025-08-11T17:35:34.659Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T17:35:34.659Z] 📨 GET /api/categorias
+[2025-08-11T17:35:34.662Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial"},{"id_categoria":7,"nombre_categoria":"Ciencia de Datos"},{"id_categoria":8,"nombre_categoria":"Cloud Computing"},{"id_categoria":9,"nom...
+[2025-08-11T17:35:34.664Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:35:34.665Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:35:34.667Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T17:35:34.668Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:35:34.669Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T17:35:34.669Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T17:35:34.672Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:35:34.672Z] 📨 GET /api/categorias
+[2025-08-11T17:35:34.674Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T17:35:45.700Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T17:35:45.701Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T17:35:45.703Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:35:45.705Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T17:35:45.708Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:35:45.710Z] 📨 GET /api/cursos
+[2025-08-11T17:35:45.711Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:35:45.712Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T17:35:45.714Z] 📨 GET /api/categorias/activas
+[2025-08-11T17:35:45.715Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial"},{"id_categoria":7,"nombre_categoria":"Ciencia de Datos"},{"id_categoria":8,"nombre_categoria":"Cloud Computing"},{"id_categoria":9,"nom...
+[2025-08-11T17:35:45.715Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T17:35:45.716Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T17:35:45.716Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T17:35:45.717Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:35:45.719Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T17:35:45.720Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:35:45.722Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:35:45.724Z] 📨 GET /api/cursos
+[2025-08-11T17:35:45.724Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:35:45.725Z] 📨 GET /api/categorias/activas
+[2025-08-11T17:35:45.725Z] 📨 GET /api/categorias
+[2025-08-11T17:35:45.727Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T17:35:45.728Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial"},{"id_categoria":7,"nombre_categoria":"Ciencia de Datos"},{"id_categoria":8,"nombre_categoria":"Cloud Computing"},{"id_categoria":9,"nom...
+[2025-08-11T17:35:45.729Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T17:35:45.729Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T17:35:45.730Z] 📨 GET /api/categorias
+[2025-08-11T17:35:45.731Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:35:45.732Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T17:37:51.276Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T17:37:51.278Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:37:51.282Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T17:37:51.283Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:37:51.289Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T17:37:51.291Z] 📨 GET /api/cursos
+[2025-08-11T17:37:51.292Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:37:51.293Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T17:37:51.295Z] 📨 GET /api/categorias/activas
+[2025-08-11T17:37:51.295Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T17:37:51.296Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial"},{"id_categoria":7,"nombre_categoria":"Ciencia de Datos"},{"id_categoria":8,"nombre_categoria":"Cloud Computing"},{"id_categoria":9,"nom...
+[2025-08-11T17:37:51.297Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:37:51.309Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T17:37:51.313Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:37:51.314Z] 📨 GET /api/maestros?page=1&limit=10&searchTerm=
+[2025-08-11T17:37:51.316Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T17:37:51.317Z] 📨 GET /api/cursos
+[2025-08-11T17:37:51.318Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:37:51.318Z] 📨 GET /api/categorias/activas
+[2025-08-11T17:37:51.319Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:37:51.320Z] 📨 GET /api/maestros?limit=9999
+[2025-08-11T17:37:51.321Z] 📤 Respuesta [200]: {"cursos":[],"totalPages":0,"currentPage":1,"total":0}
+[2025-08-11T17:37:51.322Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial"},{"id_categoria":7,"nombre_categoria":"Ciencia de Datos"},{"id_categoria":8,"nombre_categoria":"Cloud Computing"},{"id_categoria":9,"nom...
+[2025-08-11T17:37:51.322Z] 📤 Respuesta [200]: {"maestros":[{"id_maestro":3,"id_usuario":49,"id_universidad":14,"nombre_completo":"Oscar Morales Galvan","email_institucional":"oscarMaestro@gmail.com","especialidad":"Software","grado_academico":"li...
+[2025-08-11T17:37:51.325Z] 📨 GET /api/categorias
+[2025-08-11T17:37:51.328Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T17:37:51.339Z] 📨 GET /api/categorias
+[2025-08-11T17:37:51.341Z] 📤 Respuesta [200]: [{"id_categoria":6,"nombre_categoria":"Inteligencia Artificial","descripcion":"Uso de algoritmos y modelos para simular la inteligencia humana en máquinas.","estatus":"activa","orden_prioridad":1,"fec...
+[2025-08-11T17:38:30.865Z] 📨 GET /api/universidades/admins?page=1&limit=10&searchTerm=
+[2025-08-11T17:38:30.869Z] 📤 Respuesta [404]: {"error":"University not found"}
+[2025-08-11T17:38:31.616Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T17:38:31.617Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:42:18.653Z] 📨 GET /api/universidades?page=1&limit=10&searchTerm=
+[2025-08-11T17:42:18.654Z] 📨 GET /api/universidades?limit=9999
+[2025-08-11T17:42:18.656Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:42:18.657Z] 📤 Respuesta [200]: {"universities":[{"id_universidad":16,"nombre":"Instituto Tecnologico de Mexico (Campus Queretaro)","clave_universidad":"itq","direccion":"conocido","telefono":"4421234567","email_contacto":"itq@qro.e...
+[2025-08-11T17:42:18.678Z] 📨 GET /uploads/logos/logo-1754668629498-992672348.svg
+[2025-08-11T17:42:18.678Z] 📨 GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T17:42:18.680Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752250405055-229771500.svg
+[2025-08-11T17:42:18.682Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T17:42:18.682Z] 📨 GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T17:42:18.683Z] ❌ Ruta no encontrada: GET /uploads/logos/logo-1752688412575-536161054.svg
+[2025-08-11T17:42:18.684Z] 📤 Respuesta [404]: {"error":"Route not found"}
+[2025-08-11T17:42:42.234Z] ⚠️ Señal SIGINT recibida, cerrando servidor...
