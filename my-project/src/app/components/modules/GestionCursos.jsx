@@ -257,13 +257,13 @@ function CourseManagement({ userId }) {
                 <td>
                   <div className={styles.tableActions}>
                     <button
-                      onClick={() => handleOpenModal(cat)}
+                      onClick={() => handleOpenModal(course)}
                       className={styles.editButton}
                     >
                       <FontAwesomeIcon icon={faEdit} />
                     </button>
                     <button
-                      onClick={() => handleOpenDeleteModal(cat)}
+                      onClick={() => handleOpenDeleteModal(course)}
                       className={styles.deleteButton}
                     >
                       <FontAwesomeIcon icon={faTrash} />

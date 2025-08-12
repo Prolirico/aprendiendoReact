@@ -341,13 +341,13 @@ function GestionMaestros() {
                   <td>
                     <div className={styles.tableActions}>
                       <button
-                        onClick={() => handleOpenModal(cat)}
+                        onClick={() => handleOpenModal(maestro)}
                         className={styles.editButton}
                       >
                         <FontAwesomeIcon icon={faEdit} />
                       </button>
                       <button
-                        onClick={() => handleOpenDeleteModal(cat)}
+                        onClick={() => handleOpenDeleteModal(maestro)}
                         className={styles.deleteButton}
                       >
                         <FontAwesomeIcon icon={faTrash} />

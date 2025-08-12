@@ -381,13 +381,13 @@ function ManejoUniversidades() {
                   <td>
                     <div className={styles.tableActions}>
                       <button
-                        onClick={() => handleOpenModal(cat)}
+                        onClick={() => handleOpenModal(uni)}
                         className={styles.editButton}
                       >
                         <FontAwesomeIcon icon={faEdit} />
                       </button>
                       <button
-                        onClick={() => handleOpenDeleteModal(cat)}
+                        onClick={() => handleOpenDeleteModal(uni)}
                         className={styles.deleteButton}
                       >
                         <FontAwesomeIcon icon={faTrash} />

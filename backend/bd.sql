@@ -41,6 +41,40 @@ CREATE TABLE `universidad` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
+-- Tabla: Facultades
+-- Descripción: Almacena información de las facultades que tienes las universidades
+-- --------------------------------------------------------
+CREATE TABLE `facultades` (
+  `id_facultad` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id_universidad` INT UNSIGNED NOT NULL,
+  `nombre` VARCHAR(150) NOT NULL,
+  `fecha_registro` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_facultad`),
+  FOREIGN KEY (`id_universidad`) REFERENCES `universidad`(`id_universidad`) ON DELETE CASCADE,
+  INDEX `idx_nombre_facultad` (`nombre`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+-- Tabla: Carreras
+-- Descripción: Almacena información de las carreras que tienes las universidades
+-- --------------------------------------------------------
+CREATE TABLE `carreras` (
+  `id_carrera` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id_facultad` INT UNSIGNED NOT NULL,
+  `nombre` VARCHAR(150) NOT NULL,
+  `clave_carrera` VARCHAR(20) NOT NULL,
+  `duracion_anos` INT,
+  `fecha_registro` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_carrera`),
+  FOREIGN KEY (`id_facultad`) REFERENCES `facultades`(`id_facultad`) ON DELETE CASCADE,
+  INDEX `idx_nombre_carrera` (`nombre`),
+  UNIQUE KEY `uk_clave_carrera` (`clave_carrera`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+-- --------------------------------------------------------
 -- Tabla: usuario
 -- Descripción: Sistema de autenticación y autorización
 -- --------------------------------------------------------
@@ -358,27 +392,6 @@ INSERT INTO dominiosUniversidades (dominio, estatus) VALUES
 ('queretaro.tecnm.mx', 'activo'),
 ('uaq.mx', 'activo');
 
--- --------------------------------------------------------
--- Insertar categorías por defecto
--- --------------------------------------------------------
-
-INSERT INTO `categoria_curso` (`nombre_categoria`, `descripcion`, `tipo_categoria`, `color_hex`) VALUES
--- Por área de conocimiento
-('Tecnologías de la Información', 'Cursos de TI, programación y sistemas', 'area_conocimiento', '#007bff'),
-('Administración y Negocios', 'Cursos de gestión empresarial', 'area_conocimiento', '#28a745'),
-('Ingeniería', 'Cursos técnicos de ingeniería', 'area_conocimiento', '#dc3545'),
-('Ciencias Sociales', 'Cursos de humanidades', 'area_conocimiento', '#ffc107'),
-('Salud', 'Cursos de ciencias de la salud', 'area_conocimiento', '#17a2b8'),
-
--- Por carrera (ejemplos)
-('Sistemas Computacionales', 'Cursos para ISC', 'carrera', '#6f42c1'),
-('Administración', 'Cursos para LAE', 'carrera', '#fd7e14'),
-('Contaduría', 'Cursos para LCP', 'carrera', '#20c997'),
-
--- Por tipo de apoyo
-('Apoyo Académico', 'Refuerzo de materias básicas', 'tipo_apoyo', '#e83e8c'),
-('Capacitación Laboral', 'Habilidades para el trabajo', 'tipo_apoyo', '#6610f2'),
-('Desarrollo Personal', 'Habilidades blandas', 'tipo_apoyo', '#fd7e14');
 
 -- --------------------------------------------------------
 -- Crear usuario administrador SEDEQ por defecto
