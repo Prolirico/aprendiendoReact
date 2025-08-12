@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBook } from "@fortawesome/free-solid-svg-icons";
+import { faBook, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import styles from "./GestionCursos.module.css";
 
 const API_URL = "http://localhost:5000/api/cursos";
@@ -257,16 +257,16 @@ function CourseManagement({ userId }) {
                 <td>
                   <div className={styles.tableActions}>
                     <button
-                      onClick={() => handleOpenModal(course)}
+                      onClick={() => handleOpenModal(cat)}
                       className={styles.editButton}
                     >
-                      <i className="fas fa-edit"></i>
+                      <FontAwesomeIcon icon={faEdit} />
                     </button>
                     <button
-                      onClick={() => handleOpenDeleteModal(course)}
+                      onClick={() => handleOpenDeleteModal(cat)}
                       className={styles.deleteButton}
                     >
-                      <i className="fas fa-trash"></i>
+                      <FontAwesomeIcon icon={faTrash} />
                     </button>
                   </div>
                 </td>
@@ -371,6 +371,26 @@ function CourseManagement({ userId }) {
                     required
                   ></textarea>
                 </div>
+                <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                  <label htmlFor="objetivos">Objetivos</label>
+                  <textarea
+                    id="objetivos"
+                    name="objetivos"
+                    value={formState.objetivos || ""}
+                    onChange={handleFormChange}
+                    rows="3"
+                  ></textarea>
+                </div>
+                <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                  <label htmlFor="prerequisitos">Prerrequisitos</label>
+                  <textarea
+                    id="prerequisitos"
+                    name="prerequisitos"
+                    value={formState.prerequisitos || ""}
+                    onChange={handleFormChange}
+                    rows="3"
+                  ></textarea>
+                </div>
                 <div className={styles.formGroup}>
                   <label htmlFor="duracion_horas">Duración (horas)</label>
                   <input
@@ -383,6 +403,24 @@ function CourseManagement({ userId }) {
                     required
                   />
                 </div>
+                {isEditing && (
+                  <div className={styles.formGroup}>
+                    <label htmlFor="estatus_curso">Estatus del Curso</label>
+                    <select
+                      id="estatus_curso"
+                      name="estatus_curso"
+                      value={formState.estatus_curso || "planificado"}
+                      onChange={handleFormChange}
+                      required
+                    >
+                      <option value="planificado">Planificado</option>
+                      <option value="abierto">Abierto</option>
+                      <option value="en_curso">En Curso</option>
+                      <option value="finalizado">Finalizado</option>
+                      <option value="cancelado">Cancelado</option>
+                    </select>
+                  </div>
+                )}
                 <div className={styles.formGroup}>
                   <label htmlFor="cupo_maximo">Cupo Máximo</label>
                   <input

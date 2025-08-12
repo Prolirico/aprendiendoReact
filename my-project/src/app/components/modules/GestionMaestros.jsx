@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styles from "./GestionMaestros.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChalkboardTeacher } from "@fortawesome/free-solid-svg-icons";
+import {
+  faEdit,
+  faTrash,
+  faChalkboardTeacher,
+} from "@fortawesome/free-solid-svg-icons";
 
 // Define the base URL of your backend API
 const API_URL = "http://localhost:5000/api/maestros";
@@ -337,16 +341,16 @@ function GestionMaestros() {
                   <td>
                     <div className={styles.tableActions}>
                       <button
-                        onClick={() => handleOpenModal(maestro)}
+                        onClick={() => handleOpenModal(cat)}
                         className={styles.editButton}
                       >
-                        <i className="fas fa-edit"></i>
+                        <FontAwesomeIcon icon={faEdit} />
                       </button>
                       <button
-                        onClick={() => handleOpenDeleteModal(maestro)}
+                        onClick={() => handleOpenDeleteModal(cat)}
                         className={styles.deleteButton}
                       >
-                        <i className="fas fa-trash"></i>
+                        <FontAwesomeIcon icon={faTrash} />
                       </button>
                     </div>
                   </td>

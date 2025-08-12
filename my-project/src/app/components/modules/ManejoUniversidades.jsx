@@ -1,7 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styles from "./ManejoUniversidades.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSchool, faUserShield } from "@fortawesome/free-solid-svg-icons";
+import {
+  faSchool,
+  faUserShield,
+  faTrash,
+  faEdit,
+} from "@fortawesome/free-solid-svg-icons";
 
 // Define the base URL of your backend API
 const API_URL = "http://localhost:5000/api/universidades";
@@ -376,16 +381,16 @@ function ManejoUniversidades() {
                   <td>
                     <div className={styles.tableActions}>
                       <button
-                        onClick={() => handleOpenModal(uni)}
+                        onClick={() => handleOpenModal(cat)}
                         className={styles.editButton}
                       >
-                        <i className="fas fa-edit"></i>
+                        <FontAwesomeIcon icon={faEdit} />
                       </button>
                       <button
-                        onClick={() => handleOpenDeleteModal(uni)}
+                        onClick={() => handleOpenDeleteModal(cat)}
                         className={styles.deleteButton}
                       >
-                        <i className="fas fa-trash"></i>
+                        <FontAwesomeIcon icon={faTrash} />
                       </button>
                     </div>
                   </td>
