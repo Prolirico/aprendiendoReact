@@ -18,7 +18,20 @@ exports.getMaestros = async (req, res) => {
       let countSql =
         "SELECT COUNT(*) AS total FROM maestro m JOIN usuario u ON m.id_usuario = u.id_usuario";
       let dataSql =
-        "SELECT m.*, u.email, u.username, u.tipo_usuario, uni.nombre AS nombre_universidad FROM maestro m JOIN usuario u ON m.id_usuario = u.id_usuario JOIN universidad uni ON m.id_universidad = uni.id_universidad";
+        `SELECT 
+          m.*, 
+          u.email, 
+          u.username, 
+          u.tipo_usuario, 
+          uni.nombre AS nombre_universidad,
+          fac.nombre AS nombre_facultad,
+          car.nombre AS nombre_carrera
+         FROM maestro m 
+         JOIN usuario u ON m.id_usuario = u.id_usuario 
+         JOIN universidad uni ON m.id_universidad = uni.id_universidad
+         LEFT JOIN facultades fac ON m.id_facultad = fac.id_facultad
+         LEFT JOIN carreras car ON m.id_carrera = car.id_carrera`;
+
       let whereClauses = [];
       let params = [];
 
@@ -30,8 +43,9 @@ exports.getMaestros = async (req, res) => {
       }
 
       if (whereClauses.length > 0) {
-        countSql += " WHERE " + whereClauses.join(" AND ");
-        dataSql += " WHERE " + whereClauses.join(" AND ");
+        const whereSql = " WHERE " + whereClauses.join(" AND ");
+        countSql += whereSql;
+        dataSql += whereSql;
       }
 
       dataSql += ` LIMIT ? OFFSET ?`;
@@ -40,7 +54,7 @@ exports.getMaestros = async (req, res) => {
       const [totalResult] = await db.execute(
         countSql,
         params.slice(0, params.length - 2),
-      ); // Para el conteo no se usan limit y offset
+      );
       const total = totalResult[0].total;
       const totalPages = Math.ceil(total / limit);
 
@@ -85,8 +99,10 @@ exports.createMaestro = async (req, res) => {
     especialidad,
     grado_academico,
     id_universidad,
-    fecha_ingreso, // Frontend puede enviar o se genera aquí
-    password, // Contraseña para el usuario asociado (se generará si no se provee)
+    id_facultad,
+    id_carrera,
+    fecha_ingreso,
+    password,
   } = req.body;
 
   if (
@@ -101,16 +117,11 @@ exports.createMaestro = async (req, res) => {
     });
   }
 
-  const tipo_usuario = "maestro";
-  const estatus_usuario = "activo"; // Maestros nuevos activos por defecto
-
   let connection;
   try {
     connection = await pool.getConnection();
     await connection.beginTransaction();
 
-    // 1. Crear el usuario asociado al maestro
-    // Se usa el email institucional como username por defecto para unicidad
     const [existingUser] = await connection.execute(
       "SELECT id_usuario FROM usuario WHERE email = ? OR username = ?",
       [email_institucional, email_institucional],
@@ -123,8 +134,7 @@ exports.createMaestro = async (req, res) => {
         .json({ error: "Ya existe un usuario con este email o username." });
     }
 
-    // Generar una contraseña si no se provee, o hashear la provista
-    const userPassword = password || Math.random().toString(36).slice(-10); // Contraseña aleatoria si no se da
+    const userPassword = password || Math.random().toString(36).slice(-10);
     const password_hash = await bcrypt.hash(userPassword, 10);
 
     const [userResult] = await connection.execute(
@@ -133,24 +143,25 @@ exports.createMaestro = async (req, res) => {
         email_institucional,
         email_institucional,
         password_hash,
-        tipo_usuario,
-        estatus_usuario,
+        "maestro",
+        "activo",
         id_universidad,
       ],
     );
     const id_usuario = userResult.insertId;
 
-    // 2. Crear el registro del maestro
     const [maestroResult] = await connection.execute(
-      "INSERT INTO maestro (id_usuario, id_universidad, nombre_completo, email_institucional, especialidad, grado_academico, fecha_ingreso) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO maestro (id_usuario, id_universidad, id_facultad, id_carrera, nombre_completo, email_institucional, especialidad, grado_academico, fecha_ingreso) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [
         id_usuario,
         id_universidad,
+        id_facultad || null,
+        id_carrera || null,
         nombre_completo,
         email_institucional,
         especialidad || null,
         grado_academico,
-        fecha_ingreso || new Date().toISOString().slice(0, 10), // Fecha actual si no se provee
+        fecha_ingreso || new Date().toISOString().slice(0, 10),
       ],
     );
 
@@ -182,15 +193,20 @@ exports.updateMaestro = async (req, res) => {
     especialidad,
     grado_academico,
     id_universidad,
-    password, // Opcional: para actualizar la contraseña del usuario asociado
+    id_facultad,
+    id_carrera,
+    password,
   } = req.body;
+
+  // --- LOG PARA DEPURACIÓN ---
+  console.log(`[Debug] Actualizando maestro ID: ${id}`);
+  console.log("[Debug] Body recibido:", req.body);
 
   let connection;
   try {
     connection = await pool.getConnection();
     await connection.beginTransaction();
 
-    // Obtener el maestro existente para su id_usuario
     const [existingMaestro] = await connection.execute(
       "SELECT id_usuario FROM maestro WHERE id_maestro = ?",
       [id],
@@ -202,12 +218,10 @@ exports.updateMaestro = async (req, res) => {
     }
     const id_usuario = existingMaestro[0].id_usuario;
 
-    // Actualizar la tabla de usuario si el email o la contraseña cambian
     const userUpdates = [];
     const userParams = [];
 
     if (email_institucional) {
-      // Verificar unicidad del nuevo email/username si cambia
       const [duplicateUser] = await connection.execute(
         "SELECT id_usuario FROM usuario WHERE (email = ? OR username = ?) AND id_usuario != ?",
         [email_institucional, email_institucional, id_usuario],
@@ -227,7 +241,6 @@ exports.updateMaestro = async (req, res) => {
       userParams.push(password_hash);
     }
     if (id_universidad) {
-      // Se actualiza la universidad en la tabla de usuario también
       userUpdates.push("id_universidad = ?");
       userParams.push(id_universidad);
     }
@@ -240,42 +253,31 @@ exports.updateMaestro = async (req, res) => {
       );
     }
 
-    // Actualizar la tabla de maestro
     const maestroUpdates = [];
     const maestroParams = [];
 
-    if (nombre_completo) {
-      maestroUpdates.push("nombre_completo = ?");
-      maestroParams.push(nombre_completo);
-    }
-    if (email_institucional) {
-      maestroUpdates.push("email_institucional = ?");
-      maestroParams.push(email_institucional);
-    }
-    if (especialidad !== undefined) {
-      // Permite null
-      maestroUpdates.push("especialidad = ?");
-      maestroParams.push(especialidad);
-    }
-    if (grado_academico) {
-      maestroUpdates.push("grado_academico = ?");
-      maestroParams.push(grado_academico);
-    }
-    if (id_universidad) {
-      maestroUpdates.push("id_universidad = ?");
-      maestroParams.push(id_universidad);
+    // Lógica mejorada para permitir actualizar a null
+    if (req.body.hasOwnProperty('nombre_completo')) { maestroUpdates.push("nombre_completo = ?"); maestroParams.push(nombre_completo); }
+    if (req.body.hasOwnProperty('email_institucional')) { maestroUpdates.push("email_institucional = ?"); maestroParams.push(email_institucional); }
+    if (req.body.hasOwnProperty('especialidad')) { maestroUpdates.push("especialidad = ?"); maestroParams.push(especialidad); }
+    if (req.body.hasOwnProperty('grado_academico')) { maestroUpdates.push("grado_academico = ?"); maestroParams.push(grado_academico); }
+    if (req.body.hasOwnProperty('id_universidad')) { maestroUpdates.push("id_universidad = ?"); maestroParams.push(id_universidad); }
+    if (req.body.hasOwnProperty('id_facultad')) { maestroUpdates.push("id_facultad = ?"); maestroParams.push(id_facultad || null); }
+    if (req.body.hasOwnProperty('id_carrera')) { maestroUpdates.push("id_carrera = ?"); maestroParams.push(id_carrera || null); }
+
+
+    if (maestroUpdates.length === 0 && userUpdates.length === 0) {
+        await connection.rollback();
+        return res.status(400).json({ error: "No hay datos para actualizar." });
     }
 
-    if (maestroUpdates.length === 0) {
-      await connection.rollback();
-      return res.status(400).json({ error: "No hay datos para actualizar." });
+    if (maestroUpdates.length > 0) {
+        maestroParams.push(id);
+        await connection.execute(
+          `UPDATE maestro SET ${maestroUpdates.join(", ")} WHERE id_maestro = ?`,
+          maestroParams,
+        );
     }
-
-    maestroParams.push(id);
-    await connection.execute(
-      `UPDATE maestro SET ${maestroUpdates.join(", ")} WHERE id_maestro = ?`,
-      maestroParams,
-    );
 
     await connection.commit();
     res.status(200).json({ message: "Maestro actualizado con éxito." });
@@ -296,7 +298,6 @@ exports.deleteMaestro = async (req, res) => {
     connection = await pool.getConnection();
     await connection.beginTransaction();
 
-    // Obtener el id_usuario asociado al maestro
     const [maestroRows] = await connection.execute(
       "SELECT id_usuario FROM maestro WHERE id_maestro = ?",
       [id],
@@ -308,12 +309,7 @@ exports.deleteMaestro = async (req, res) => {
     }
     const id_usuario_asociado = maestroRows[0].id_usuario;
 
-    // Eliminar el registro del maestro
     await connection.execute("DELETE FROM maestro WHERE id_maestro = ?", [id]);
-
-    // Eliminar el usuario asociado.
-    // Esto es seguro si sabemos que este usuario solo existe para este maestro.
-    // Si un usuario pudiera ser maestro y admin a la vez, esta lógica necesitaría revisión.
     await connection.execute("DELETE FROM usuario WHERE id_usuario = ?", [
       id_usuario_asociado,
     ]);

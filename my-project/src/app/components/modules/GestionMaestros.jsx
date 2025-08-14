@@ -9,6 +9,9 @@ import {
 
 // Define the base URL of your backend API
 const API_URL = "http://localhost:5000/api/maestros";
+const API_URL_UNIVERSIDADES = "http://localhost:5000/api/universidades";
+const API_URL_FACULTADES = "http://localhost:5000/api/facultades";
+const API_URL_CARRERAS = "http://localhost:5000/api/carreras";
 const SERVER_URL = "http://localhost:5000";
 
 // Initial state for the form
@@ -16,6 +19,8 @@ const initialMaestroState = {
   id_maestro: null,
   id_usuario: null,
   id_universidad: "",
+  id_facultad: "",
+  id_carrera: "",
   nombre_completo: "",
   email_institucional: "",
   especialidad: "",
@@ -36,7 +41,11 @@ function GestionMaestros() {
   // Data and loading state
   const [maestros, setMaestros] = useState([]);
   const [universidades, setUniversidades] = useState([]);
+  const [facultades, setFacultades] = useState([]);
+  const [carreras, setCarreras] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isFacultadesLoading, setIsFacultadesLoading] = useState(false);
+  const [isCarrerasLoading, setIsCarrerasLoading] = useState(false);
   const [error, setError] = useState(null);
 
   // Pagination state
@@ -116,6 +125,46 @@ function GestionMaestros() {
     fetchUniversidades();
   }, [fetchMaestros, fetchUniversidades]);
 
+  const fetchFacultades = useCallback(async (idUniversidad) => {
+    if (!idUniversidad) {
+      setFacultades([]);
+      setCarreras([]);
+      return;
+    }
+    setIsFacultadesLoading(true);
+    try {
+      const response = await fetch(`${API_URL_FACULTADES}/universidad/${idUniversidad}`);
+      if (!response.ok) throw new Error("Could not fetch faculties");
+      const data = await response.json();
+      console.log("Respuesta de facultades:", data); // Log para depurar
+      setFacultades(data.data || []);
+    } catch (err) {
+      console.error("Failed to fetch faculties:", err);
+      setFacultades([]);
+    } finally {
+      setIsFacultadesLoading(false);
+    }
+  }, []);
+
+  const fetchCarreras = useCallback(async (idFacultad) => {
+    if (!idFacultad) {
+      setCarreras([]);
+      return;
+    }
+    setIsCarrerasLoading(true);
+    try {
+      const response = await fetch(`${API_URL_CARRERAS}/facultad/${idFacultad}`);
+      if (!response.ok) throw new Error("Could not fetch careers");
+      const data = await response.json();
+      setCarreras(data.data || []);
+    } catch (err) {
+      console.error("Failed to fetch careers:", err);
+      setCarreras([]);
+    } finally {
+      setIsCarrerasLoading(false);
+    }
+  }, []);
+
   const showToast = (message, type = "success") => {
     setToast({ show: true, message, type });
     setTimeout(() => {
@@ -130,16 +179,25 @@ function GestionMaestros() {
       setFormState({
         ...initialMaestroState,
         ...maestro,
+        id_facultad: maestro.id_facultad || "",
+        id_carrera: maestro.id_carrera || "",
         password: "", // Clear password for security
-        email_admin: maestro.email_admin || "",
       });
+      
+      // Cargar facultades y carreras al editar
+      if (maestro.id_universidad) {
+        fetchFacultades(maestro.id_universidad).then(() => {
+          if (maestro.id_facultad) {
+            fetchCarreras(maestro.id_facultad);
+          }
+        });
+      }
     } else {
       // Add operation
       setIsEditing(false);
-      setFormState({
-        ...initialMaestroState,
-        fecha_ingreso: new Date().toISOString().split("T")[0], // Today's date
-      });
+      setFormState(initialMaestroState);
+      setFacultades([]);
+      setCarreras([]);
     }
     setIsModalOpen(true);
   };
@@ -162,12 +220,25 @@ function GestionMaestros() {
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormState((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "id_universidad") {
+      setCarreras([]);
+      setFormState((prev) => ({ ...prev, id_facultad: "", id_carrera: "" }));
+      fetchFacultades(value);
+    }
+
+    if (name === "id_facultad") {
+      setFormState((prev) => ({ ...prev, id_carrera: "" }));
+      fetchCarreras(value);
+    }
   };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     const body = {
       id_universidad: formState.id_universidad,
+      id_facultad: formState.id_facultad, // <-- Añadido
+      id_carrera: formState.id_carrera,   // <-- Añadido
       nombre_completo: formState.nombre_completo,
       email_institucional: formState.email_institucional,
       especialidad: formState.especialidad,
@@ -483,6 +554,54 @@ function GestionMaestros() {
                     ))}
                   </select>
                 </div>
+
+                {isFacultadesLoading ? (
+                  <p>Cargando facultades...</p>
+                ) : (
+                  formState.id_universidad && (
+                    <div className={styles.formGroup}>
+                      <label htmlFor="id_facultad">Facultad</label>
+                      <select
+                        id="id_facultad"
+                        name="id_facultad"
+                        value={formState.id_facultad}
+                        onChange={handleFormChange}
+                        required
+                      >
+                        <option value="">Seleccione una</option>
+                        {facultades.map((fac) => (
+                          <option key={fac.id_facultad} value={fac.id_facultad}>
+                            {fac.nombre}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )
+                )}
+
+                {isCarrerasLoading ? (
+                  <p>Cargando carreras...</p>
+                ) : (
+                  formState.id_facultad && (
+                    <div className={styles.formGroup}>
+                      <label htmlFor="id_carrera">Carrera</label>
+                      <select
+                        id="id_carrera"
+                        name="id_carrera"
+                        value={formState.id_carrera}
+                        onChange={handleFormChange}
+                        required
+                      >
+                        <option value="">Seleccione una</option>
+                        {carreras.map((car) => (
+                          <option key={car.id_carrera} value={car.id_carrera}>
+                            {car.nombre}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )
+                )}
 
                 <div className={styles.formGroup}>
                   <label htmlFor="grado_academico">Grado Académico</label>

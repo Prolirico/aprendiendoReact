@@ -13,7 +13,7 @@ const initialCourseState = {
   id_maestro: null,
   horario: "",
   objetivos: "",
-  prerequisitos: "",
+  prefrequisitos: "",
   duracion_horas: "",
   cupo_maximo: "",
   fecha_inicio: "",

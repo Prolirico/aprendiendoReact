@@ -154,6 +154,8 @@ CREATE TABLE `maestro` (
   `id_maestro` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `id_usuario` INT UNSIGNED NOT NULL,
   `id_universidad` INT UNSIGNED NOT NULL,
+  `id_facultad` INT NULL DEFAULT NULL,
+  `id_carrera` INT NULL DEFAULT NULL,
   `nombre_completo` VARCHAR(100) NOT NULL,
   `email_institucional` VARCHAR(100) NOT NULL,
   `especialidad` VARCHAR(100),
