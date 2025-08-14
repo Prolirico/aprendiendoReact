@@ -251,17 +251,18 @@ CREATE TABLE `inscripcion` (
   `porcentaje_asistencia` DECIMAL(5,2),
   `fecha_finalizacion` TIMESTAMP NULL,
   `aprobado_curso` BOOLEAN DEFAULT FALSE, -- Si pasó el curso
-  `certificado_emitido` BOOLEAN DEFAULT FALSE,
-  `fecha_certificado` TIMESTAMP NULL,
+  `constancia_emitida` BOOLEAN DEFAULT FALSE,
+  `fecha_constancia` TIMESTAMP NULL,
   `comentarios_profesor` TEXT,
   `fecha_actualizacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `ruta_constancia` VARCHAR(500) NULL AFTER `fecha_constancia`,
   PRIMARY KEY (`id_inscripcion`),
   UNIQUE KEY `uk_alumno_curso` (`id_alumno`, `id_curso`),
   INDEX `idx_curso` (`id_curso`),
   INDEX `idx_estatus` (`estatus_inscripcion`),
   INDEX `idx_fecha_solicitud` (`fecha_solicitud`),
   INDEX `idx_aprobado_por` (`aprobado_por`),
-  INDEX `idx_certificado` (`certificado_emitido`),
+  INDEX `idx_constancia` (`constancia_emitida`),
   CONSTRAINT `fk_inscripcion_alumno` FOREIGN KEY (`id_alumno`) REFERENCES `alumno` (`id_alumno`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_inscripcion_curso` FOREIGN KEY (`id_curso`) REFERENCES `curso` (`id_curso`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_inscripcion_aprobador` FOREIGN KEY (`aprobado_por`) REFERENCES `usuario` (`id_usuario`) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -343,6 +344,113 @@ CREATE TABLE `asistencia` (
   CONSTRAINT `fk_asistencia_maestro` FOREIGN KEY (`registrado_por`) REFERENCES `usuario` (`id_usuario`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- Tabla: certificacion (Define certificados mayores, ej. "Certificado de IA")
+CREATE TABLE `certificacion` (
+  `id_certificacion` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(150) NOT NULL,
+  `descripcion` TEXT,
+  `id_categoria` INT UNSIGNED NULL, -- Opcional: Liga a categoria_curso para agrupar por tema
+  `requisitos_adicionales` TEXT, -- Ej. "Promedio mínimo 80%"
+  `estatus` ENUM('activa', 'inactiva') DEFAULT 'activa',
+  `fecha_creacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_certificacion`),
+  UNIQUE KEY `uk_nombre` (`nombre`),
+  INDEX `idx_categoria` (`id_categoria`),
+  CONSTRAINT `fk_certificacion_categoria` FOREIGN KEY (`id_categoria`) REFERENCES `categoria_curso` (`id_categoria`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Tabla: requisitos_certificado (Relaciona cursos con certificaciones)
+CREATE TABLE `requisitos_certificado` (
+  `id_requisito` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id_certificacion` INT UNSIGNED NOT NULL,
+  `id_curso` INT UNSIGNED NOT NULL,
+  `obligatorio` BOOLEAN DEFAULT TRUE, -- Para requisitos opcionales en el futuro
+  PRIMARY KEY (`id_requisito`),
+  UNIQUE KEY `uk_certificacion_curso` (`id_certificacion`, `id_curso`),
+  INDEX `idx_certificacion` (`id_certificacion`),
+  INDEX `idx_curso` (`id_curso`),
+  CONSTRAINT `fk_requisito_certificacion` FOREIGN KEY (`id_certificacion`) REFERENCES `certificacion` (`id_certificacion`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_requisito_curso` FOREIGN KEY (`id_curso`) REFERENCES `curso` (`id_curso`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Tabla: certificacion_alumno (Rastrea progreso y emisión de certificados por alumno)
+CREATE TABLE `certificacion_alumno` (
+  `id_cert_alumno` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id_alumno` INT UNSIGNED NOT NULL,
+  `id_certificacion` INT UNSIGNED NOT NULL,
+  `progreso` DECIMAL(5,2) DEFAULT 0.00, -- Porcentaje de cursos completados
+  `completada` BOOLEAN DEFAULT FALSE, -- True si todos los cursos están completados
+  `fecha_completada` TIMESTAMP NULL,
+  `certificado_emitido` BOOLEAN DEFAULT FALSE, -- True si el certificado mayor fue generado
+  `fecha_certificado` TIMESTAMP NULL,
+  `calificacion_promedio` DECIMAL(5,2) NULL, -- Promedio de calificaciones de cursos requeridos
+  `fecha_actualizacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `ruta_certificado` VARCHAR(500) NULL AFTER `fecha_certificado`,
+  PRIMARY KEY (`id_cert_alumno`),
+  UNIQUE KEY `uk_alumno_certificacion` (`id_alumno`, `id_certificacion`),
+  INDEX `idx_alumno` (`id_alumno`),
+  INDEX `idx_certificacion` (`id_certificacion`),
+  INDEX `idx_completada` (`completada`),
+  CONSTRAINT `fk_cert_alumno_alumno` FOREIGN KEY (`id_alumno`) REFERENCES `alumno` (`id_alumno`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_cert_alumno_certificacion` FOREIGN KEY (`id_certificacion`) REFERENCES `certificacion` (`id_certificacion`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `chk_calificacion_promedio` CHECK (`calificacion_promedio` >= 0 AND `calificacion_promedio` <= 10)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Trigger para actualizar progreso automáticamente
+DELIMITER //
+CREATE TRIGGER `actualizar_progreso_certificacion`
+AFTER UPDATE ON `inscripcion`
+FOR EACH ROW
+BEGIN
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE id_cert INT UNSIGNED;
+    DECLARE cur CURSOR FOR
+        SELECT id_certificacion
+        FROM `requisitos_certificado`
+        WHERE id_curso = NEW.id_curso;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    IF NEW.aprobado_curso = TRUE AND NEW.constancia_emitida = TRUE THEN
+        OPEN cur;
+        read_loop: LOOP
+            FETCH cur INTO id_cert;
+            IF done THEN
+                LEAVE read_loop;
+            END IF;
+
+            INSERT INTO `certificacion_alumno` (`id_alumno`, `id_certificacion`, `progreso`)
+            VALUES (NEW.id_alumno, id_cert, 0.00)
+            ON DUPLICATE KEY UPDATE
+                progreso = (
+                    SELECT (COUNT(*) / (SELECT COUNT(*)
+                                        FROM `requisitos_certificado`
+                                        WHERE id_certificacion = id_cert)) * 100
+                    FROM `inscripcion` i
+                    JOIN `requisitos_certificado` cr
+                        ON i.id_curso = cr.id_curso
+                    WHERE i.id_alumno = NEW.id_alumno
+                      AND cr.id_certificacion = id_cert
+                      AND i.aprobado_curso = TRUE
+                      AND i.constancia_emitida = TRUE
+                ),
+                completada = (progreso = 100),
+                fecha_completada = IF(progreso = 100, CURRENT_TIMESTAMP, NULL),
+                calificacion_promedio = (
+                    SELECT AVG(i.calificacion_final)
+                    FROM `inscripcion` i
+                    JOIN `requisitos_certificado` cr
+                        ON i.id_curso = cr.id_curso
+                    WHERE i.id_alumno = NEW.id_alumno
+                      AND cr.id_certificacion = id_cert
+                      AND i.aprobado_curso = TRUE
+                );
+        END LOOP;
+        CLOSE cur;
+    END IF;
+END //
+DELIMITER ;
+
 -- --------------------------------------------------------
 -- Tabla: auditoria
 -- Descripción: Registro de cambios críticos para reclamos y seguridad
@@ -367,6 +475,50 @@ CREATE TABLE `auditoria` (
   INDEX `idx_tabla_registro` (`tabla_afectada`, `id_registro`),
   CONSTRAINT `fk_auditoria_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id_usuario`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+-- Trigger: Certificados y constancias
+-- Descripción: Registro de cambios para certificaciones y constancias
+-- --------------------------------------------------------
+DELIMITER //
+CREATE TRIGGER `auditar_constancia` AFTER UPDATE ON `inscripcion`
+FOR EACH ROW
+BEGIN
+  IF NEW.constancia_emitida = TRUE AND OLD.constancia_emitida = FALSE THEN
+    INSERT INTO `auditoria` (`tabla_afectada`, `id_registro`, `accion`, `datos_anteriores`, `datos_nuevos`, `id_usuario`, `descripcion`, `fecha_accion`)
+    VALUES (
+      'inscripcion',
+      NEW.id_inscripcion,
+      'UPDATE',
+      JSON_OBJECT('constancia_emitida', OLD.constancia_emitida, 'fecha_constancia', OLD.fecha_constancia),
+      JSON_OBJECT('constancia_emitida', NEW.constancia_emitida, 'fecha_constancia', NEW.fecha_constancia),
+      NEW.aprobado_por,
+      'Emisión de constancia para curso',
+      CURRENT_TIMESTAMP
+    );
+  END IF;
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER `auditar_certificado` AFTER UPDATE ON `certificacion_alumno`
+FOR EACH ROW
+BEGIN
+  IF NEW.certificado_emitido = TRUE AND OLD.certificado_emitido = FALSE THEN
+    INSERT INTO `auditoria` (`tabla_afectada`, `id_registro`, `accion`, `datos_anteriores`, `datos_nuevos`, `id_usuario`, `descripcion`, `fecha_accion`)
+    VALUES (
+      'certificacion_alumno',
+      NEW.id_cert_alumno,
+      'UPDATE',
+      JSON_OBJECT('certificado_emitido', OLD.certificado_emitido, 'fecha_certificado', OLD.fecha_certificado),
+      JSON_OBJECT('certificado_emitido', NEW.certificado_emitido, 'fecha_certificado', NEW.fecha_certificado),
+      NULL, -- Ajustar según quién emite
+      'Emisión de certificado mayor',
+      CURRENT_TIMESTAMP
+    );
+  END IF;
+END //
+DELIMITER ;
 
 -- ---------------------------------------------------------------------
 -- Tabla de los domminios aceptados para registro en el Login de alumnos
@@ -393,7 +545,6 @@ INSERT INTO dominiosUniversidades (dominio, estatus) VALUES
 ('uaq.mx', 'activo');
 
 
--- --------------------------------------------------------
 -- Crear usuario administrador SEDEQ por defecto
 -- --------------------------------------------------------
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "./Dashboard.module.css";
 import ManejoUniversidades from "../modules/ManejoUniversidades";
+import CarrerasUniversidades from "../modules/CarrerasUniversidades";
 import GestionMaestros from "../modules/GestionMaestros";
 import GestionCursos from "../modules/GestionCursos";
 import CategoriasCursos from "../modules/CategoriasCursos";
@@ -21,6 +22,12 @@ function SEDEQDashboard({ userId }) {
         <h1>Gestion de Universidades</h1>
         <section>
           <ManejoUniversidades userId={userId} canEdit={true} />
+        </section>
+      </div>
+      <div className={styles.modulos}>
+        <h1>Gestion de Carreras</h1>
+        <section>
+          <CarrerasUniversidades userId={userId} canEdit={true} />
         </section>
       </div>
       <div className={styles.modulos}>

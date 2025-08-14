@@ -5,7 +5,7 @@ const Facultad = require("../models/facultadModel");
  * POST /api/facultades
  * Body: { "id_universidad": 1, "nombre": "Facultad de Ingeniería" }
  */
-exports.createFacultad = (req, res) => {
+exports.createFacultad = async (req, res) => {
   const { id_universidad, nombre } = req.body;
 
   if (!id_universidad || !nombre) {
@@ -20,22 +20,22 @@ exports.createFacultad = (req, res) => {
     nombre,
   };
 
-  Facultad.create(newFacultad, (err, data) => {
-    if (err) {
-      return res.status(500).json({
-        success: false,
-        message: err.message || "Ocurrió un error al crear la facultad.",
-      });
-    }
+  try {
+    const data = await Facultad.create(newFacultad);
     res.status(201).json({ success: true, data });
-  });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message || "Ocurrió un error al crear la facultad.",
+    });
+  }
 };
 
 /**
  * Obtiene todas las facultades de una universidad específica.
  * GET /api/facultades/universidad/:idUniversidad
  */
-exports.getFacultadesByUniversidad = (req, res) => {
+exports.getFacultadesByUniversidad = async (req, res) => {
   const { idUniversidad } = req.params;
 
   if (!idUniversidad) {
@@ -45,15 +45,15 @@ exports.getFacultadesByUniversidad = (req, res) => {
     });
   }
 
-  Facultad.findByUniversityId(idUniversidad, (err, data) => {
-    if (err) {
-      return res.status(500).json({
-        success: false,
-        message: err.message || "Ocurrió un error al obtener las facultades.",
-      });
-    }
+  try {
+    const data = await Facultad.findByUniversityId(idUniversidad);
     res.status(200).json({ success: true, data });
-  });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message || "Ocurrió un error al obtener las facultades.",
+    });
+  }
 };
 
 /**
@@ -61,7 +61,7 @@ exports.getFacultadesByUniversidad = (req, res) => {
  * PUT /api/facultades/:id
  * Body: { "nombre": "Facultad de Ingeniería y Ciencias" }
  */
-exports.updateFacultad = (req, res) => {
+exports.updateFacultad = async (req, res) => {
   const { id } = req.params;
   const { nombre } = req.body;
 
@@ -72,56 +72,50 @@ exports.updateFacultad = (req, res) => {
     });
   }
 
-  Facultad.update(id, { nombre }, (err, result) => {
-    if (err) {
-      return res.status(500).json({
-        success: false,
-        message: `Error al actualizar la facultad con ID ${id}.`,
-      });
-    }
-
+  try {
+    const result = await Facultad.update(id, { nombre });
     if (result.affectedRows === 0) {
-      // No se encontró la facultad con ese ID
       return res.status(404).json({
         success: false,
         message: `No se encontró la facultad con ID ${id}.`,
       });
     }
-
     res.status(200).json({
       success: true,
       message: "Facultad actualizada correctamente.",
       data: { id: id, nombre: nombre },
     });
-  });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: `Error al actualizar la facultad con ID ${id}.`,
+    });
+  }
 };
 
 /**
  * Elimina una facultad.
  * DELETE /api/facultades/:id
  */
-exports.deleteFacultad = (req, res) => {
+exports.deleteFacultad = async (req, res) => {
   const { id } = req.params;
 
-  Facultad.remove(id, (err, result) => {
-    if (err) {
-      return res.status(500).json({
-        success: false,
-        message: `Error al eliminar la facultad con ID ${id}.`,
-      });
-    }
-
+  try {
+    const result = await Facultad.remove(id);
     if (result.affectedRows === 0) {
-      // No se encontró la facultad con ese ID
       return res.status(404).json({
         success: false,
         message: `No se encontró la facultad con ID ${id}.`,
       });
     }
-
     res.status(200).json({
       success: true,
       message: "Facultad eliminada correctamente.",
     });
-  });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: `Error al eliminar la facultad con ID ${id}.`,
+    });
+  }
 };

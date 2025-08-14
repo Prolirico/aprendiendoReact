@@ -4,75 +4,75 @@ const Facultad = {
   /**
    * Crea una nueva facultad en la base de datos.
    * @param {object} newFacultad - Objeto con los datos de la facultad { id_universidad, nombre }.
-   * @param {function} callback - Función de callback (err, result).
+   * @returns {Promise<object>} - El objeto de la facultad creada.
    */
-  create: (newFacultad, callback) => {
+  create: async (newFacultad) => {
     const query =
       "INSERT INTO facultades (id_universidad, nombre) VALUES (?, ?)";
-    db.query(
-      query,
-      [newFacultad.id_universidad, newFacultad.nombre],
-      (err, result) => {
-        if (err) {
-          console.error("Error al crear la facultad:", err);
-          return callback(err, null);
-        }
-        // Devuelve el ID insertado junto con los datos originales
-        callback(null, { id_facultad: result.insertId, ...newFacultad });
-      },
-    );
+    try {
+      const [result] = await db.query(query, [
+        newFacultad.id_universidad,
+        newFacultad.nombre,
+      ]);
+      return { id_facultad: result.insertId, ...newFacultad };
+    } catch (err) {
+      console.error("Error al crear la facultad:", err);
+      throw err;
+    }
   },
 
   /**
    * Busca todas las facultades de una universidad específica.
    * @param {number} universityId - ID de la universidad.
-   * @param {function} callback - Función de callback (err, results).
+   * @returns {Promise<Array>} - Un array de facultades.
    */
-  findByUniversityId: (universityId, callback) => {
+  findByUniversityId: async (universityId) => {
     const query =
       "SELECT * FROM facultades WHERE id_universidad = ? ORDER BY nombre ASC";
-    db.query(query, [universityId], (err, results) => {
-      if (err) {
-        console.error("Error al buscar facultades por ID de universidad:", err);
-        return callback(err, null);
-      }
-      callback(null, results);
-    });
+    try {
+      const [results] = await db.query(query, [universityId]);
+      return results;
+    } catch (err) {
+      console.error("Error al buscar facultades por ID de universidad:", err);
+      throw err;
+    }
   },
 
   /**
    * Actualiza una facultad existente.
    * @param {number} id_facultad - ID de la facultad a actualizar.
    * @param {object} facultadData - Datos a actualizar { nombre }.
-   * @param {function} callback - Función de callback (err, result).
+   * @returns {Promise<object>} - El resultado de la actualización.
    */
-  update: (id_facultad, facultadData, callback) => {
+  update: async (id_facultad, facultadData) => {
     const query =
       "UPDATE facultades SET nombre = ?, fecha_actualizacion = CURRENT_TIMESTAMP WHERE id_facultad = ?";
-    db.query(query, [facultadData.nombre, id_facultad], (err, result) => {
-      if (err) {
-        console.error("Error al actualizar la facultad:", err);
-        return callback(err, null);
-      }
-      callback(null, result);
-    });
+    try {
+      const [result] = await db.query(query, [
+        facultadData.nombre,
+        id_facultad,
+      ]);
+      return result;
+    } catch (err) {
+      console.error("Error al actualizar la facultad:", err);
+      throw err;
+    }
   },
 
   /**
    * Elimina una facultad de la base de datos.
    * @param {number} id_facultad - ID de la facultad a eliminar.
-   * @param {function} callback - Función de callback (err, result).
+   * @returns {Promise<object>} - El resultado de la eliminación.
    */
-  remove: (id_facultad, callback) => {
-    // La FK en la tabla `carreras` tiene `ON DELETE CASCADE`, por lo que las carreras asociadas se eliminarán automáticamente.
+  remove: async (id_facultad) => {
     const query = "DELETE FROM facultades WHERE id_facultad = ?";
-    db.query(query, [id_facultad], (err, result) => {
-      if (err) {
-        console.error("Error al eliminar la facultad:", err);
-        return callback(err, null);
-      }
-      callback(null, result);
-    });
+    try {
+      const [result] = await db.query(query, [id_facultad]);
+      return result;
+    } catch (err) {
+      console.error("Error al eliminar la facultad:", err);
+      throw err;
+    }
   },
 };
 

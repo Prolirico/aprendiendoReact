@@ -4,87 +4,79 @@ const Carrera = {
   /**
    * Crea una nueva carrera en la base de datos.
    * @param {object} newCarrera - Objeto con los datos de la carrera.
-   * @param {function} callback - Función de callback (err, result).
+   * @returns {Promise<object>} - El objeto de la carrera creada.
    */
-  create: (newCarrera, callback) => {
+  create: async (newCarrera) => {
     const query =
       "INSERT INTO carreras (id_facultad, nombre, clave_carrera, duracion_anos) VALUES (?, ?, ?, ?)";
-    db.query(
-      query,
-      [
+    try {
+      const [result] = await db.query(query, [
         newCarrera.id_facultad,
         newCarrera.nombre,
         newCarrera.clave_carrera,
         newCarrera.duracion_anos,
-      ],
-      (err, result) => {
-        if (err) {
-          console.error("Error al crear la carrera:", err);
-          return callback(err, null);
-        }
-        callback(null, { id_carrera: result.insertId, ...newCarrera });
-      },
-    );
+      ]);
+      return { id_carrera: result.insertId, ...newCarrera };
+    } catch (err) {
+      console.error("Error al crear la carrera:", err);
+      throw err;
+    }
   },
 
   /**
    * Busca todas las carreras de una facultad específica.
    * @param {number} facultadId - ID de la facultad.
-   * @param {function} callback - Función de callback (err, results).
+   * @returns {Promise<Array>} - Un array de carreras.
    */
-  findByFacultadId: (facultadId, callback) => {
+  findByFacultadId: async (facultadId) => {
     const query =
       "SELECT * FROM carreras WHERE id_facultad = ? ORDER BY nombre ASC";
-    db.query(query, [facultadId], (err, results) => {
-      if (err) {
-        console.error("Error al buscar carreras por ID de facultad:", err);
-        return callback(err, null);
-      }
-      callback(null, results);
-    });
+    try {
+      const [results] = await db.query(query, [facultadId]);
+      return results;
+    } catch (err) {
+      console.error("Error al buscar carreras por ID de facultad:", err);
+      throw err;
+    }
   },
 
   /**
    * Actualiza una carrera existente.
    * @param {number} id_carrera - ID de la carrera a actualizar.
    * @param {object} carreraData - Datos a actualizar.
-   * @param {function} callback - Función de callback (err, result).
+   * @returns {Promise<object>} - El resultado de la actualización.
    */
-  update: (id_carrera, carreraData, callback) => {
+  update: async (id_carrera, carreraData) => {
     const query =
       "UPDATE carreras SET nombre = ?, clave_carrera = ?, duracion_anos = ?, fecha_actualizacion = CURRENT_TIMESTAMP WHERE id_carrera = ?";
-    db.query(
-      query,
-      [
+    try {
+      const [result] = await db.query(query, [
         carreraData.nombre,
         carreraData.clave_carrera,
         carreraData.duracion_anos,
         id_carrera,
-      ],
-      (err, result) => {
-        if (err) {
-          console.error("Error al actualizar la carrera:", err);
-          return callback(err, null);
-        }
-        callback(null, result);
-      },
-    );
+      ]);
+      return result;
+    } catch (err) {
+      console.error("Error al actualizar la carrera:", err);
+      throw err;
+    }
   },
 
   /**
    * Elimina una carrera de la base de datos.
    * @param {number} id_carrera - ID de la carrera a eliminar.
-   * @param {function} callback - Función de callback (err, result).
+   * @returns {Promise<object>} - El resultado de la eliminación.
    */
-  remove: (id_carrera, callback) => {
+  remove: async (id_carrera) => {
     const query = "DELETE FROM carreras WHERE id_carrera = ?";
-    db.query(query, [id_carrera], (err, result) => {
-      if (err) {
-        console.error("Error al eliminar la carrera:", err);
-        return callback(err, null);
-      }
-      callback(null, result);
-    });
+    try {
+      const [result] = await db.query(query, [id_carrera]);
+      return result;
+    } catch (err) {
+      console.error("Error al eliminar la carrera:", err);
+      throw err;
+    }
   },
 };
 
