@@ -260,6 +260,9 @@
     color: #374151;
     font-size: 0.875rem;
 }
+.table .editButton {
+    margin-right: 0.5rem;
+}
 
 /* Modal */
 .modalBackdrop {
