@@ -1,13 +1,9 @@
-/* Container */
 .container {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     background-color: #f9fafb;
-    font-family:
-        system-ui,
-        -apple-system,
-        sans-serif;
+    font-family: system-ui, -apple-system, sans-serif;
 }
 
 /* Header */
@@ -32,30 +28,6 @@
     margin: 0;
 }
 
-.userInfo {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.userName {
-    display: none;
-}
-
-.userButton {
-    padding: 0.5rem;
-    border-radius: 50%;
-    border: none;
-    background: transparent;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.userButton:hover {
-    background-color: #4338ca;
-}
-
 /* Main Content */
 .main {
     flex: 1;
@@ -72,13 +44,6 @@
     flex-direction: column;
     gap: 1rem;
     margin-bottom: 1.5rem;
-}
-
-.selectUniversidad {
-    padding: 0.5rem;
-    border: 1px solid #d1d5db;
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
 }
 
 .addButton {
@@ -132,7 +97,7 @@
     padding: 2rem;
 }
 
-.emptyState > svg {
+.emptyState i {
     font-size: 2.5rem;
     color: #9ca3af;
     margin-bottom: 1rem;
@@ -167,75 +132,9 @@
     background-color: #4338ca;
 }
 
-/* Facultad Section */
-.facultadSection {
-    background: white;
-    border-radius: 0.5rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e5e7eb;
-    margin-bottom: 1rem;
-    padding: 1rem;
-}
-
-.facultadHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.facultadHeader h3 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #1f2937;
-}
-
-.actions {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.editButton,
-.deleteButton,
-.toggleButton {
-    padding: 0.5rem;
-    border: none;
-    border-radius: 0.375rem;
-    cursor: pointer;
-    font-size: 0.875rem;
-    transition: background-color 0.2s;
-}
-
-.editButton {
-    background-color: #10b981;
-    color: white;
-}
-
-.editButton:hover {
-    background-color: #059669;
-}
-
-.deleteButton {
-    background-color: #ef4444;
-    color: white;
-}
-
-.deleteButton:hover {
-    background-color: #dc2626;
-}
-
-.toggleButton {
-    background-color: #e5e7eb;
-    color: #374151;
-}
-
-.toggleButton:hover {
-    background-color: #d1d5db;
-}
-
-/* Table */
+/* Desktop View */
 .desktopView {
-    display: block;
+    display: none;
 }
 
 .table {
@@ -260,8 +159,43 @@
     color: #374151;
     font-size: 0.875rem;
 }
-.table .editButton {
-    margin-right: 0.5rem;
+
+.tableActions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.editButton,
+.deleteButton {
+    padding: 0.5rem;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+    width: 32px;
+    height: 32px;
+}
+
+.editButton {
+    background-color: #10b981;
+    color: white;
+}
+
+.editButton:hover {
+    background-color: #059669;
+}
+
+.deleteButton {
+    background-color: #ef4444;
+    color: white;
+}
+
+.deleteButton:hover {
+    background-color: #dc2626;
 }
 
 /* Modal */
@@ -282,7 +216,7 @@
     background: white;
     border-radius: 0.5rem;
     max-width: 90%;
-    width: 500px;
+    width: 600px;
     max-height: 90vh;
     overflow-y: auto;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
@@ -323,7 +257,6 @@
 
 .formGrid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
     gap: 1rem;
 }
 
@@ -339,7 +272,9 @@
     color: #374151;
 }
 
-.formGroup input {
+.formGroup input,
+.formGroup textarea,
+.formGroup select {
     padding: 0.5rem;
     border: 1px solid #d1d5db;
     border-radius: 0.375rem;
@@ -348,10 +283,16 @@
     box-sizing: border-box;
 }
 
-.formGroup input:focus {
+.formGroup input:focus,
+.formGroup textarea:focus,
+.formGroup select:focus {
     outline: none;
     border-color: #4f46e5;
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.fullWidth {
+    grid-column: 1 / -1;
 }
 
 .formActions {
@@ -458,29 +399,212 @@
     max-width: 300px;
 }
 
-.toastContent.success {
+.success {
     background-color: #10b981;
     color: white;
 }
 
-.toastContent.error {
+.error {
     background-color: #ef4444;
     color: white;
 }
 
+/* Course Management */
+.courseManagement {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    min-height: 250px;
+}
+
+.courseSection {
+    flex: 1;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background: white;
+    overflow: hidden;
+}
+
+.courseSectionHeader {
+    background: #f3f4f6;
+    padding: 0.75rem;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.courseSectionHeader h6 {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.courseCount {
+    font-size: 0.75rem;
+    color: #6b7280;
+    background: #e5e7eb;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.75rem;
+}
+
+.courseList {
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 0.5rem;
+}
+
+.courseItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+}
+
+.courseItem:hover {
+    border-color: #4f46e5;
+    box-shadow: 0 2px 4px rgba(79, 70, 229, 0.1);
+    transform: translateY(-1px);
+}
+
+.selectedCourseItem {
+    background: #e8f4fd;
+    border-color: #4f46e5;
+}
+
+.courseInfo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.courseName {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #1f2937;
+}
+
+.courseCode {
+    font-size: 0.75rem;
+    color: #6b7280;
+    font-family: monospace;
+}
+
+.addCourseBtn {
+    background: #10b981;
+    color: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 0.375rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.addCourseBtn:hover {
+    background: #059669;
+    transform: scale(1.1);
+}
+
+.removeCourseBtn {
+    background: #ef4444;
+    color: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 0.375rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.removeCourseBtn:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+}
+
+.courseDivider {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: #6b7280;
+}
+
+.dividerLine {
+    width: 1px;
+    height: 40px;
+    background: #e5e7eb;
+}
+
+.courseDivider i {
+    background: white;
+    padding: 0.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 50%;
+    color: #4f46e5;
+}
+
+.emptyCourseList {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: #6b7280;
+}
+
+.emptyCourseList i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #9ca3af;
+}
+
+.emptyCourseList p {
+    margin: 0;
+    font-size: 0.875rem;
+}
 /* Responsive Design */
 @media (min-width: 640px) {
     .title {
         font-size: 1.875rem;
     }
 
-    .userName {
-        display: block;
-        font-size: 0.875rem;
-    }
-
     .main {
         padding: 1.5rem;
+    }
+
+    .spinner {
+        width: 3rem;
+        height: 3rem;
+    }
+
+    .emptyState i {
+        font-size: 3rem;
+    }
+
+    .emptyState h3 {
+        font-size: 1.25rem;
+    }
+
+    .formGrid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (min-width: 1024px) {
+    .desktopView {
+        display: block;
     }
 
     .toolbar {
@@ -488,89 +612,33 @@
         justify-content: space-between;
         align-items: center;
     }
-}
 
-@media (min-width: 1024px) {
     .modal {
         width: 600px;
     }
+
+    .courseManagement {
+        flex-direction: row;
+    }
 }
 
-/* Styles for CredencialesCursos component */
-.carreraSection {
-    margin-bottom: 1.5rem;
-}
+@media (max-width: 768px) {
+    .courseManagement {
+        flex-direction: column;
+        gap: 1rem;
+    }
 
-.carreraSection h4 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #1f2937;
-    margin-bottom: 1rem;
-    border-bottom: 1px solid #e5e7eb;
-    padding-bottom: 0.5rem;
-}
+    .courseDivider {
+        flex-direction: row;
+        height: auto;
+    }
 
-.cursosGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem;
-}
+    .dividerLine {
+        width: 40px;
+        height: 1px;
+    }
 
-.cursoCard {
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    padding: 1rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    position: relative;
-}
-
-.cursoCard:hover {
-    border-color: #4f46e5;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.cursoCard.selected {
-    border-color: #4f46e5;
-    background-color: #f0f5ff;
-}
-
-.checkIcon {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    color: #4f46e5;
-}
-
-.cursosContainer {
-    margin-bottom: 2rem;
-}
-
-.credentialForm {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-    margin-top: 1.5rem;
-    padding: 1rem;
-    background: white;
-    border-radius: 0.5rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.credentialNameInput {
-    flex-grow: 1;
-    padding: 0.5rem;
-    border: 1px solid #d1d5db;
-    border-radius: 0.5rem;
-    font-size: 1rem;
-}
-
-.error {
-    color: #ef4444;
-    text-align: center;
-    margin-top: 1rem;
+    .courseDivider i {
+        transform: rotate(90deg);
+    }
 }
