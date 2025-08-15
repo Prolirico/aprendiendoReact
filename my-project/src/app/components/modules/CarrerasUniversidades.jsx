@@ -220,7 +220,15 @@ function CarrerasUniversidades() {
   };
 
   const toggleCarreras = (idFacultad) => {
-    if (!carrerasByFacultad[idFacultad]) {
+    if (carrerasByFacultad[idFacultad]) {
+      // Si ya se muestran las carreras, las ocultamos.
+      setCarrerasByFacultad((prev) => {
+        const newState = { ...prev };
+        delete newState[idFacultad];
+        return newState;
+      });
+    } else {
+      // Si no se muestran, las buscamos.
       fetchCarreras(idFacultad);
     }
   };

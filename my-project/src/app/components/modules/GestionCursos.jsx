@@ -4,13 +4,18 @@ import { faBook, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import styles from "./GestionCursos.module.css";
 
 const API_URL = "http://localhost:5000/api/cursos";
+const API_URL_UNIVERSIDADES = "http://localhost:5000/api/universidades";
+const API_URL_FACULTADES = "http://localhost:5000/api/facultades";
+const API_URL_CARRERAS = "http://localhost:5000/api/carreras";
+const API_URL_MAESTROS = "http://localhost:5000/api/maestros";
+
 
 // Estado inicial para el formulario del curso
 const initialCourseState = {
   nombre_curso: "",
   descripcion: "",
   id_categoria: "",
-  id_maestro: null,
+  id_maestro: "",
   horario: "",
   objetivos: "",
   prefrequisitos: "",
@@ -24,6 +29,16 @@ const initialCourseState = {
 };
 
 function CourseManagement({ userId }) {
+  const [universidades, setUniversidades] = useState([]);
+  const [facultades, setFacultades] = useState([]);
+  const [carreras, setCarreras] = useState([]);
+  // Estados para los filtros de maestro
+  const [selectedUniversidad, setSelectedUniversidad] = useState("");
+  const [selectedFacultad, setSelectedFacultad] = useState("");
+  const [selectedCarrera, setSelectedCarrera] = useState("");
+  const [isFacultadesLoading, setIsFacultadesLoading] = useState(false);
+  const [isCarrerasLoading, setIsCarrerasLoading] = useState(false);
+  const [isTeachersLoading, setIsTeachersLoading] = useState(false);
   const [courses, setCourses] = useState([]);
   const [categories, setCategories] = useState([]);
   const [teachers, setTeachers] = useState([]); // Estado para la lista de maestros
@@ -76,34 +91,86 @@ function CourseManagement({ userId }) {
     }
   }, []);
 
-  // Función para obtener la lista de maestros (solo para la vista de admin)
-  const fetchTeachers = useCallback(async () => {
-    if (!userId) {
-      // Solo si es admin
-      try {
-        // Obtenemos todos los maestros con un límite alto, como en GestionMaestros
-        const response = await fetch(
-          "http://localhost:5000/api/maestros?limit=9999",
-        );
-        if (!response.ok) {
-          throw new Error("No se pudieron cargar los maestros");
-        }
-        const data = await response.json();
-        setTeachers(data.maestros || []);
-      } catch (err) {
-        console.error("Error al cargar maestros:", err.message);
-        // Opcional: mostrar un toast de error si la carga de maestros falla
-        showToast(err.message, "error");
-      }
+  const fetchUniversidades = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_URL_UNIVERSIDADES}?limit=9999`);
+      if (!response.ok) throw new Error("No se pudieron cargar las universidades");
+      const data = await response.json();
+      setUniversidades(data.universities || []);
+    } catch (err) {
+      console.error("Error al cargar universidades:", err.message);
     }
-  }, [userId]);
+  }, []);
+
+  const fetchFacultades = useCallback(async (idUniversidad) => {
+    if (!idUniversidad) {
+      setFacultades([]);
+      setCarreras([]);
+      setTeachers([]);
+      return;
+    }
+    setIsFacultadesLoading(true);
+    setFacultades([]);
+    setCarreras([]);
+    setTeachers([]);
+    try {
+      const response = await fetch(`${API_URL_FACULTADES}/universidad/${idUniversidad}`);
+      const data = await response.json();
+      setFacultades(data.data || []);
+    } catch (err) {
+      console.error("Error al cargar facultades:", err);
+    } finally {
+      setIsFacultadesLoading(false);
+    }
+  }, []);
+
+  const fetchCarreras = useCallback(async (idFacultad) => {
+    if (!idFacultad) {
+      setCarreras([]);
+      setTeachers([]);
+      return;
+    }
+    setIsCarrerasLoading(true);
+    setCarreras([]);
+    setTeachers([]);
+    try {
+      const response = await fetch(`${API_URL_CARRERAS}/facultad/${idFacultad}`);
+      const data = await response.json();
+      setCarreras(data.data || []);
+    } catch (err) {
+      console.error("Error al cargar carreras:", err);
+    } finally {
+      setIsCarrerasLoading(false);
+    }
+  }, []);
+
+  const fetchTeachers = useCallback(async (idCarrera) => {
+    if (!idCarrera) {
+      setTeachers([]);
+      return;
+    }
+    setIsTeachersLoading(true);
+    setTeachers([]);
+    try {
+      // El backend podrá filtrar por carrera
+      const response = await fetch(`${API_URL_MAESTROS}?id_carrera=${idCarrera}`);
+      const data = await response.json();
+      setTeachers(data.maestros || []);
+    } catch (err) {
+      console.error("Error al cargar maestros:", err);
+    } finally {
+      setIsTeachersLoading(false);
+    }
+  }, []);
 
   // Efecto para cargar datos iniciales
   useEffect(() => {
     fetchCourses();
     fetchCategories();
-    fetchTeachers();
-  }, [fetchCourses, fetchCategories, fetchTeachers]);
+    if (!userId) {
+      fetchUniversidades();
+    }
+  }, [fetchCourses, fetchCategories, fetchUniversidades, userId]);
 
   // Función para mostrar notificaciones toast
   const showToast = (message, type = "success") => {
@@ -148,6 +215,36 @@ function CourseManagement({ userId }) {
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormState((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleUniversidadChange = (e) => {
+    const uniId = e.target.value;
+    setSelectedUniversidad(uniId);
+    // Limpiar selecciones dependientes
+    setSelectedFacultad("");
+    setSelectedCarrera("");
+    setFormState(prev => ({ ...prev, id_maestro: "" }));
+    // Cargar nuevas facultades
+    fetchFacultades(uniId);
+  };
+
+  const handleFacultadChange = (e) => {
+    const facId = e.target.value;
+    setSelectedFacultad(facId);
+    // Limpiar selecciones dependientes
+    setSelectedCarrera("");
+    setFormState(prev => ({ ...prev, id_maestro: "" }));
+    // Cargar nuevas carreras
+    fetchCarreras(facId);
+  };
+
+  const handleCarreraChange = (e) => {
+    const carId = e.target.value;
+    setSelectedCarrera(carId);
+    // Limpiar selecciones dependientes
+    setFormState(prev => ({ ...prev, id_maestro: "" }));
+    // Cargar nuevos maestros
+    fetchTeachers(carId);
   };
 
   const handleFormSubmit = async (e) => {
@@ -307,31 +404,96 @@ function CourseManagement({ userId }) {
             </div>
             <form onSubmit={handleFormSubmit} className={styles.form}>
               <div className={styles.formGrid}>
-                {/* Campo para seleccionar maestro (solo para admin) */}
+                {/* --- INICIO DE LA SECCIÓN DE FILTROS --- */}
                 {!userId && (
-                  <div className={`${styles.formGroup} ${styles.fullWidth}`}>
-                    <label htmlFor="id_maestro">Maestro Asignado</label>
-                    <select
-                      id="id_maestro"
-                      name="id_maestro"
-                      value={formState.id_maestro || ""}
-                      onChange={handleFormChange}
-                      required
-                    >
-                      <option value="" disabled>
-                        Seleccione un maestro
-                      </option>
-                      {teachers.map((teacher) => (
-                        <option
-                          key={teacher.id_maestro}
-                          value={teacher.id_maestro}
-                        >
-                          {teacher.nombre_completo}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  <>
+                    <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                      <label htmlFor="universidad">Universidad</label>
+                      <select
+                        id="universidad"
+                        name="universidad"
+                        value={selectedUniversidad}
+                        onChange={handleUniversidadChange}
+                        required
+                      >
+                        <option value="">Seleccione una universidad</option>
+                        {universidades.map((uni) => (
+                          <option key={uni.id_universidad} value={uni.id_universidad}>
+                            {uni.nombre}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {isFacultadesLoading ? <p>Cargando facultades...</p> : (
+                      selectedUniversidad && (
+                        <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                          <label htmlFor="facultad">Facultad</label>
+                          <select
+                            id="facultad"
+                            name="facultad"
+                            value={selectedFacultad}
+                            onChange={handleFacultadChange}
+                            required
+                          >
+                            <option value="">Seleccione una facultad</option>
+                            {facultades.map((fac) => (
+                              <option key={fac.id_facultad} value={fac.id_facultad}>
+                                {fac.nombre}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )
+                    )}
+
+                    {isCarrerasLoading ? <p>Cargando carreras...</p> : (
+                      selectedFacultad && (
+                        <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                          <label htmlFor="carrera">Carrera</label>
+                          <select
+                            id="carrera"
+                            name="carrera"
+                            value={selectedCarrera}
+                            onChange={handleCarreraChange}
+                            required
+                          >
+                            <option value="">Seleccione una carrera</option>
+                            {carreras.map((car) => (
+                              <option key={car.id_carrera} value={car.id_carrera}>
+                                {car.nombre}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )
+                    )}
+                    
+                    {isTeachersLoading ? <p>Cargando maestros...</p> : (
+                      selectedCarrera && (
+                        <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                          <label htmlFor="id_maestro">Maestro Asignado</label>
+                          <select
+                            id="id_maestro"
+                            name="id_maestro"
+                            value={formState.id_maestro || ""}
+                            onChange={handleFormChange}
+                            required
+                          >
+                            <option value="">Seleccione un maestro</option>
+                            {teachers.map((teacher) => (
+                              <option key={teacher.id_maestro} value={teacher.id_maestro}>
+                                {teacher.nombre_completo}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )
+                    )}
+                  </>
                 )}
+                {/* --- FIN DE LA SECCIÓN DE FILTROS --- */}
+
                 <div className={styles.formGroup}>
                   <label htmlFor="nombre_curso">Nombre del Curso</label>
                   <input

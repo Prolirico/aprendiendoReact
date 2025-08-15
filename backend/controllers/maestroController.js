@@ -9,7 +9,8 @@ const handleError = (res, error, message = "Error en el servidor") => {
 
 // Obtener todos los maestros con paginación y búsqueda
 exports.getMaestros = async (req, res) => {
-  const { page = 1, limit = 10, searchTerm = "" } = req.query;
+  // Añadimos id_carrera a los parámetros que podemos recibir
+  const { page = 1, limit = 10, searchTerm = "", id_carrera } = req.query;
   const offset = (page - 1) * limit;
 
   try {
@@ -41,6 +42,14 @@ exports.getMaestros = async (req, res) => {
         );
         params.push(`%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`);
       }
+
+      // --- INICIO DE LA MODIFICACIÓN ---
+      // Añadimos el filtro por carrera si se proporciona el id_carrera
+      if (id_carrera) {
+        whereClauses.push("m.id_carrera = ?");
+        params.push(id_carrera);
+      }
+      // --- FIN DE LA MODIFICACIÓN ---
 
       if (whereClauses.length > 0) {
         const whereSql = " WHERE " + whereClauses.join(" AND ");
