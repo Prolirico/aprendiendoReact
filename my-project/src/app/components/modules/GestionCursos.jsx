@@ -184,7 +184,6 @@ function CourseManagement({ userId }) {
   const handleOpenModal = (course = null) => {
     if (course) {
       setIsEditing(true);
-      // Formatear fechas para los inputs de tipo 'date'
       const formattedCourse = {
         ...course,
         fecha_inicio: course.fecha_inicio
@@ -195,15 +194,43 @@ function CourseManagement({ userId }) {
           : "",
       };
       setFormState(formattedCourse);
+
+      if (course.id_universidad) {
+        setSelectedUniversidad(course.id_universidad);
+        fetchFacultades(course.id_universidad);
+      }
+      if (course.id_facultad) {
+        setSelectedFacultad(course.id_facultad);
+        fetchCarreras(course.id_facultad);
+      }
+      if (course.id_carrera) {
+        setSelectedCarrera(course.id_carrera);
+        fetchTeachers(course.id_carrera);
+      }
     } else {
       setIsEditing(false);
-      // Si es un maestro, su ID se asigna automáticamente. Si es admin, puede elegir.
       setFormState({ ...initialCourseState, id_maestro: userId || null });
+      setSelectedUniversidad("");
+      setSelectedFacultad("");
+      setSelectedCarrera("");
+      setFacultades([]);
+      setCarreras([]);
+      setTeachers([]);
     }
     setIsModalOpen(true);
   };
 
-  const handleCloseModal = () => setIsModalOpen(false);
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setIsEditing(false);
+    setFormState(initialCourseState);
+    setSelectedUniversidad("");
+    setSelectedFacultad("");
+    setSelectedCarrera("");
+    setFacultades([]);
+    setCarreras([]);
+    setTeachers([]);
+  };
 
   const handleOpenDeleteModal = (course) => {
     setCourseToDelete(course);
@@ -220,30 +247,39 @@ function CourseManagement({ userId }) {
   const handleUniversidadChange = (e) => {
     const uniId = e.target.value;
     setSelectedUniversidad(uniId);
-    // Limpiar selecciones dependientes
     setSelectedFacultad("");
     setSelectedCarrera("");
-    setFormState(prev => ({ ...prev, id_maestro: "" }));
-    // Cargar nuevas facultades
+    setFormState(prev => ({
+        ...prev,
+        id_universidad: uniId,
+        id_facultad: "",
+        id_carrera: "",
+        id_maestro: ""
+    }));
     fetchFacultades(uniId);
   };
 
   const handleFacultadChange = (e) => {
     const facId = e.target.value;
     setSelectedFacultad(facId);
-    // Limpiar selecciones dependientes
     setSelectedCarrera("");
-    setFormState(prev => ({ ...prev, id_maestro: "" }));
-    // Cargar nuevas carreras
+    setFormState(prev => ({
+        ...prev,
+        id_facultad: facId,
+        id_carrera: "",
+        id_maestro: ""
+    }));
     fetchCarreras(facId);
   };
 
   const handleCarreraChange = (e) => {
     const carId = e.target.value;
     setSelectedCarrera(carId);
-    // Limpiar selecciones dependientes
-    setFormState(prev => ({ ...prev, id_maestro: "" }));
-    // Cargar nuevos maestros
+    setFormState(prev => ({
+        ...prev,
+        id_carrera: carId,
+        id_maestro: ""
+    }));
     fetchTeachers(carId);
   };
 
@@ -339,6 +375,7 @@ function CourseManagement({ userId }) {
             <tr>
               <th>Nombre</th>
               <th>Código</th>
+              <th>Universidad</th>
               <th>Nivel</th>
               <th>Duración (horas)</th>
               <th>Acciones</th>
@@ -349,6 +386,7 @@ function CourseManagement({ userId }) {
               <tr key={course.id_curso}>
                 <td>{course.nombre_curso}</td>
                 <td>{course.codigo_curso}</td>
+                <td>{course.nombre_universidad || 'N/A'}</td>
                 <td>{course.nivel}</td>
                 <td>{course.duracion_horas}</td>
                 <td>

@@ -199,6 +199,9 @@ CREATE TABLE `curso` (
   `id_curso` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `id_maestro` INT UNSIGNED NOT NULL,
   `id_categoria` INT UNSIGNED,
+  `id_universidad` INT UNSIGNED NULL,
+  `id_facultad` INT UNSIGNED NULL,
+  `id_carrera` INT UNSIGNED NULL,
   `codigo_curso` VARCHAR(20) NULL,
   `nombre_curso` VARCHAR(150) NOT NULL,
   `descripcion` TEXT,
@@ -223,6 +226,9 @@ CREATE TABLE `curso` (
   UNIQUE KEY `uk_codigo_curso` (`codigo_curso`),
   INDEX `idx_maestro` (`id_maestro`),
   INDEX `idx_categoria` (`id_categoria`),
+  INDEX `idx_universidad` (`id_universidad`),
+  INDEX `idx_facultad` (`id_facultad`),
+  INDEX `idx_carrera` (`id_carrera`),
   INDEX `idx_estatus` (`estatus_curso`),
   INDEX `idx_fechas` (`fecha_inicio`, `fecha_fin`),
   INDEX `idx_nivel` (`nivel`),
@@ -230,10 +236,14 @@ CREATE TABLE `curso` (
   INDEX `idx_fecha_creacion` (`fecha_creacion`), -- Para filtro "más recientes"
   CONSTRAINT `fk_curso_maestro` FOREIGN KEY (`id_maestro`) REFERENCES `maestro` (`id_maestro`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_curso_categoria` FOREIGN KEY (`id_categoria`) REFERENCES `categoria_curso` (`id_categoria`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `fk_curso_universidad` FOREIGN KEY (`id_universidad`) REFERENCES `universidad` (`id_universidad`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `fk_curso_facultad` FOREIGN KEY (`id_facultad`) REFERENCES `facultades` (`id_facultad`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `fk_curso_carrera` FOREIGN KEY (`id_carrera`) REFERENCES `carreras` (`id_carrera`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `chk_fechas_curso` CHECK (`fecha_fin` >= `fecha_inicio`),
   CONSTRAINT `chk_duracion_horas` CHECK (`duracion_horas` > 0 AND `duracion_horas` <= 1000),
   CONSTRAINT `chk_cupo_maximo` CHECK (`cupo_maximo` > 0 AND `cupo_maximo` <= 1000)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 
 -- --------------------------------------------------------
 -- Tabla: inscripcion
@@ -349,17 +359,23 @@ CREATE TABLE `asistencia` (
 -- Tabla: certificacion (Define certificados mayores, ej. "Certificado de IA")
 CREATE TABLE `certificacion` (
   `id_certificacion` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id_universidad` INT UNSIGNED NULL,
+  `id_facultad` INT UNSIGNED NULL,
   `nombre` VARCHAR(150) NOT NULL,
   `descripcion` TEXT,
-  `id_categoria` INT UNSIGNED NULL, -- Opcional: Liga a categoria_curso para agrupar por tema
-  `requisitos_adicionales` TEXT, -- Ej. "Promedio mínimo 80%"
+  `id_categoria` INT UNSIGNED NULL,
+  `requisitos_adicionales` TEXT,
   `estatus` ENUM('activa', 'inactiva') DEFAULT 'activa',
   `fecha_creacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `fecha_actualizacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_certificacion`),
   UNIQUE KEY `uk_nombre` (`nombre`),
   INDEX `idx_categoria` (`id_categoria`),
-  CONSTRAINT `fk_certificacion_categoria` FOREIGN KEY (`id_categoria`) REFERENCES `categoria_curso` (`id_categoria`) ON DELETE SET NULL ON UPDATE CASCADE
+  INDEX `idx_universidad` (`id_universidad`),
+  INDEX `idx_facultad` (`id_facultad`),
+  CONSTRAINT `fk_certificacion_categoria` FOREIGN KEY (`id_categoria`) REFERENCES `categoria_curso` (`id_categoria`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `fk_certificacion_universidad` FOREIGN KEY (`id_universidad`) REFERENCES `universidad` (`id_universidad`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `fk_certificacion_facultad` FOREIGN KEY (`id_facultad`) REFERENCES `facultades` (`id_facultad`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Tabla: requisitos_certificado (Relaciona cursos con certificaciones)

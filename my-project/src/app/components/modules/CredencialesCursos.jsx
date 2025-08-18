@@ -91,24 +91,24 @@ function CredencialesCursos({ userId }) {
         }
     }, []);
 
-    const fetchCursos = useCallback(async (idFacultad) => {
-        if (!idFacultad) {
+    const fetchCursos = useCallback(async (idUniversidad, idFacultad) => {
+        if (!idUniversidad || !idFacultad) {
             setCursosDisponibles([]);
-            setCursosEnCredencial([]);
             return;
         }
         setIsCoursesLoading(true);
         setCursosDisponibles([]);
         try {
-            const response = await fetch(`${API_URL_CURSOS}?id_facultad=${idFacultad}`);
+            const response = await fetch(`${API_URL_CURSOS}?id_universidad=${idUniversidad}&id_facultad=${idFacultad}`);
             const data = await response.json();
-            setCursosDisponibles(data.cursos || []);
+            const cursosFiltrados = data.cursos.filter(curso => !cursosEnCredencial.some(c => c.id_curso === curso.id_curso));
+            setCursosDisponibles(cursosFiltrados || []);
         } catch (err) {
             console.error("Error al cargar cursos:", err);
         } finally {
             setIsCoursesLoading(false);
         }
-    }, []);
+    }, [cursosEnCredencial]);
 
     useEffect(() => {
         fetchCredentials();
@@ -136,8 +136,8 @@ function CredencialesCursos({ userId }) {
             if (credential.id_universidad) {
                 fetchFacultades(credential.id_universidad);
             }
-            if (credential.id_facultad) {
-                fetchCursos(credential.id_facultad);
+            if (credential.id_universidad && credential.id_facultad) {
+                fetchCursos(credential.id_universidad, credential.id_facultad);
             }
         } else {
             setIsEditing(false);
@@ -184,7 +184,7 @@ function CredencialesCursos({ userId }) {
         setFormState((prev) => ({ ...prev, id_facultad: facId, cursos: [] }));
         setCursosDisponibles([]);
         setCursosEnCredencial([]);
-        fetchCursos(facId);
+        fetchCursos(selectedUniversidad, facId);
     };
 
     const agregarCurso = (curso) => {

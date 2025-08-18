@@ -32,9 +32,10 @@ const getAllCursos = async (req, res) => {
 
     // Obtener los cursos de la página actual
     const dataQuery = `
-            SELECT c.*, m.nombre_completo as nombre_maestro
+            SELECT c.*, m.nombre_completo as nombre_maestro, u.nombre as nombre_universidad
             FROM curso c
             LEFT JOIN maestro m ON c.id_maestro = m.id_maestro
+            LEFT JOIN universidad u ON c.id_universidad = u.id_universidad
             ${whereString}
             ORDER BY c.nombre_curso ASC
             LIMIT ? OFFSET ?
@@ -84,7 +85,9 @@ const createCurso = async (req, res) => {
   const {
     id_maestro,
     id_categoria,
-    // codigo_curso se genera automáticamente
+    id_universidad,
+    id_facultad,
+    id_carrera,
     nombre_curso,
     descripcion,
     objetivos,
@@ -118,11 +121,14 @@ const createCurso = async (req, res) => {
 
     // 1. Insertar el curso sin el código
     const [result] = await connection.query(
-      `INSERT INTO curso (id_maestro, id_categoria, nombre_curso, descripcion, objetivos, prerequisitos, duracion_horas, nivel, cupo_maximo, fecha_inicio, fecha_fin, horario, link_clase)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO curso (id_maestro, id_categoria, id_universidad, id_facultad, id_carrera, nombre_curso, descripcion, objetivos, prerequisitos, duracion_horas, nivel, cupo_maximo, fecha_inicio, fecha_fin, horario, link_clase)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id_maestro,
         id_categoria || null,
+        id_universidad || null,
+        id_facultad || null,
+        id_carrera || null,
         nombre_curso,
         descripcion,
         objetivos,
@@ -177,7 +183,9 @@ const updateCurso = async (req, res) => {
   const {
     id_maestro,
     id_categoria,
-    // codigo_curso no se puede actualizar
+    id_universidad,
+    id_facultad,
+    id_carrera,
     nombre_curso,
     descripcion,
     objetivos,
@@ -208,13 +216,17 @@ const updateCurso = async (req, res) => {
   try {
     const [result] = await pool.query(
       `UPDATE curso SET
-                id_maestro = ?, id_categoria = ?, nombre_curso = ?, descripcion = ?,
-                objetivos = ?, prerequisitos = ?, duracion_horas = ?, nivel = ?, cupo_maximo = ?,
-                fecha_inicio = ?, fecha_fin = ?, horario = ?, link_clase = ?, estatus_curso = ?
+                id_maestro = ?, id_categoria = ?, id_universidad = ?, id_facultad = ?, id_carrera = ?,
+                nombre_curso = ?, descripcion = ?, objetivos = ?, prerequisitos = ?, duracion_horas = ?,
+                nivel = ?, cupo_maximo = ?, fecha_inicio = ?, fecha_fin = ?, horario = ?,
+                link_clase = ?, estatus_curso = ?
              WHERE id_curso = ?`,
       [
         id_maestro,
         id_categoria || null,
+        id_universidad || null,
+        id_facultad || null,
+        id_carrera || null,
         nombre_curso,
         descripcion,
         objetivos,
