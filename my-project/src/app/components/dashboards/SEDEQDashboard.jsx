@@ -52,7 +52,7 @@ function SEDEQDashboard({ userId }) {
       <div className={styles.modulos}>
         <h1>Credenciales</h1>
         <section>
-          <CredencialesCursos userId={userId} canEdit={true} />
+          <CredencialesCursos userId={userId} canEdit={true} dashboardType="sedeq" />
         </section>
       </div>
     </div>

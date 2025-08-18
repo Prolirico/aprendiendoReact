@@ -3,7 +3,7 @@ const pool = require("../config/db");
 // @desc    Obtener todos los cursos con paginación, búsqueda y filtro
 // @route   GET /api/cursos
 const getAllCursos = async (req, res) => {
-  const { page = 1, limit = 10, searchTerm = "", id_maestro } = req.query;
+  const { page = 1, limit = 10, searchTerm = "", id_maestro, id_universidad, id_facultad } = req.query; // Add id_universidad and id_facultad
   const offset = (page - 1) * limit;
 
   try {
@@ -19,6 +19,18 @@ const getAllCursos = async (req, res) => {
     if (id_maestro && id_maestro !== "undefined") {
       whereClauses.push("c.id_maestro = ?");
       queryParams.push(id_maestro);
+    }
+
+    // Add filter for id_universidad
+    if (id_universidad && id_universidad !== "undefined") {
+      whereClauses.push("c.id_universidad = ?");
+      queryParams.push(id_universidad);
+    }
+
+    // Add filter for id_facultad
+    if (id_facultad && id_facultad !== "undefined") {
+      whereClauses.push("c.id_facultad = ?");
+      queryParams.push(id_facultad);
     }
 
     const whereString =
@@ -122,7 +134,7 @@ const createCurso = async (req, res) => {
     // 1. Insertar el curso sin el código
     const [result] = await connection.query(
       `INSERT INTO curso (id_maestro, id_categoria, id_universidad, id_facultad, id_carrera, nombre_curso, descripcion, objetivos, prerequisitos, duracion_horas, nivel, cupo_maximo, fecha_inicio, fecha_fin, horario, link_clase)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id_maestro,
         id_categoria || null,
@@ -220,7 +232,7 @@ const updateCurso = async (req, res) => {
                 nombre_curso = ?, descripcion = ?, objetivos = ?, prerequisitos = ?, duracion_horas = ?,
                 nivel = ?, cupo_maximo = ?, fecha_inicio = ?, fecha_fin = ?, horario = ?,
                 link_clase = ?, estatus_curso = ?
-             WHERE id_curso = ?`,
+              WHERE id_curso = ?`,
       [
         id_maestro,
         id_categoria || null,

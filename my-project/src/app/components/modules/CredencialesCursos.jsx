@@ -16,7 +16,7 @@ const initialCredentialState = {
     cursos: [],
 };
 
-function CredencialesCursos({ userId }) {
+function CredencialesCursos({ userId, dashboardType, userUniversityId }) {
     const [universidades, setUniversidades] = useState([]);
     const [facultades, setFacultades] = useState([]);
     const [cursosDisponibles, setCursosDisponibles] = useState([]);
@@ -72,14 +72,10 @@ function CredencialesCursos({ userId }) {
     const fetchFacultades = useCallback(async (idUniversidad) => {
         if (!idUniversidad) {
             setFacultades([]);
-            setCursosDisponibles([]);
-            setCursosEnCredencial([]);
             return;
         }
         setIsFacultadesLoading(true);
         setFacultades([]);
-        setCursosDisponibles([]);
-        setCursosEnCredencial([]);
         try {
             const response = await fetch(`${API_URL_FACULTADES}/universidad/${idUniversidad}`);
             const data = await response.json();
@@ -99,12 +95,23 @@ function CredencialesCursos({ userId }) {
         setIsCoursesLoading(true);
         setCursosDisponibles([]);
         try {
-            const response = await fetch(`${API_URL_CURSOS}?id_universidad=${idUniversidad}&id_facultad=${idFacultad}`);
+            const url = new URL(API_URL_CURSOS);
+            url.searchParams.append('id_universidad', idUniversidad);
+            url.searchParams.append('id_facultad', idFacultad);
+            
+            const response = await fetch(url);
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || "Error al cargar los cursos");
+            }
             const data = await response.json();
-            const cursosFiltrados = data.cursos.filter(curso => !cursosEnCredencial.some(c => c.id_curso === curso.id_curso));
-            setCursosDisponibles(cursosFiltrados || []);
+            const cursosFiltrados = (data.cursos || []).filter(
+                (curso) => !cursosEnCredencial.some((c) => c.id_curso === curso.id_curso)
+            );
+            setCursosDisponibles(cursosFiltrados);
         } catch (err) {
             console.error("Error al cargar cursos:", err);
+            setCursosDisponibles([]);
         } finally {
             setIsCoursesLoading(false);
         }
@@ -113,7 +120,13 @@ function CredencialesCursos({ userId }) {
     useEffect(() => {
         fetchCredentials();
         fetchUniversidades();
-    }, [fetchCredentials, fetchUniversidades]);
+
+        // Initialize university selection based on dashboardType
+        if (dashboardType === 'university' && userUniversityId) {
+            setSelectedUniversidad(userUniversityId.toString());
+            fetchFacultades(userUniversityId.toString());
+        }
+    }, [fetchCredentials, fetchUniversidades, dashboardType, userUniversityId, fetchFacultades]);
 
     const showToast = (message, type = "success") => {
         setToast({ show: true, message, type });
@@ -132,7 +145,6 @@ function CredencialesCursos({ userId }) {
             setSelectedUniversidad(credential.id_universidad || "");
             setSelectedFacultad(credential.id_facultad || "");
             setCursosEnCredencial(credential.cursos || []);
-            setCursosDisponibles([]);
             if (credential.id_universidad) {
                 fetchFacultades(credential.id_universidad);
             }
@@ -142,16 +154,24 @@ function CredencialesCursos({ userId }) {
         } else {
             setIsEditing(false);
             setFormState(initialCredentialState);
-            setSelectedUniversidad("");
-            setSelectedFacultad("");
             setCursosDisponibles([]);
             setCursosEnCredencial([]);
+
+            // Initialize university selection based on dashboardType for new credential
+            if (dashboardType === 'university' && userUniversityId) {
+                setSelectedUniversidad(userUniversityId.toString());
+                fetchFacultades(userUniversityId.toString());
+            } else {
+                setSelectedUniversidad("");
+            }
+            setSelectedFacultad("");
         }
         setIsModalOpen(true);
     };
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
+        // Clear courses when modal closes to ensure fresh state on next open
         setCursosDisponibles([]);
         setCursosEnCredencial([]);
     };
@@ -181,10 +201,14 @@ function CredencialesCursos({ userId }) {
     const handleFacultadChange = (e) => {
         const facId = e.target.value;
         setSelectedFacultad(facId);
-        setFormState((prev) => ({ ...prev, id_facultad: facId, cursos: [] }));
-        setCursosDisponibles([]);
-        setCursosEnCredencial([]);
-        fetchCursos(selectedUniversidad, facId);
+        // Only update id_facultad in formState, preserve existing courses if any
+        setFormState((prev) => ({ ...prev, id_facultad: facId }));
+        
+        if (facId) {
+            fetchCursos(selectedUniversidad, facId);
+        } else {
+            setCursosDisponibles([]);
+        }
     };
 
     const agregarCurso = (curso) => {
@@ -377,6 +401,7 @@ function CredencialesCursos({ userId }) {
                                         value={selectedUniversidad}
                                         onChange={handleUniversidadChange}
                                         required
+                                        disabled={dashboardType === 'university'}
                                     >
                                         <option value="">Seleccione una universidad</option>
                                         {universidades.map((uni) => (
@@ -466,6 +491,7 @@ function CredencialesCursos({ userId }) {
                                                                         <span className={styles.courseCode}>{curso.codigo_curso}</span>
                                                                     </div>
                                                                     <button
+                                                                        type="button"
                                                                         onClick={() => agregarCurso(curso)}
                                                                         className={styles.addCourseBtn}
                                                                         title="Agregar curso"
@@ -501,6 +527,7 @@ function CredencialesCursos({ userId }) {
                                                                         <span className={styles.courseCode}>{curso.codigo_curso}</span>
                                                                     </div>
                                                                     <button
+                                                                        type="button"
                                                                         onClick={() => quitarCurso(curso)}
                                                                         className={styles.removeCourseBtn}
                                                                         title="Quitar curso"
