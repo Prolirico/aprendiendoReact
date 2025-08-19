@@ -93,20 +93,22 @@ log(`🔄 Importando rutas...`);
 // Rutas
 const userRoutes = require("./routes/userRoutes");
 const universidadRoutes = require("./routes/universidadRoutes");
-const maestroRoutes = require("./routes/maestroRoutes"); // Importar rutas de maestros
+const maestroRoutes = require("./routes/maestroRoutes");
 const cursoRoutes = require("./routes/cursoRoutes");
-const categoriaRoutes = require("./routes/categoriaRoutes"); // Importar rutas de categorías
+const categoriaRoutes = require("./routes/categoriaRoutes");
 const facultadRoutes = require("./routes/facultadRoutes");
 const carreraRoutes = require("./routes/carreraRoutes");
+const credencialRoutes = require("./routes/credencialRoutes");
 log(`✅ Rutas importadas correctamente`);
 
 app.use("/api", userRoutes);
 app.use("/api/universidades", universidadRoutes);
-app.use("/api/maestros", maestroRoutes); // Usar rutas de maestros
+app.use("/api/maestros", maestroRoutes);
 app.use("/api/cursos", cursoRoutes);
-app.use("/api/categorias", categoriaRoutes); // Usar rutas de categorías
+app.use("/api/categorias", categoriaRoutes);
 app.use("/api/facultades", facultadRoutes);
 app.use("/api/carreras", carreraRoutes);
+app.use("/api/credenciales", credencialRoutes);
 log(`🔌 Rutas configuradas en la aplicación`);
 
 log(`💾 Conectando a la base de datos...`);
