@@ -165,12 +165,10 @@ const createCredencial = async (req, res) => {
     await manageCursosInCredencial(connection, newCredencialId, cursos);
 
     await connection.commit();
-    res
-      .status(201)
-      .json({
-        message: "Credencial creada con éxito",
-        id_credencial: newCredencialId,
-      });
+    res.status(201).json({
+      message: "Credencial creada con éxito",
+      id_credencial: newCredencialId,
+    });
   } catch (error) {
     if (connection) await connection.rollback();
     console.error("Error al crear la credencial:", error);
@@ -228,11 +226,9 @@ const updateCredencial = async (req, res) => {
   } catch (error) {
     if (connection) await connection.rollback();
     console.error(`Error al actualizar la credencial ${id}:`, error);
-    res
-      .status(500)
-      .json({
-        error: "Error interno del servidor al actualizar la credencial.",
-      });
+    res.status(500).json({
+      error: "Error interno del servidor al actualizar la credencial.",
+    });
   } finally {
     if (connection) connection.release();
   }
