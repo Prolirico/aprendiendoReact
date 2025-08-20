@@ -9,7 +9,6 @@ const API_URL_FACULTADES = "http://localhost:5000/api/facultades";
 const API_URL_CARRERAS = "http://localhost:5000/api/carreras";
 const API_URL_MAESTROS = "http://localhost:5000/api/maestros";
 
-
 // Estado inicial para el formulario del curso
 const initialCourseState = {
   nombre_curso: "",
@@ -57,9 +56,16 @@ function CourseManagement({ userId }) {
     setError(null);
     try {
       let url = API_URL;
+      const params = new URLSearchParams();
+
+      // Always show all courses in management view
+      params.append("exclude_assigned", "false");
+
       if (userId) {
-        url += `?id_maestro=${userId}`;
+        params.append("id_maestro", userId);
       }
+
+      url += `?${params.toString()}`;
       const response = await fetch(url);
       if (!response.ok) {
         const errData = await response.json();
@@ -94,7 +100,8 @@ function CourseManagement({ userId }) {
   const fetchUniversidades = useCallback(async () => {
     try {
       const response = await fetch(`${API_URL_UNIVERSIDADES}?limit=9999`);
-      if (!response.ok) throw new Error("No se pudieron cargar las universidades");
+      if (!response.ok)
+        throw new Error("No se pudieron cargar las universidades");
       const data = await response.json();
       setUniversidades(data.universities || []);
     } catch (err) {
@@ -114,7 +121,9 @@ function CourseManagement({ userId }) {
     setCarreras([]);
     setTeachers([]);
     try {
-      const response = await fetch(`${API_URL_FACULTADES}/universidad/${idUniversidad}`);
+      const response = await fetch(
+        `${API_URL_FACULTADES}/universidad/${idUniversidad}`,
+      );
       const data = await response.json();
       setFacultades(data.data || []);
     } catch (err) {
@@ -134,7 +143,9 @@ function CourseManagement({ userId }) {
     setCarreras([]);
     setTeachers([]);
     try {
-      const response = await fetch(`${API_URL_CARRERAS}/facultad/${idFacultad}`);
+      const response = await fetch(
+        `${API_URL_CARRERAS}/facultad/${idFacultad}`,
+      );
       const data = await response.json();
       setCarreras(data.data || []);
     } catch (err) {
@@ -153,7 +164,9 @@ function CourseManagement({ userId }) {
     setTeachers([]);
     try {
       // El backend podrá filtrar por carrera
-      const response = await fetch(`${API_URL_MAESTROS}?id_carrera=${idCarrera}`);
+      const response = await fetch(
+        `${API_URL_MAESTROS}?id_carrera=${idCarrera}`,
+      );
       const data = await response.json();
       setTeachers(data.maestros || []);
     } catch (err) {
@@ -249,12 +262,12 @@ function CourseManagement({ userId }) {
     setSelectedUniversidad(uniId);
     setSelectedFacultad("");
     setSelectedCarrera("");
-    setFormState(prev => ({
-        ...prev,
-        id_universidad: uniId,
-        id_facultad: "",
-        id_carrera: "",
-        id_maestro: ""
+    setFormState((prev) => ({
+      ...prev,
+      id_universidad: uniId,
+      id_facultad: "",
+      id_carrera: "",
+      id_maestro: "",
     }));
     fetchFacultades(uniId);
   };
@@ -263,11 +276,11 @@ function CourseManagement({ userId }) {
     const facId = e.target.value;
     setSelectedFacultad(facId);
     setSelectedCarrera("");
-    setFormState(prev => ({
-        ...prev,
-        id_facultad: facId,
-        id_carrera: "",
-        id_maestro: ""
+    setFormState((prev) => ({
+      ...prev,
+      id_facultad: facId,
+      id_carrera: "",
+      id_maestro: "",
     }));
     fetchCarreras(facId);
   };
@@ -275,10 +288,10 @@ function CourseManagement({ userId }) {
   const handleCarreraChange = (e) => {
     const carId = e.target.value;
     setSelectedCarrera(carId);
-    setFormState(prev => ({
-        ...prev,
-        id_carrera: carId,
-        id_maestro: ""
+    setFormState((prev) => ({
+      ...prev,
+      id_carrera: carId,
+      id_maestro: "",
     }));
     fetchTeachers(carId);
   };
@@ -378,6 +391,7 @@ function CourseManagement({ userId }) {
               <th>Universidad</th>
               <th>Nivel</th>
               <th>Duración (horas)</th>
+              <th>Credencial</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -386,9 +400,10 @@ function CourseManagement({ userId }) {
               <tr key={course.id_curso}>
                 <td>{course.nombre_curso}</td>
                 <td>{course.codigo_curso}</td>
-                <td>{course.nombre_universidad || 'N/A'}</td>
+                <td>{course.nombre_universidad || "N/A"}</td>
                 <td>{course.nivel}</td>
                 <td>{course.duracion_horas}</td>
+                <td>{course.nombre_credencial || ""}</td>
                 <td>
                   <div className={styles.tableActions}>
                     <button
@@ -456,16 +471,23 @@ function CourseManagement({ userId }) {
                       >
                         <option value="">Seleccione una universidad</option>
                         {universidades.map((uni) => (
-                          <option key={uni.id_universidad} value={uni.id_universidad}>
+                          <option
+                            key={uni.id_universidad}
+                            value={uni.id_universidad}
+                          >
                             {uni.nombre}
                           </option>
                         ))}
                       </select>
                     </div>
 
-                    {isFacultadesLoading ? <p>Cargando facultades...</p> : (
+                    {isFacultadesLoading ? (
+                      <p>Cargando facultades...</p>
+                    ) : (
                       selectedUniversidad && (
-                        <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                        <div
+                          className={`${styles.formGroup} ${styles.fullWidth}`}
+                        >
                           <label htmlFor="facultad">Facultad</label>
                           <select
                             id="facultad"
@@ -476,7 +498,10 @@ function CourseManagement({ userId }) {
                           >
                             <option value="">Seleccione una facultad</option>
                             {facultades.map((fac) => (
-                              <option key={fac.id_facultad} value={fac.id_facultad}>
+                              <option
+                                key={fac.id_facultad}
+                                value={fac.id_facultad}
+                              >
                                 {fac.nombre}
                               </option>
                             ))}
@@ -485,9 +510,13 @@ function CourseManagement({ userId }) {
                       )
                     )}
 
-                    {isCarrerasLoading ? <p>Cargando carreras...</p> : (
+                    {isCarrerasLoading ? (
+                      <p>Cargando carreras...</p>
+                    ) : (
                       selectedFacultad && (
-                        <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                        <div
+                          className={`${styles.formGroup} ${styles.fullWidth}`}
+                        >
                           <label htmlFor="carrera">Carrera</label>
                           <select
                             id="carrera"
@@ -498,7 +527,10 @@ function CourseManagement({ userId }) {
                           >
                             <option value="">Seleccione una carrera</option>
                             {carreras.map((car) => (
-                              <option key={car.id_carrera} value={car.id_carrera}>
+                              <option
+                                key={car.id_carrera}
+                                value={car.id_carrera}
+                              >
                                 {car.nombre}
                               </option>
                             ))}
@@ -506,10 +538,14 @@ function CourseManagement({ userId }) {
                         </div>
                       )
                     )}
-                    
-                    {isTeachersLoading ? <p>Cargando maestros...</p> : (
+
+                    {isTeachersLoading ? (
+                      <p>Cargando maestros...</p>
+                    ) : (
                       selectedCarrera && (
-                        <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                        <div
+                          className={`${styles.formGroup} ${styles.fullWidth}`}
+                        >
                           <label htmlFor="id_maestro">Maestro Asignado</label>
                           <select
                             id="id_maestro"
@@ -520,7 +556,10 @@ function CourseManagement({ userId }) {
                           >
                             <option value="">Seleccione un maestro</option>
                             {teachers.map((teacher) => (
-                              <option key={teacher.id_maestro} value={teacher.id_maestro}>
+                              <option
+                                key={teacher.id_maestro}
+                                value={teacher.id_maestro}
+                              >
                                 {teacher.nombre_completo}
                               </option>
                             ))}

@@ -15,15 +15,44 @@ const manageCursosInCredencial = async (
 
   // Si se proporcionó una lista de cursos, inserta las nuevas asociaciones
   if (cursos && cursos.length > 0) {
+    // Validar que ningún curso esté ya asignado a otra credencial
+    const cursosIds = cursos.join(",");
+    const [existingAssignments] = await connection.query(
+      `SELECT rc.id_curso, c.nombre_curso
+       FROM requisitos_certificado rc
+       JOIN curso c ON rc.id_curso = c.id_curso
+       WHERE rc.id_curso IN (${cursosIds}) AND rc.id_certificacion != ?`,
+      [id_certificacion],
+    );
+
+    if (existingAssignments.length > 0) {
+      const cursosEnUso = existingAssignments
+        .map((curso) => curso.nombre_curso)
+        .join(", ");
+      throw new Error(
+        `Error: Los siguientes cursos ya están en uso: ${cursosEnUso}`,
+      );
+    }
+
     const cursosValues = cursos.map((id_curso) => [
       id_certificacion,
       id_curso,
       true,
     ]);
-    await connection.query(
-      "INSERT INTO requisitos_certificado (id_certificacion, id_curso, obligatorio) VALUES ?",
-      [cursosValues],
-    );
+
+    try {
+      await connection.query(
+        "INSERT INTO requisitos_certificado (id_certificacion, id_curso, obligatorio) VALUES ?",
+        [cursosValues],
+      );
+    } catch (error) {
+      if (error.code === "ER_DUP_ENTRY") {
+        throw new Error(
+          "Error: Uno o más cursos ya están asignados a otra credencial",
+        );
+      }
+      throw error;
+    }
   }
 };
 
@@ -67,10 +96,13 @@ const getAllCredenciales = async (req, res) => {
         cr.descripcion,
         cr.fecha_creacion,
         u.nombre as nombre_universidad,
-        f.nombre as nombre_facultad
+        f.nombre as nombre_facultad,
+        COUNT(rc.id_curso) as num_cursos
       FROM certificacion cr
       ${joinClauses}
+      LEFT JOIN requisitos_certificado rc ON cr.id_certificacion = rc.id_certificacion
       ${whereString}
+      GROUP BY cr.id_certificacion
       ORDER BY cr.nombre ASC
       LIMIT ? OFFSET ?
     `;
@@ -81,8 +113,14 @@ const getAllCredenciales = async (req, res) => {
       parseInt(offset),
     ]);
 
+    // Agregar la propiedad cursos con el array simulado para compatibilidad
+    const credencialesWithCursos = credenciales.map((cred) => ({
+      ...cred,
+      cursos: Array(parseInt(cred.num_cursos)).fill(null), // Array vacío con la longitud correcta
+    }));
+
     res.json({
-      credenciales,
+      credenciales: credencialesWithCursos,
       totalPages,
       currentPage: parseInt(page),
       total: totalCredenciales,
@@ -120,9 +158,18 @@ const getCredencialById = async (req, res) => {
       [id],
     );
 
-    credencial.cursos = cursos;
+    // Mapear los campos para compatibilidad con el frontend
+    const credentialResponse = {
+      id_credencial: credencial.id_certificacion,
+      nombre_credencial: credencial.nombre,
+      descripcion: credencial.descripcion,
+      id_universidad: credencial.id_universidad,
+      id_facultad: credencial.id_facultad,
+      fecha_creacion: credencial.fecha_creacion,
+      cursos: cursos,
+    };
 
-    res.json(credencial);
+    res.json(credentialResponse);
   } catch (error) {
     console.error(`Error al obtener la credencial ${id}:`, error);
     res.status(500).json({ error: "Error interno del servidor." });

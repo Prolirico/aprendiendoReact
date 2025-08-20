@@ -386,6 +386,7 @@ CREATE TABLE `requisitos_certificado` (
   `obligatorio` BOOLEAN DEFAULT TRUE, -- Para requisitos opcionales en el futuro
   PRIMARY KEY (`id_requisito`),
   UNIQUE KEY `uk_certificacion_curso` (`id_certificacion`, `id_curso`),
+  UNIQUE KEY `uk_curso_unico` (`id_curso`),
   INDEX `idx_certificacion` (`id_certificacion`),
   INDEX `idx_curso` (`id_curso`),
   CONSTRAINT `fk_requisito_certificacion` FOREIGN KEY (`id_certificacion`) REFERENCES `certificacion` (`id_certificacion`) ON DELETE CASCADE ON UPDATE CASCADE,

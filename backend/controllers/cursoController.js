@@ -3,7 +3,16 @@ const pool = require("../config/db");
 // @desc    Obtener todos los cursos con paginación, búsqueda y filtro
 // @route   GET /api/cursos
 const getAllCursos = async (req, res) => {
-  const { page = 1, limit = 10, searchTerm = "", id_maestro, id_universidad, id_facultad } = req.query; // Add id_universidad and id_facultad
+  const {
+    page = 1,
+    limit = 10,
+    searchTerm = "",
+    id_maestro,
+    id_universidad,
+    id_facultad,
+    exclude_assigned = "true",
+    editing_credential_id,
+  } = req.query;
   const offset = (page - 1) * limit;
 
   try {
@@ -33,6 +42,22 @@ const getAllCursos = async (req, res) => {
       queryParams.push(id_facultad);
     }
 
+    // Exclude courses already assigned to credentials
+    if (exclude_assigned === "true") {
+      if (editing_credential_id && editing_credential_id !== "undefined") {
+        // When editing, exclude courses assigned to OTHER credentials (not the one being edited)
+        whereClauses.push(
+          "c.id_curso NOT IN (SELECT rc.id_curso FROM requisitos_certificado rc WHERE rc.id_certificacion != ?)",
+        );
+        queryParams.push(editing_credential_id);
+      } else {
+        // When creating new, exclude ALL assigned courses
+        whereClauses.push(
+          "c.id_curso NOT IN (SELECT rc.id_curso FROM requisitos_certificado rc)",
+        );
+      }
+    }
+
     const whereString =
       whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : "";
 
@@ -42,12 +67,17 @@ const getAllCursos = async (req, res) => {
     const totalCursos = countResult[0].total;
     const totalPages = Math.ceil(totalCursos / limit);
 
-    // Obtener los cursos de la página actual
+    // Obtener los cursos de la página actual con información de credencial
     const dataQuery = `
-            SELECT c.*, m.nombre_completo as nombre_maestro, u.nombre as nombre_universidad
+            SELECT c.*,
+                   m.nombre_completo as nombre_maestro,
+                   u.nombre as nombre_universidad,
+                   cert.nombre as nombre_credencial
             FROM curso c
             LEFT JOIN maestro m ON c.id_maestro = m.id_maestro
             LEFT JOIN universidad u ON c.id_universidad = u.id_universidad
+            LEFT JOIN requisitos_certificado rc ON c.id_curso = rc.id_curso
+            LEFT JOIN certificacion cert ON rc.id_certificacion = cert.id_certificacion
             ${whereString}
             ORDER BY c.nombre_curso ASC
             LIMIT ? OFFSET ?
