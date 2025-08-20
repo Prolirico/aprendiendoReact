@@ -133,7 +133,9 @@ function GestionMaestros() {
     }
     setIsFacultadesLoading(true);
     try {
-      const response = await fetch(`${API_URL_FACULTADES}/universidad/${idUniversidad}`);
+      const response = await fetch(
+        `${API_URL_FACULTADES}/universidad/${idUniversidad}`,
+      );
       if (!response.ok) throw new Error("Could not fetch faculties");
       const data = await response.json();
       console.log("Respuesta de facultades:", data); // Log para depurar
@@ -153,7 +155,9 @@ function GestionMaestros() {
     }
     setIsCarrerasLoading(true);
     try {
-      const response = await fetch(`${API_URL_CARRERAS}/facultad/${idFacultad}`);
+      const response = await fetch(
+        `${API_URL_CARRERAS}/facultad/${idFacultad}`,
+      );
       if (!response.ok) throw new Error("Could not fetch careers");
       const data = await response.json();
       setCarreras(data.data || []);
@@ -183,7 +187,7 @@ function GestionMaestros() {
         id_carrera: maestro.id_carrera || "",
         password: "", // Clear password for security
       });
-      
+
       // Cargar facultades y carreras al editar
       if (maestro.id_universidad) {
         fetchFacultades(maestro.id_universidad).then(() => {
@@ -238,7 +242,7 @@ function GestionMaestros() {
     const body = {
       id_universidad: formState.id_universidad,
       id_facultad: formState.id_facultad, // <-- Añadido
-      id_carrera: formState.id_carrera,   // <-- Añadido
+      id_carrera: formState.id_carrera, // <-- Añadido
       nombre_completo: formState.nombre_completo,
       email_institucional: formState.email_institucional,
       especialidad: formState.especialidad,
