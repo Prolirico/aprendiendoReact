@@ -1,0 +1,15 @@
+# Dependencias de Node.js
+node_modules/
+
+# Logs de la aplicación
+logs/
+
+# Archivos de base de datos (si no deseas versionarlos)
+bd.sql
+
+# Variables de entorno (si tuvieras un archivo .env)
+# .env
+
+# Archivos de compilación o temporales (si los hubiera)
+# dist/
+# build/
