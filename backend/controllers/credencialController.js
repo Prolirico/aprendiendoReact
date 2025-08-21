@@ -139,7 +139,16 @@ const getCredencialById = async (req, res) => {
   const { id } = req.params;
   try {
     const [credenciales] = await pool.query(
-      "SELECT * FROM certificacion WHERE id_certificacion = ?",
+      `
+      SELECT
+        cr.*,
+        u.nombre as nombre_universidad,
+        f.nombre as nombre_facultad
+      FROM certificacion cr
+      LEFT JOIN universidad u ON cr.id_universidad = u.id_universidad
+      LEFT JOIN facultades f ON cr.id_facultad = f.id_facultad
+      WHERE cr.id_certificacion = ?
+      `,
       [id],
     );
     if (credenciales.length === 0) {
@@ -150,9 +159,14 @@ const getCredencialById = async (req, res) => {
     // Obtener los cursos asociados
     const [cursos] = await pool.query(
       `
-            SELECT c.id_curso, c.nombre_curso
+            SELECT
+                c.id_curso,
+                c.nombre_curso,
+                c.duracion_horas,
+                cat.nombre_categoria
             FROM requisitos_certificado rc
             JOIN curso c ON rc.id_curso = c.id_curso
+            LEFT JOIN categoria_curso cat ON c.id_categoria = cat.id_categoria
             WHERE rc.id_certificacion = ?
         `,
       [id],
@@ -160,12 +174,9 @@ const getCredencialById = async (req, res) => {
 
     // Mapear los campos para compatibilidad con el frontend
     const credentialResponse = {
-      id_credencial: credencial.id_certificacion,
-      nombre_credencial: credencial.nombre,
-      descripcion: credencial.descripcion,
-      id_universidad: credencial.id_universidad,
-      id_facultad: credencial.id_facultad,
-      fecha_creacion: credencial.fecha_creacion,
+      ...credencial,
+      id_credencial: credencial.id_certificacion, // Aseguramos compatibilidad
+      nombre_credencial: credencial.nombre, // Aseguramos compatibilidad
       cursos: cursos,
     };
 

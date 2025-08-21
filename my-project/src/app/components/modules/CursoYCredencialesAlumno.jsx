@@ -2,7 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react"
 import CursoCard from "../controls/CursoCard"
-import CursoModal from "../modals/CursoModal" // Importamos el nuevo modal
+import CredencialCard from "../controls/CredencialCard" // 1. Importar CredencialCard
+import CursoModal from "../modals/CursoModal"
+import CredencialModal from "../modals/CredencialModal" // 2. Importar CredencialModal
 import styles from "./CursoYCredencialesAlumno.module.css"
 
 const CursoYCredencialesAlumno = () => {
@@ -35,6 +37,8 @@ const CursoYCredencialesAlumno = () => {
 
     // --- ESTADO PARA EL MODAL ---
     const [selectedCurso, setSelectedCurso] = useState(null)
+    const [selectedCredencial, setSelectedCredencial] = useState(null) // 3. Estado para el modal de credencial
+    const [isModalLoading, setIsModalLoading] = useState(false);
 
     const estatusOptions = ["Activo", "Inactivo", "Finalizado"]
 
@@ -99,6 +103,29 @@ const CursoYCredencialesAlumno = () => {
         setSelectedCurso(null)
     }
 
+    // Funciones para manejar la visibilidad del modal de credenciales
+    const handleVerMasCredencial = async (credencial) => {
+        setIsModalLoading(true);
+        // Establecemos la credencial básica para que el modal se abra inmediatamente con el título.
+        setSelectedCredencial(credencial);
+        try {
+            const res = await fetch(`http://localhost:5000/api/credenciales/${credencial.id_credencial}`);
+            if (!res.ok) {
+                throw new Error('Error al cargar los detalles de la credencial');
+            }
+            const fullCredencialData = await res.json();
+            setSelectedCredencial(fullCredencialData); // Reemplazamos con los datos completos.
+        } catch (error) {
+            console.error(error);
+            handleCloseCredencialModal(); // Cerramos el modal si hay un error.
+        } finally {
+            setIsModalLoading(false);
+        }
+    }
+
+    const handleCloseCredencialModal = () => {
+        setSelectedCredencial(null)
+    }
     // Función para alternar secciones expandidas
     const toggleSection = (section) => {
         setExpandedSections((prev) => ({
@@ -162,8 +189,8 @@ const CursoYCredencialesAlumno = () => {
             </button>
             {isExpanded && (
                 <div className={styles.filterOptions}>
-                    {items.map((item, index) => (
-                        <label key={index} className={styles.checkboxLabel}>
+                    {items.map((item) => (
+                        <label key={item.id_universidad || item.id_categoria || item} className={styles.checkboxLabel}>
                             <input
                                 type="checkbox"
                                 // El nombre de la propiedad puede ser 'nombre' (universidad) o 'nombre_categoria'
@@ -185,35 +212,6 @@ const CursoYCredencialesAlumno = () => {
         const options = { year: 'numeric', month: 'long', day: 'numeric' }
         return new Date(dateString).toLocaleDateString('es-ES', options)
     }
-
-    // Componente para tarjetas de credencial
-    const CredencialCard = ({ credencial }) => (
-        <div className={styles.card}>
-            <div className={styles.cardImage}>
-                {/* Usamos una imagen por defecto y los campos correctos de la API */}
-                <img src={credencial.imagen_url || "/assets/google_signin.png"} alt={credencial.nombre_credencial} className={styles.image} />
-            </div>
-            <div className={styles.cardHeader}>
-                <h3 className={styles.cardTitle}>{credencial.nombre_credencial || "Credencial sin nombre"}</h3>
-                <span className={`${styles.status} ${styles[credencial.estatus_inscripcion?.toLowerCase()]}`}>{credencial.estatus_inscripcion}</span>
-            </div>
-            <div className={styles.cardContent}>
-                <p className={styles.cardInfo}>
-                    <strong>Universidad:</strong> {credencial.nombre_universidad || "No disponible"}
-                </p>
-                <p className={styles.cardInfo}>
-                    {/* Asumimos que la credencial está ligada a un curso */}
-                    <strong>Curso:</strong> {credencial.nombre_curso || "No especificado"}
-                </p>
-                <p className={styles.cardInfo}>
-                    <strong>Obtenida el:</strong> {formatDate(credencial.fecha_emision)}
-                </p>
-                <p className={styles.cardInfo}>
-                    <strong>Válida hasta:</strong> {formatDate(credencial.fecha_vencimiento) || "No aplica"}
-                </p>
-            </div>
-        </div>
-    )
 
     return (
         <div className={styles.container}>
@@ -300,7 +298,13 @@ const CursoYCredencialesAlumno = () => {
                     {activeTab === "credenciales" && (
                         <div className={styles.cardsGrid}>
                             {!loading && !error && filteredCredenciales.length > 0 ? (
-                                filteredCredenciales.map((credencial) => <CredencialCard key={credencial.id_credencial || credencial.id} credencial={credencial} />)
+                                filteredCredenciales.map((credencial, index) => (
+                                    <CredencialCard
+                                        key={`${credencial.id_certificacion}-${index}`}
+                                        credencial={credencial}
+                                        onVerMas={handleVerMasCredencial}
+                                    />
+                                ))
                             ) : !loading && !error ? (
                                 <div className={styles.noResults}>No tienes credenciales para mostrar.</div>
                             ) : null}
@@ -314,6 +318,15 @@ const CursoYCredencialesAlumno = () => {
                         curso={selectedCurso}
                         onClose={handleCloseModal}
                         onSolicitar={handleSolicitarCurso}
+                    />
+                )}
+
+                {/* 5. Renderizar el modal de credencial */}
+                {selectedCredencial && (
+                    <CredencialModal
+                        credencial={selectedCredencial}
+                        onClose={handleCloseCredencialModal}
+                        isLoading={isModalLoading}
                     />
                 )}
             </div>

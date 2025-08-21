@@ -60,6 +60,7 @@ const CursoModal = ({ curso, onClose, onSolicitar }) => {
                     <p><strong>Universidad:</strong> {curso.nombre_universidad}</p>
                     <p><strong>Facultad:</strong> {curso.nombre_facultad || 'No aplica'}</p>
                     <p><strong>Nivel:</strong> <span style={{textTransform: 'capitalize'}}>{curso.nivel}</span></p>
+                    <p><strong>Categoría:</strong> {curso.nombre_categoria || 'No especificada'}</p>
                     <p><strong>Duración:</strong> {curso.duracion_horas} horas</p>
                     <p><strong>Cupo:</strong> {curso.cupo_maximo} estudiantes</p>
                     <p><strong>Inicio:</strong> {formatDate(curso.fecha_inicio)}</p>
