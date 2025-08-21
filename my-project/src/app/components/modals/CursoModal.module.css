@@ -1,0 +1,140 @@
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modalContent {
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.closeButton {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: #f1f1f1;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.closeButton:hover {
+    background: #e0e0e0;
+    transform: rotate(90deg);
+}
+
+.modalTitle {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a202c;
+    margin: 0 0 10px 0;
+}
+
+.statusChip {
+    margin-bottom: 20px;
+}
+
+.chip {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.chipActivo { background-color: #dcfce7; color: #15803d; }
+.chipFinalizado { background-color: #e2e8f0; color: #64748b; }
+.chipProximamente { background-color: #fef3c7; color: #b45309; }
+
+.infoGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.infoGrid p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #4a5568;
+}
+
+.infoGrid strong {
+    color: #2d3748;
+    font-weight: 600;
+}
+
+.descriptionSection {
+    margin-bottom: 20px;
+}
+
+.descriptionSection h3 {
+    font-size: 1.2rem;
+    color: #1a202c;
+    margin-bottom: 8px;
+    border-bottom: 2px solid #10b981;
+    padding-bottom: 5px;
+    display: inline-block;
+}
+
+.descriptionSection p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #4a5568;
+}
+
+.modalFooter {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.solicitarBtn {
+    background-color: #10b981;
+    color: white;
+    font-weight: 600;
+    padding: 12px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+    font-size: 1rem;
+    transition: background-color 0.2s ease, transform 0.2s;
+}
+
+.solicitarBtn:hover {
+    background-color: #059669;
+    transform: scale(1.05);
+}

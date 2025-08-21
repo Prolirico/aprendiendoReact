@@ -72,10 +72,12 @@ const getAllCursos = async (req, res) => {
             SELECT c.*,
                    m.nombre_completo as nombre_maestro,
                    u.nombre as nombre_universidad,
+                   f.nombre as nombre_facultad,
                    cert.nombre as nombre_credencial
             FROM curso c
             LEFT JOIN maestro m ON c.id_maestro = m.id_maestro
             LEFT JOIN universidad u ON c.id_universidad = u.id_universidad
+            LEFT JOIN facultades f ON c.id_facultad = f.id_facultad
             LEFT JOIN requisitos_certificado rc ON c.id_curso = rc.id_curso
             LEFT JOIN certificacion cert ON rc.id_certificacion = cert.id_certificacion
             ${whereString}

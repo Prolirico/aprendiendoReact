@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "./Dashboard.module.css";
+import CursosYCredencialesAlumno from "../modules/CursoYCredencialesAlumno";
+
 
 function StudentDashboard({ userId }) {
   const [courses, setCourses] = useState([]);
@@ -9,21 +11,16 @@ function StudentDashboard({ userId }) {
     setCourses([
       { id: 1, title: "Intro to Programming", progress: 50 },
       { id: 2, title: "Data Science Basics", progress: 20 },
-    ]);
+    ]); 
     // Replace with API call: fetch(`/api/students/${userId}/courses`)
   }, [userId]);
 
   return (
-    <div className={styles.section}>
-      <h2>My Enrolled Courses</h2>
-      <ul className={styles.courseList}>
-        {courses.map((course) => (
-          <li key={course.id}>
-            {course.title} - Progress: {course.progress}%
-            <button>Continue Course</button>
-          </li>
-        ))}
-      </ul>
+    <div className={styles.modulos}>
+      <h1>Tomar Cursos y Credenciales</h1>
+      <section>
+        <CursosYCredencialesAlumno userId={userId} canEdit={true} />
+      </section>
     </div>
   );
 }

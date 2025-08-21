@@ -1,0 +1,169 @@
+/* CursoCard.module.css */
+
+.cursoCard {
+    width: 100%;
+    max-width: 480px;
+    background-color: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    display: flex; /* 1. Convertir la tarjeta en un contenedor flex */
+    flex-direction: column; /* 2. Alinear los hijos verticalmente */
+}
+
+.cursoCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+}
+
+.cursoImage {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.cursoContent {
+    padding: 1.5rem;
+    display: flex; /* 3. El contenido también es un contenedor flex */
+    flex-direction: column; /* para organizar a sus propios hijos */
+    flex-grow: 1; /* 4. Hacer que esta sección ocupe el espacio disponible */
+}
+
+.cursoTitle {
+    font-weight: 700;
+    font-size: 1.5rem;
+    text-align: center;
+    color: #1a202c;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+}
+
+.cursoStatus {
+    text-align: right;
+    font-weight: 400;
+    color: #718096;
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+}
+
+.cursoInfoGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.cursoInfoItem {
+    display: flex;
+    flex-direction: column;
+}
+
+.cursoInfoLabel {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 0.25rem;
+}
+
+.cursoInfoValue {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #2d3748;
+}
+
+.cursoDescripcion {
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+    color: #4a5568;
+    line-height: 1.5;
+}
+
+.statusWrapper {
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.descripcionText {
+    margin-top: 0.25rem;
+    line-height: 1.5;
+}
+
+.solicitarBtn {
+    display: block;
+    width: 100%;
+    background-color: #10b981;
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+    border: none;
+    font-size: 1rem;
+}
+.solicitarBtn {
+    /* ... tus estilos existentes ... */
+    margin-top: auto; /* 5. ¡La magia! Empuja el botón al fondo */
+}
+
+.solicitarBtn:hover {
+    background-color: #059669;
+}
+
+.cursoChip {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.chipActivo {
+    background-color: #dcfce7;
+    color: #15803d;
+}
+
+.chipFinalizado {
+    background-color: #e2e8f0;
+    color: #64748b;
+}
+
+.chipProximamente {
+    background-color: #fef3c7;
+    color: #b45309;
+}
+
+/* --- Clases de utilidad para truncar texto --- */
+
+.truncateOneLine {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.truncateTwoLines {
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Muestra un máximo de 2 líneas */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+    .cursoInfoGrid {
+        grid-template-columns: 1fr;
+    }
+    
+    .cursoTitle {
+        font-size: 1.25rem;
+    }
+    
+    .cursoContent {
+        padding: 1rem;
+    }
+}

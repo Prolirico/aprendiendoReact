@@ -73,7 +73,6 @@ CREATE TABLE `carreras` (
   UNIQUE KEY `uk_clave_carrera` (`clave_carrera`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-
 -- --------------------------------------------------------
 -- Tabla: usuario
 -- Descripción: Sistema de autenticación y autorización
@@ -243,7 +242,6 @@ CREATE TABLE `curso` (
   CONSTRAINT `chk_duracion_horas` CHECK (`duracion_horas` > 0 AND `duracion_horas` <= 1000),
   CONSTRAINT `chk_cupo_maximo` CHECK (`cupo_maximo` > 0 AND `cupo_maximo` <= 1000)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 
 -- --------------------------------------------------------
 -- Tabla: inscripcion
@@ -437,7 +435,6 @@ BEGIN
             IF done THEN
                 LEAVE read_loop;
             END IF;
-
             INSERT INTO `certificacion_alumno` (`id_alumno`, `id_certificacion`, `progreso`)
             VALUES (NEW.id_alumno, id_cert, 0.00)
             ON DUPLICATE KEY UPDATE
@@ -499,6 +496,7 @@ CREATE TABLE `auditoria` (
 -- Trigger: Certificados y constancias
 -- Descripción: Registro de cambios para certificaciones y constancias
 -- --------------------------------------------------------
+
 DELIMITER //
 CREATE TRIGGER `auditar_constancia` AFTER UPDATE ON `inscripcion`
 FOR EACH ROW
