@@ -18,10 +18,10 @@ const manageCursosInCredencial = async (
     // Validar que ningún curso esté ya asignado a otra credencial
     const cursosIds = cursos.join(",");
     const [existingAssignments] = await connection.query(
-      `SELECT rc.id_curso, c.nombre_curso
-       FROM requisitos_certificado rc
-       JOIN curso c ON rc.id_curso = c.id_curso
-       WHERE rc.id_curso IN (${cursosIds}) AND rc.id_certificacion != ?`,
+        `SELECT rc.id_curso, c.nombre_curso
+        FROM requisitos_certificado rc
+        JOIN curso c ON rc.id_curso = c.id_curso
+        WHERE rc.id_curso IN (${cursosIds}) AND rc.id_certificacion != ?`,
       [id_certificacion],
     );
 
@@ -97,10 +97,13 @@ const getAllCredenciales = async (req, res) => {
         cr.fecha_creacion,
         u.nombre as nombre_universidad,
         f.nombre as nombre_facultad,
-        COUNT(rc.id_curso) as num_cursos
+        COUNT(DISTINCT rc.id_curso) as num_cursos,
+        GROUP_CONCAT(DISTINCT cat.nombre_categoria SEPARATOR ', ') as categorias
       FROM certificacion cr
       ${joinClauses}
       LEFT JOIN requisitos_certificado rc ON cr.id_certificacion = rc.id_certificacion
+      LEFT JOIN curso c ON rc.id_curso = c.id_curso
+      LEFT JOIN categoria_curso cat ON c.id_categoria = cat.id_categoria
       ${whereString}
       GROUP BY cr.id_certificacion
       ORDER BY cr.nombre ASC
@@ -113,14 +116,17 @@ const getAllCredenciales = async (req, res) => {
       parseInt(offset),
     ]);
 
-    // Agregar la propiedad cursos con el array simulado para compatibilidad
-    const credencialesWithCursos = credenciales.map((cred) => ({
+    // Procesar la cadena de categorías en un array y mantener la compatibilidad
+    const credencialesProcesadas = credenciales.map((cred) => ({
       ...cred,
-      cursos: Array(parseInt(cred.num_cursos)).fill(null), // Array vacío con la longitud correcta
+      // La consulta devuelve una cadena "Cat1, Cat2", la convertimos en array
+      // y filtramos valores nulos o vacíos que puedan colarse.
+      categorias: cred.categorias ? cred.categorias.split(', ').filter(c => c && c !== 'null') : [],
+      cursos: Array(parseInt(cred.num_cursos)).fill(null),
     }));
 
     res.json({
-      credenciales: credencialesWithCursos,
+      credenciales: credencialesProcesadas,
       totalPages,
       currentPage: parseInt(page),
       total: totalCredenciales,

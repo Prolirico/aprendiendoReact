@@ -162,18 +162,29 @@ const CursoYCredencialesAlumno = () => {
             return [] // Devolvemos un array vacío para prevenir el crash.
         }
         return data.filter((item) => {
-            // Adaptamos el filtro a la estructura de datos de la API
-            // **SOLUCIÓN 2: Usamos la propiedad aplanada que viene de la API**
-            const universidadNombre = item.nombre_universidad || item.universidad
-            const categoriaNombre = item.categoria?.nombre_categoria || item.categoria
+            const universidadNombre = item.nombre_universidad || item.universidad;
             const estatusItem = item.estatus_curso || item.estatus_inscripcion || item.estatus
 
             const universidadMatch =
                 filters.universidades.length === 0 || filters.universidades.includes(universidadNombre)
-            const categoriaMatch = filters.categorias.length === 0 || filters.categorias.includes(categoriaNombre)
-            const estatusMatch = filters.estatus.length === 0 || filters.estatus.includes(estatusItem)
+            const estatusMatch = filters.estatus.length === 0 || filters.estatus.includes(estatusItem);
 
-            return universidadMatch && categoriaMatch && estatusMatch
+            // Si no hay filtro de categoría, solo evaluamos los otros filtros.
+            if (filters.categorias.length === 0) {
+                return universidadMatch && estatusMatch;
+            }
+
+            // Lógica de filtrado de categoría
+            let categoriaMatch = false;
+            if (item.nombre_curso) { // Es un curso
+                categoriaMatch = filters.categorias.includes(item.nombre_categoria);
+            } else if (item.nombre_credencial) { // Es una credencial
+                // Verificamos si alguna de las categorías de la credencial está en los filtros seleccionados.
+                const credencialCategorias = item.categorias || [];
+                categoriaMatch = credencialCategorias.some(cat => filters.categorias.includes(cat));
+            }
+
+            return universidadMatch && estatusMatch && categoriaMatch;
         })
     }, [filters])
 
