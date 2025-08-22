@@ -204,12 +204,12 @@ const CursoYCredencialesAlumno = () => {
                         <label key={item.id_universidad || item.id_categoria || item} className={styles.checkboxLabel}>
                             <input
                                 type="checkbox"
-                                // El nombre de la propiedad puede ser 'nombre' (universidad) o 'nombre_categoria'
-                                checked={filters[filterType].includes(item.nombre_universidad || item.nombre_categoria || item)}
-                                onChange={() => handleFilterChange(filterType, item.nombre_universidad || item.nombre_categoria || item)}
+                                // Para universidades es 'nombre', para categorías es 'nombre_categoria', y para estatus es el item mismo.
+                                checked={filters[filterType].includes(item.nombre || item.nombre_categoria || item)}
+                                onChange={() => handleFilterChange(filterType, item.nombre || item.nombre_categoria || item)}
                                 className={styles.checkbox}
                             />
-                            <span className={styles.checkboxText}>{item.nombre_universidad || item.nombre_categoria || item}</span>
+                            <span className={styles.checkboxText}>{item.nombre || item.nombre_categoria || item}</span>
                         </label>
                     ))}
                 </div>
