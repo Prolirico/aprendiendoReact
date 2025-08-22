@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react"
 import CursoCard from "../controls/CursoCard"
-import CredencialCard from "../controls/CredencialCard" // 1. Importar CredencialCard
+import CredencialCard from "../controls/CredencialCard"
 import CursoModal from "../modals/CursoModal"
-import CredencialModal from "../modals/CredencialModal" // 2. Importar CredencialModal
+import CredencialModal from "../modals/CredencialModal"
 import styles from "./CursoYCredencialesAlumno.module.css"
 
 const CursoYCredencialesAlumno = () => {
@@ -37,11 +37,21 @@ const CursoYCredencialesAlumno = () => {
 
     // --- ESTADO PARA EL MODAL ---
     const [selectedCurso, setSelectedCurso] = useState(null)
-    const [selectedCredencial, setSelectedCredencial] = useState(null) // 3. Estado para el modal de credencial
+    const [selectedCredencial, setSelectedCredencial] = useState(null)
     const [isModalLoading, setIsModalLoading] = useState(false);
 
-    const estatusOptions = ["Activo", "Inactivo", "Finalizado"]
+    // Arrays de opciones de estatus dinámicos según la pestaña
+    // Usamos los valores reales del backend para el filtrado
+    const cursoStatusOptions = ["planificado", "abierto", "en_curso", "finalizado", "cancelado"];
+    const credencialStatusOptions = ["activa", "inactiva"];
 
+    // Función para formatear los estatus para mostrarlos en la UI
+    const formatStatusLabel = (status) => {
+        if (!status) return '';
+        // Reemplaza guiones bajos y capitaliza la primera letra de cada palabra
+        return status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    };
+    
     // --- VINCULACIÓN CON API ---
     // Usamos useEffect para cargar todos los datos iniciales cuando el componente se monta.
     useEffect(() => {
@@ -49,7 +59,7 @@ const CursoYCredencialesAlumno = () => {
             try {
                 // Usamos Promise.all para realizar todas las peticiones en paralelo
                 const [cursosRes, credencialesRes, universidadesRes, categoriasRes] = await Promise.all([
-                    fetch("http://localhost:5000/api/cursos?exclude_assigned=false"), // <-- ¡Añadimos el parámetro aquí!
+                    fetch("http://localhost:5000/api/cursos?exclude_assigned=false"),
                     fetch("http://localhost:5000/api/credenciales"), // Endpoint para credenciales del alumno
                     fetch("http://localhost:5000/api/universidades"),
                     fetch("http://localhost:5000/api/categorias/activas"), // Usamos el endpoint de categorías activas
@@ -62,12 +72,11 @@ const CursoYCredencialesAlumno = () => {
                 if (!categoriasRes.ok) throw new Error("Error al cargar categorías")
 
                 const cursosData = await cursosRes.json()
-                const credencialesData = await credencialesRes.json() // Asumimos que también devuelve un objeto
-                const universidadesData = await universidadesRes.json() // Asumimos que también devuelve un objeto
+                const credencialesData = await credencialesRes.json()
+                const universidadesData = await universidadesRes.json()
                 const categoriasData = await categoriasRes.json()
 
                 // Actualizamos todos los estados con los datos de la API
-                // **SOLUCIÓN 1: Accedemos a la propiedad correcta del objeto de la API**
                 setCursos(cursosData.cursos || [])
                 setCredenciales(credencialesData.credenciales || [])
                 setUniversidades(universidadesData.universities || [])
@@ -83,6 +92,14 @@ const CursoYCredencialesAlumno = () => {
         fetchAllData()
         // El array vacío [] significa que este efecto se ejecuta solo una vez
     }, [])
+
+    // Limpiar filtros de estatus cuando cambia la pestaña activa
+    useEffect(() => {
+        setFilters(prev => ({
+            ...prev,
+            estatus: []
+        }))
+    }, [activeTab])
 
     // --- FUNCIONES DE MANEJO DE ACCIONES ---
 
@@ -126,6 +143,7 @@ const CursoYCredencialesAlumno = () => {
     const handleCloseCredencialModal = () => {
         setSelectedCredencial(null)
     }
+
     // Función para alternar secciones expandidas
     const toggleSection = (section) => {
         setExpandedSections((prev) => ({
@@ -155,19 +173,19 @@ const CursoYCredencialesAlumno = () => {
 
     // Función para filtrar datos
     const filterData = useCallback((data) => {
-        // --- SOLUCIÓN AL ERROR ---
         // Añadimos una guarda para asegurar que 'data' siempre sea un array.
-        // Si la API devuelve algo que no es un array, evitamos el error.
         if (!Array.isArray(data) || data === null) {
-            return [] // Devolvemos un array vacío para prevenir el crash.
+            return []
         }
         return data.filter((item) => {
             const universidadNombre = item.nombre_universidad || item.universidad;
-            const estatusItem = item.estatus_curso || item.estatus_inscripcion || item.estatus
 
             const universidadMatch =
                 filters.universidades.length === 0 || filters.universidades.includes(universidadNombre)
-            const estatusMatch = filters.estatus.length === 0 || filters.estatus.includes(estatusItem);
+            
+            // Lógica de filtrado de estatus simplificada
+            const itemStatus = item.nombre_curso ? item.estatus_curso : item.estatus;
+            const estatusMatch = filters.estatus.length === 0 || filters.estatus.includes(itemStatus);
 
             // Si no hay filtro de categoría, solo evaluamos los otros filtros.
             if (filters.categorias.length === 0) {
@@ -209,7 +227,7 @@ const CursoYCredencialesAlumno = () => {
                                 onChange={() => handleFilterChange(filterType, item.nombre || item.nombre_categoria || item)}
                                 className={styles.checkbox}
                             />
-                            <span className={styles.checkboxText}>{item.nombre || item.nombre_categoria || item}</span>
+                            <span className={styles.checkboxText}>{item.nombre || item.nombre_categoria || formatStatusLabel(item)}</span>
                         </label>
                     ))}
                 </div>
@@ -253,8 +271,8 @@ const CursoYCredencialesAlumno = () => {
                     />
 
                     <FilterSection
-                        title="Estatus"
-                        items={estatusOptions}
+                        title="Estado"
+                        items={activeTab === "cursos" ? cursoStatusOptions : credencialStatusOptions}
                         filterType="estatus"
                         isExpanded={expandedSections.estatus}
                         onToggle={toggleSection}
@@ -332,7 +350,7 @@ const CursoYCredencialesAlumno = () => {
                     />
                 )}
 
-                {/* 5. Renderizar el modal de credencial */}
+                {/* Renderizar el modal de credencial */}
                 {selectedCredencial && (
                     <CredencialModal
                         credencial={selectedCredencial}

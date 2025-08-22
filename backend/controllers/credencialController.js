@@ -93,6 +93,7 @@ const getAllCredenciales = async (req, res) => {
       SELECT
         cr.id_certificacion as id_credencial,
         cr.nombre as nombre_credencial,
+        cr.estatus,
         cr.descripcion,
         cr.fecha_creacion,
         u.nombre as nombre_universidad,
