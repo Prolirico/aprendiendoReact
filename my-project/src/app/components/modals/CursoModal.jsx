@@ -65,6 +65,7 @@ const CursoModal = ({ curso, onClose, onSolicitar }) => {
                     <p><strong>Cupo:</strong> {curso.cupo_maximo} estudiantes</p>
                     <p><strong>Inicio:</strong> {formatDate(curso.fecha_inicio)}</p>
                     <p><strong>Fin:</strong> {formatDate(curso.fecha_fin)}</p>
+                    <p><strong>Credencial:</strong> {curso.nombre_credencial}</p>
                 </div>
 
                 {curso.descripcion && (
