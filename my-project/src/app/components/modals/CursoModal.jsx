@@ -30,7 +30,7 @@ const formatStatusText = (estatus) => {
     return estatus || 'Sin estatus';
 };
 
-const CursoModal = ({ curso, onClose, onSolicitar }) => {
+const CursoModal = ({ curso, onClose, onSolicitar, onVerCredencial }) => {
     // Efecto para cerrar el modal con la tecla 'Escape'
     useEffect(() => {
         const handleEsc = (event) => {
@@ -65,7 +65,14 @@ const CursoModal = ({ curso, onClose, onSolicitar }) => {
                     <p><strong>Cupo:</strong> {curso.cupo_maximo} estudiantes</p>
                     <p><strong>Inicio:</strong> {formatDate(curso.fecha_inicio)}</p>
                     <p><strong>Fin:</strong> {formatDate(curso.fecha_fin)}</p>
-                    <p><strong>Credencial:</strong> {curso.nombre_credencial}</p>
+                    <p>
+                        <strong>Credencial:</strong>{' '}
+                        {curso.id_credencial ? (
+                            <button className={styles.linkButton} onClick={() => onVerCredencial(curso)}>
+                                {curso.nombre_credencial}
+                            </button>
+                        ) : ( 'N/A' )}
+                    </p>
                 </div>
 
                 {curso.descripcion && (

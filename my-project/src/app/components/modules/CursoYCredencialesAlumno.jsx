@@ -121,12 +121,26 @@ const CursoYCredencialesAlumno = () => {
     }
 
     // Funciones para manejar la visibilidad del modal de credenciales
-    const handleVerMasCredencial = async (credencial) => {
+    const handleVerMasCredencial = async (item) => {
         setIsModalLoading(true);
-        // Establecemos la credencial básica para que el modal se abra inmediatamente con el título.
-        setSelectedCredencial(credencial);
+        // El 'item' puede ser un objeto 'credencial' (desde CredencialCard)
+        // o un objeto 'curso' (desde CursoModal)
+        const credencialId = item.id_credencial || item.id_certificacion;
+        const credencialName = item.nombre_credencial || item.nombre_certificacion;
+
+        if (!credencialId) {
+            console.error("No se encontró ID de credencial en el item:", item);
+            setIsModalLoading(false);
+            return;
+        }
+
+        // Cerramos el modal del curso si estuviera abierto para una mejor UX
+        setSelectedCurso(null);
+        // Abrimos el modal de la credencial con la información básica que ya tenemos
+        setSelectedCredencial({ id_credencial: credencialId, nombre_certificacion: credencialName });
+
         try {
-            const res = await fetch(`http://localhost:5000/api/credenciales/${credencial.id_credencial}`);
+            const res = await fetch(`http://localhost:5000/api/credenciales/${credencialId}`);
             if (!res.ok) {
                 throw new Error('Error al cargar los detalles de la credencial');
             }
@@ -347,6 +361,7 @@ const CursoYCredencialesAlumno = () => {
                         curso={selectedCurso}
                         onClose={handleCloseModal}
                         onSolicitar={handleSolicitarCurso}
+                        onVerCredencial={handleVerMasCredencial}
                     />
                 )}
 

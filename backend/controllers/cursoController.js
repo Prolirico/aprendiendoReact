@@ -74,7 +74,8 @@ const getAllCursos = async (req, res) => {
                    u.nombre as nombre_universidad,
                    f.nombre as nombre_facultad,
                    cat.nombre_categoria,
-                   cert.nombre as nombre_credencial
+                   cert.nombre as nombre_credencial,
+                   cert.id_certificacion as id_credencial
             FROM curso c
             LEFT JOIN maestro m ON c.id_maestro = m.id_maestro
             LEFT JOIN universidad u ON c.id_universidad = u.id_universidad
