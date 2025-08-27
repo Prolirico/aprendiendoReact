@@ -6,6 +6,7 @@ import GestionMaestros from "../modules/GestionMaestros";
 import GestionCursos from "../modules/GestionCursos";
 import CategoriasCursos from "../modules/CategoriasCursos";
 import CredencialesCursos from "../modules/CredencialesCursos";
+import Inscripciones from "../modules/Inscripciones";
 
 function SEDEQDashboard({ userId }) {
   const [data, setData] = useState({
@@ -52,7 +53,17 @@ function SEDEQDashboard({ userId }) {
       <div className={styles.modulos}>
         <h1>Credenciales</h1>
         <section>
-          <CredencialesCursos userId={userId} canEdit={true} dashboardType="sedeq" />
+          <CredencialesCursos
+            userId={userId}
+            canEdit={true}
+            dashboardType="sedeq"
+          />
+        </section>
+      </div>
+      <div className={styles.modulos}>
+        <h1>Inscripciones</h1>
+        <section>
+          <Inscripciones userId={userId} canEdit={true} dashboardType="sedeq" />
         </section>
       </div>
     </div>
