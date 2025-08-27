@@ -98,6 +98,13 @@
     text-align: center;
 }
 
+/* Estilo añadido para consistencia */
+.infoText {
+    color: #e0e0e0;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
 @media (max-width: 576px) {
     .loginContainer {
         width: 90vw;

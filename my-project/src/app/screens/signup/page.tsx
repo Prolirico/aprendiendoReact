@@ -1,6 +1,6 @@
 "use client";
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   GoogleOAuthProvider,
   GoogleLogin,
@@ -42,6 +42,7 @@ export default function SignUpPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // State for multi-step form
   const [step, setStep] = useState<"signup" | "completeProfile">("signup");
@@ -55,6 +56,37 @@ export default function SignUpPage() {
   });
   const [universidades, setUniversidades] = useState<University[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // ¡NUEVA LÓGICA! Revisar si venimos de un login con perfil pendiente.
+  useEffect(() => {
+    const action = searchParams.get("action");
+
+    if (action === "completeProfile") {
+      const pendingUserData = localStorage.getItem("pendingUser");
+      if (pendingUserData) {
+        try {
+          const user = JSON.parse(pendingUserData);
+          setNewUser(user);
+          setProfileData((prev) => ({
+            ...prev,
+            nombre_completo: user.username,
+          }));
+          setStep("completeProfile");
+
+          // Cargar universidades
+          axios
+            .get(`${API_URL}/universidades?limit=999`)
+            .then((res) => setUniversidades(res.data.universities || []))
+            .catch(() => setError("No se pudieron cargar las universidades."));
+
+          // Limpiar el localStorage para no dejar datos residuales
+          localStorage.removeItem("pendingUser");
+        } catch (e) {
+          setError("Hubo un error al recuperar los datos del usuario.");
+        }
+      }
+    }
+  }, [searchParams]);
 
   const handleGoogleSuccess = async (
     credentialResponse: CredentialResponse,
