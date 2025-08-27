@@ -1,4 +1,5 @@
 const Carrera = require("../models/carreraModel");
+const pool = require("../config/db"); // Importar el pool de conexiones
 
 /**
  * Crea una nueva carrera.
@@ -36,6 +37,38 @@ exports.createCarrera = async (req, res) => {
       success: false,
       message: err.message || "Ocurrió un error al crear la carrera.",
     });
+  }
+};
+
+/**
+ * @desc    Obtener carreras por ID de universidad
+ * @route   GET /api/carreras/by-universidad/:id_universidad
+ * @access  Public
+ */
+exports.getCarrerasByUniversidad = async (req, res) => {
+  const { id_universidad } = req.params;
+
+  if (!id_universidad) {
+    return res
+      .status(400)
+      .json({ error: "El ID de la universidad es requerido." });
+  }
+
+  try {
+    const db = await pool.getConnection();
+    const [carreras] = await db.execute(
+      `SELECT c.id_carrera, c.nombre 
+       FROM carreras c
+       JOIN facultades f ON c.id_facultad = f.id_facultad
+       WHERE f.id_universidad = ?
+       ORDER BY c.nombre ASC`,
+      [id_universidad],
+    );
+    db.release();
+    res.json({ carreras });
+  } catch (error) {
+    console.error("Error al obtener carreras por universidad:", error);
+    res.status(500).json({ error: "Error en el servidor." });
   }
 };
 

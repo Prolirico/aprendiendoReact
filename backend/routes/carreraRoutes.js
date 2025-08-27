@@ -33,4 +33,11 @@ router.put("/:id", carreraController.updateCarrera);
  */
 router.delete("/:id", carreraController.deleteCarrera);
 
+/**
+ * @route   GET /api/carreras/by-universidad/:id_universidad
+ * @desc    Obtener carreras por ID de universidad
+ * @access  Public
+ */
+router.get("/by-universidad/:id_universidad", carreraController.getCarrerasByUniversidad);
+
 module.exports = router;

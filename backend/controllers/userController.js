@@ -228,8 +228,25 @@ exports.googleSignUp = async (req, res) => {
       );
 
       if (existingUser.length > 0) {
-        console.log("Google Sign-Up: User already exists:", email);
-        return res.status(400).json({ error: "Usuario ya registrado" });
+        const user = existingUser[0];
+        // Si el usuario existe pero su perfil está pendiente, permítele continuar.
+        if (user.estatus === "pendiente") {
+          console.log(
+            "Google Sign-Up: User exists with pending status. Allowing profile completion.",
+          );
+          return res.status(200).json({ // Se envía 200 en lugar de 201
+            message: "Google Sign-Up successful",
+            user: {
+              id_usuario: user.id_usuario,
+              username: user.username,
+              email: user.email,
+              tipo_usuario: user.tipo_usuario,
+            },
+          });
+        }
+        console.log("Google Sign-Up: User already exists and is active:", email);
+        // 409 Conflict es más semántico para un recurso que ya existe.
+        return res.status(409).json({ error: "Usuario ya registrado" });
       }
 
       const username = name || email.split("@")[0];
@@ -248,6 +265,7 @@ exports.googleSignUp = async (req, res) => {
         user: {
           id_usuario: result.insertId,
           username,
+          email,
           tipo_usuario: "alumno",
         },
       });
@@ -266,7 +284,7 @@ exports.googleSignUp = async (req, res) => {
     }
     if (error.code === "ER_DUP_ENTRY") {
       console.log("Google Sign-Up: Duplicate entry detected");
-      return res.status(400).json({ error: "Usuario ya registrado" });
+      return res.status(409).json({ error: "Usuario ya registrado" });
     }
     res.status(500).json({ error: "Error en el servidor: " + error.message });
   }

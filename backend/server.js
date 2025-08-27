@@ -99,6 +99,7 @@ const categoriaRoutes = require("./routes/categoriaRoutes");
 const facultadRoutes = require("./routes/facultadRoutes");
 const carreraRoutes = require("./routes/carreraRoutes");
 const credencialRoutes = require("./routes/credencialRoutes");
+const alumnoRoutes = require("./routes/alumnoRoutes");
 log(`✅ Rutas importadas correctamente`);
 
 app.use("/api", userRoutes);
@@ -109,6 +110,7 @@ app.use("/api/categorias", categoriaRoutes);
 app.use("/api/facultades", facultadRoutes);
 app.use("/api/carreras", carreraRoutes);
 app.use("/api/credenciales", credencialRoutes);
+app.use("/api/alumnos", alumnoRoutes);
 log(`🔌 Rutas configuradas en la aplicación`);
 
 log(`💾 Conectando a la base de datos...`);
