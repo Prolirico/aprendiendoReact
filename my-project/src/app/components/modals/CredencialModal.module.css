@@ -101,6 +101,7 @@
 }
 
 .cursoItem {
+    align-items: center;
     display: flex;
     justify-content: space-between;
     padding: 10px;
@@ -111,4 +112,52 @@
 .cursoItem:hover { background-color: #e9ecef; }
 
 .cursoNombre { font-weight: 500; color: #2d3748; }
-.cursoDuracion { font-size: 0.9rem; color: #718096; }
+
+/* Estilos para el botón de solicitar y los estados */
+.solicitarCursoBtn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: background-color 0.2s, transform 0.1s;
+    white-space: nowrap;
+}
+
+.solicitarCursoBtn:hover:not(:disabled) {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+.solicitarCursoBtn:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.cursoStatus {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.statusSolicitada {
+    background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba;
+}
+.statusAprobada {
+    background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;
+}
+.statusRechazada {
+    background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;
+}
+.statusCompletada {
+    background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb;
+}
+.statusAbandonada {
+    background-color: #e2e3e5; color: #383d41; border: 1px solid #d6d8db;
+}
