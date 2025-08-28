@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import styles from "./Inscripciones.module.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAddressCard, faBook, faClipboardList, faChartBar, faSyncAlt, faDownload, faCheck, faTimes, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faAddressCard, faBook, faClipboardList, faChartBar, faSyncAlt, faDownload, faCheck, faTimes, faPlus, faChevronRight, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 function Inscripciones() {
   const [activeTab, setActiveTab] = useState('credenciales');
@@ -14,16 +14,164 @@ function Inscripciones() {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [rejectReason, setRejectReason] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [toast, setToast] = useState({ show: false, message: "", type: "" });
+
+  // Estados para la pestaña de credenciales
+  const [credentials, setCredentials] = useState([]);
+  const [credentialsLoading, setCredentialsLoading] = useState(true);
+  const [credentialsError, setCredentialsError] = useState(null);
+  const [expandedCredentialId, setExpandedCredentialId] = useState(null);
+  const [isDetailLoading, setIsDetailLoading] = useState(false);
+
+  // Estados para la pestaña de inscripciones
   const [applications, setApplications] = useState([]);
+  const [applicationsLoading, setApplicationsLoading] = useState(true);
+  const [applicationsError, setApplicationsError] = useState(null);
+
+  // Estados para la pestaña de cursos sin credencial
+  const [unassignedCourses, setUnassignedCourses] = useState([]);
+  const [unassignedCoursesLoading, setUnassignedCoursesLoading] = useState(true);
+  const [unassignedCoursesError, setUnassignedCoursesError] = useState(null);
+
+  // Función auxiliar para obtener el token del localStorage
+  const getToken = () => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('token');
+    }
+    return null;
+  };
+
+
+  // --- FETCHING DATA ---
+
+  const fetchCredentials = useCallback(async () => {
+    setCredentialsLoading(true);
+    setCredentialsError(null);
+    try {
+      const response = await fetch("http://localhost:5000/api/credenciales");
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error || "Error al obtener las credenciales");
+      }
+      const data = await response.json();
+      setCredentials((data.credenciales || []).map(c => ({ ...c, cursos: [], cursos_loaded: false })));
+    } catch (err) {
+      setCredentialsError(err.message);
+      setCredentials([]);
+    } finally {
+      setCredentialsLoading(false);
+    }
+  }, []);
+
+  const fetchApplications = useCallback(async () => {
+    setApplicationsLoading(true);
+    setApplicationsError(null);
+    try {
+      const params = new URLSearchParams();
+      if (selectedFilter.credencial !== 'todas') {
+        params.append('id_credencial', selectedFilter.credencial);
+      }
+      if (selectedFilter.curso !== 'todos') {
+        params.append('id_curso', selectedFilter.curso);
+      }
+      if (selectedFilter.estado !== 'todos') {
+        params.append('estado', selectedFilter.estado);
+      }
+
+      let url = 'http://localhost:5000/api/inscripciones/all'; // <-- Probamos con esta nueva ruta
+      const queryString = params.toString();
+      if (queryString) {
+        url += `?${queryString}`;
+      }
+
+      const token = getToken();
+      if (!token) {
+        setApplicationsError("No autorizado, no se encontró token.");
+        setApplicationsLoading(false);
+        return;
+      }
+
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error || "Error al obtener las inscripciones");
+      }
+      const data = await response.json();
+      setApplications(data.inscripciones || []);
+    } catch (err) {
+      setApplicationsError(err.message);
+      setApplications([]);
+    } finally {
+      setApplicationsLoading(false);
+    }
+  }, [selectedFilter]);
+
+  const fetchUnassignedCourses = useCallback(async () => {
+    setUnassignedCoursesLoading(true);
+    setUnassignedCoursesError(null);
+    try {
+      const response = await fetch("http://localhost:5000/api/cursos?exclude_assigned=true");
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error || "Error al obtener los cursos sin credencial");
+      }
+      const data = await response.json();
+      setUnassignedCourses(data.cursos || []);
+    } catch (err) {
+      setUnassignedCoursesError(err.message);
+      setUnassignedCourses([]);
+    } finally {
+      setUnassignedCoursesLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    // Simular carga de datos
+    fetchCredentials();
+  }, [fetchCredentials]);
+
+  useEffect(() => {
+    if (activeTab === 'inscripciones') {
+      fetchApplications();
+    } else if (activeTab === 'cursos') {
+      fetchUnassignedCourses();
+    }
+  }, [activeTab, fetchApplications, fetchUnassignedCourses]);
+
+  // --- DERIVED DATA ---
+
+  const allCourses = useMemo(() => {
+    const coursesMap = new Map();
+    const allAvailableCourses = [...unassignedCourses];
+
+    credentials.forEach(cred => {
+      (cred.cursos || []).filter(c => c).forEach(curso => {
+        allAvailableCourses.push(curso);
+      });
+    });
+
+    allAvailableCourses.forEach(curso => {
+      if (!coursesMap.has(curso.id_curso)) {
+        coursesMap.set(curso.id_curso, curso);
+      }
+    });
+
+    return Array.from(coursesMap.values()).sort((a, b) => a.nombre_curso.localeCompare(b.nombre_curso));
+  }, [credentials, unassignedCourses]);
+
+
+  // --- HANDLERS ---
+
+  const showToast = (message, type = "success") => {
+    setToast({ show: true, message, type });
     setTimeout(() => {
-      setLoading(false);
-      setApplications([]);
-    }, 2000);
-  }, []);
+      setToast({ show: false, message: "", type: "" });
+    }, 3000);
+  };
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -36,33 +184,113 @@ function Inscripciones() {
     }));
   };
 
+  const handleCredentialClick = async (credentialId) => {
+    if (expandedCredentialId === credentialId) {
+      setExpandedCredentialId(null);
+      return;
+    }
+
+    setExpandedCredentialId(credentialId);
+    const targetCredential = credentials.find(c => c.id_credencial === credentialId);
+
+    if (targetCredential && targetCredential.cursos_loaded) {
+      return;
+    }
+
+    setIsDetailLoading(true);
+    try {
+      const response = await fetch(`http://localhost:5000/api/credenciales/${credentialId}`);
+      if (!response.ok) {
+        throw new Error("No se pudieron cargar los detalles de la credencial.");
+      }
+      const detailedCred = await response.json();
+      
+      setCredentials(prevCreds => 
+        prevCreds.map(cred => 
+          cred.id_credencial === credentialId 
+            ? { ...cred, cursos: detailedCred.cursos || [], cursos_loaded: true }
+            : cred
+        )
+      );
+    } catch (error) {
+      console.error("Error fetching credential details:", error);
+    } finally {
+      setIsDetailLoading(false);
+    }
+  };
+
+  const handleCourseClick = (course) => {
+    handleFilterChange('curso', course.id_curso);
+    handleTabChange('inscripciones');
+  }
+
   const handleShowDetails = (application) => {
     setSelectedApplication(application);
     setShowModal(true);
   };
 
+  const handleUpdateStatus = async (newStatus, reason = null) => {
+    if (!selectedApplication) return;
+    setIsUpdating(true);
+
+    const body = { estado: newStatus };
+    if (newStatus === 'rechazada' && reason) {
+        body.motivo_rechazo = reason;
+    }
+
+    const token = getToken();
+    if (!token) {
+      showToast('Error: Sesión expirada. Por favor, inicie sesión de nuevo.', 'error');
+      setIsUpdating(false);
+      return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:5000/api/inscripciones/${selectedApplication.id_inscripcion}/estado`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify(body)
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.error || 'Error al actualizar el estado.');
+        }
+
+        showToast('Estado de la solicitud actualizado con éxito.', 'success');
+        
+        setShowModal(false);
+        if (showRejectModal) setShowRejectModal(false);
+        
+        fetchApplications();
+
+    } catch (err) {
+        showToast(`Error: ${err.message}`, 'error');
+    } finally {
+        setIsUpdating(false);
+        setSelectedApplication(null);
+        if (reason) setRejectReason('');
+    }
+  };
+
   const handleApprove = () => {
-    // Lógica para aprobar solicitud
-    console.log('Aprobando solicitud:', selectedApplication);
-    setShowModal(false);
+    handleUpdateStatus('aprobada');
   };
 
   const handleReject = () => {
+    setShowModal(false);
     setShowRejectModal(true);
   };
 
   const confirmReject = () => {
-    // Lógica para rechazar solicitud
-    console.log('Rechazando solicitud:', selectedApplication, 'Motivo:', rejectReason);
-    setShowRejectModal(false);
-    setShowModal(false);
-    setRejectReason('');
+    if (!rejectReason.trim()) {
+        showToast('Por favor, ingrese un motivo de rechazo.', 'error');
+        return;
+    }
+    handleUpdateStatus('rechazada', rejectReason);
   };
 
-  const exportToCSV = () => {
-    // Lógica para exportar a CSV
-    console.log('Exportando datos a CSV');
-  };
+  // --- RENDER FUNCTIONS ---
 
   const renderContent = () => {
     switch(activeTab) {
@@ -71,13 +299,66 @@ function Inscripciones() {
           <div className={styles.tabContent}>
             <div className={styles.sectionHeader}>
               <h2>Credenciales</h2>
-              <p>Administre las credenciales y cursos que ofrece la institución</p>
+              <p>Haga clic en una credencial para ver sus cursos y gestionar inscripciones.</p>
             </div>
             <div className={styles.contentArea}>
-              {loading ? (
-                <div className={styles.loading}>Cargando...</div>
+              {credentialsLoading ? (
+                <div className={styles.loading}>Cargando credenciales...</div>
+              ) : credentialsError ? (
+                <div className={styles.emptyState}>
+                  <h4>Error al cargar</h4>
+                  <p>{credentialsError}</p>
+                  <button onClick={fetchCredentials} className={styles.emptyStateButton}>
+                    Intentar de nuevo
+                  </button>
+                </div>
+              ) : credentials.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <h4>No se encontraron credenciales</h4>
+                  <p>Aún no se han creado credenciales en el sistema.</p>
+                </div>
               ) : (
-                <div className={styles.emptyState}>No hay credenciales disponibles</div>
+                <div className={styles.credentialsGrid}>
+                  {credentials.map(cred => (
+                    <div key={cred.id_credencial} className={styles.credentialCard}>
+                      <div className={styles.credentialHeader} onClick={() => handleCredentialClick(cred.id_credencial)}>
+                        <div className={styles.credentialHeaderContent}>
+                          <h3>{cred.nombre_credencial}</h3>
+                          <span>{cred.nombre_universidad}</span>
+                        </div>
+                        <FontAwesomeIcon 
+                          icon={faChevronRight} 
+                          className={`${styles.chevronIcon} ${expandedCredentialId === cred.id_credencial ? styles.expanded : ''}`} 
+                        />
+                      </div>
+                      
+                      {expandedCredentialId === cred.id_credencial && (
+                        <div className={styles.courseListContainer}>
+                          {isDetailLoading && !cred.cursos_loaded ? (
+                            <div className={styles.detailLoading}>
+                              <FontAwesomeIcon icon={faSpinner} spin /> Cargando cursos...
+                            </div>
+                          ) : (
+                            <ul className={styles.courseList}>
+                              {cred.cursos && cred.cursos.length > 0 ? (
+                                cred.cursos
+                                  .filter(curso => curso)
+                                  .map(curso => (
+                                  <li key={curso.id_curso} onClick={() => handleCourseClick(curso)} className={styles.courseItem}>
+                                    <span>{curso.nombre_curso}</span>
+                                    <FontAwesomeIcon icon={faChevronRight} />
+                                  </li>
+                                ))
+                              ) : (
+                                <li className={`${styles.courseItem} ${styles.noCourses}`}>No hay cursos en esta credencial.</li>
+                              )}
+                            </ul>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           </div>
@@ -88,13 +369,36 @@ function Inscripciones() {
           <div className={styles.tabContent}>
             <div className={styles.sectionHeader}>
               <h2>Cursos sin Credencial</h2>
-              <p>Lista de cursos que no están asociados a ninguna credencial</p>
+              <p>Lista de cursos que no están asociados a ninguna credencial. Haga clic para ver sus inscripciones.</p>
             </div>
             <div className={styles.contentArea}>
-              {loading ? (
-                <div className={styles.loading}>Cargando...</div>
+              {unassignedCoursesLoading ? (
+                <div className={styles.loading}>Cargando cursos...</div>
+              ) : unassignedCoursesError ? (
+                <div className={styles.emptyState}>
+                  <h4>Error al cargar</h4>
+                  <p>{unassignedCoursesError}</p>
+                  <button onClick={fetchUnassignedCourses} className={styles.emptyStateButton}>
+                    Intentar de nuevo
+                  </button>
+                </div>
+              ) : unassignedCourses.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <h4>No hay cursos sin credencial</h4>
+                  <p>Todos los cursos disponibles en el sistema están asignados a una credencial.</p>
+                </div>
               ) : (
-                <div className={styles.emptyState}>No hay cursos sin credencial</div>
+                <ul className={styles.unassignedCourseList}>
+                  {unassignedCourses.map(curso => (
+                    <li key={curso.id_curso} onClick={() => handleCourseClick(curso)} className={styles.unassignedCourseItem}>
+                      <div className={styles.unassignedCourseInfo}>
+                        <span className={styles.unassignedCourseName}>{curso.nombre_curso}</span>
+                        <span className={styles.unassignedCourseUniversity}>{curso.nombre_universidad}</span>
+                      </div>
+                      <FontAwesomeIcon icon={faChevronRight} />
+                    </li>
+                  ))}
+                </ul>
               )}
             </div>
           </div>
@@ -108,7 +412,6 @@ function Inscripciones() {
               <p>Gestione las solicitudes de inscripción de los alumnos</p>
             </div>
 
-            {/* Filters */}
             <div className={styles.filters}>
               <div className={styles.filterGroup}>
                 <label>Filtrar por Credencial</label>
@@ -117,6 +420,9 @@ function Inscripciones() {
                   onChange={(e) => handleFilterChange('credencial', e.target.value)}
                 >
                   <option value="todas">Todas las Credenciales</option>
+                  {credentials.map(cred => (
+                    <option key={cred.id_credencial} value={cred.id_credencial}>{cred.nombre_credencial}</option>
+                  ))}
                 </select>
               </div>
               <div className={styles.filterGroup}>
@@ -126,6 +432,9 @@ function Inscripciones() {
                   onChange={(e) => handleFilterChange('curso', e.target.value)}
                 >
                   <option value="todos">Todos los Cursos</option>
+                  {allCourses.map(curso => (
+                    <option key={curso.id_curso} value={curso.id_curso}>{curso.nombre_curso}</option>
+                  ))}
                 </select>
               </div>
               <div className={styles.filterGroup}>
@@ -144,12 +453,11 @@ function Inscripciones() {
               </div>
             </div>
 
-            {/* Applications Table */}
             <div className={styles.tableSection}>
               <div className={styles.tableHeader}>
                 <h3>Solicitudes de Inscripción</h3>
-                <button className={styles.updateButton}>
-                  <i className="fas fa-sync-alt"></i> Actualizar
+                <button className={styles.updateButton} onClick={fetchApplications} disabled={applicationsLoading}>
+                  <FontAwesomeIcon icon={faSyncAlt} className={applicationsLoading ? styles.spinning : ''} /> Actualizar
                 </button>
               </div>
               
@@ -165,26 +473,35 @@ function Inscripciones() {
                     </tr>
                   </thead>
                   <tbody>
-                    {loading ? (
+                    {applicationsLoading ? (
                       <tr>
-                        <td colSpan="5" className={styles.loading}>Cargando...</td>
+                        <td colSpan="5" className={styles.loading}>Cargando inscripciones...</td>
+                      </tr>
+                    ) : applicationsError ? (
+                       <tr>
+                        <td colSpan="5" className={styles.emptyState}>
+                          <div className={styles.emptyStateContent}>
+                            <h4>Error al cargar</h4>
+                            <p>{applicationsError}</p>
+                          </div>
+                        </td>
                       </tr>
                     ) : applications.length === 0 ? (
                       <tr>
                         <td colSpan="5" className={styles.emptyState}>
                           <div className={styles.emptyStateContent}>
                             <h4>No hay solicitudes de inscripción</h4>
-                            <p>No se encontraron solicitudes con los filtros seleccionados</p>
+                            <p>No se encontraron solicitudes con los filtros seleccionados.</p>
                           </div>
                         </td>
                       </tr>
                     ) : (
                       applications.map(app => (
-                        <tr key={app.id}>
-                          <td>{app.student}</td>
-                          <td>{app.course}</td>
-                          <td>{app.date}</td>
-                          <td><span className={`${styles.status} ${styles[app.status]}`}>{app.status}</span></td>
+                        <tr key={app.id_inscripcion}>
+                          <td>{app.nombre_alumno}</td>
+                          <td>{app.nombre_curso}</td>
+                          <td>{new Date(app.fecha_solicitud).toLocaleDateString()}</td>
+                          <td><span className={`${styles.status} ${styles[app.estado]}`}>{app.estado}</span></td>
                           <td>
                             <button 
                               className={styles.actionButton}
@@ -210,80 +527,8 @@ function Inscripciones() {
               <h2>Análisis de Inscripciones</h2>
               <p>Visualice métricas y estadísticas sobre las inscripciones</p>
             </div>
-
-            <div className={styles.analyticsActions}>
-              <button className={styles.exportButton} onClick={exportToCSV}>
-                <i className="fas fa-download"></i> Exportar a CSV
-              </button>
-            </div>
-
-            {/* Metrics Cards */}
-            <div className={styles.metricsGrid}>
-              <div className={styles.metricCard}>
-                <div className={styles.metricHeader}>
-                  <h4>Total de Solicitudes</h4>
-                </div>
-                <div className={styles.metricValue}>
-                  <span className={styles.bigNumber}>0</span>
-                  <span className={styles.metricLabel}>Solicitudes Procesadas</span>
-                </div>
-              </div>
-
-              <div className={styles.metricCard}>
-                <div className={styles.metricHeader}>
-                  <h4>Tasa de Aprobación</h4>
-                </div>
-                <div className={styles.metricValue}>
-                  <span className={styles.bigNumber}>0%</span>
-                  <span className={styles.metricLabel}>Solicitudes Aprobadas</span>
-                </div>
-              </div>
-
-              <div className={styles.metricCard}>
-                <div className={styles.metricHeader}>
-                  <h4>Pendientes</h4>
-                </div>
-                <div className={styles.metricValue}>
-                  <span className={styles.bigNumber}>0</span>
-                  <span className={styles.metricLabel}>Solicitudes por Procesar</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Charts */}
-            <div className={styles.chartsGrid}>
-              <div className={styles.chartCard}>
-                <h4>Solicitudes por Tiempo</h4>
-                <div className={styles.chartContent}>
-                  {loading ? (
-                    <div className={styles.loading}>Cargando...</div>
-                  ) : (
-                    <div className={styles.emptyChart}>No hay datos para mostrar</div>
-                  )}
-                </div>
-              </div>
-
-              <div className={styles.chartCard}>
-                <h4>Estado de Solicitudes</h4>
-                <div className={styles.chartContent}>
-                  {loading ? (
-                    <div className={styles.loading}>Cargando...</div>
-                  ) : (
-                    <div className={styles.emptyChart}>No hay datos para mostrar</div>
-                  )}
-                </div>
-              </div>
-
-              <div className={styles.chartCard}>
-                <h4>Cursos Más Solicitados</h4>
-                <div className={styles.chartContent}>
-                  {loading ? (
-                    <div className={styles.loading}>Cargando...</div>
-                  ) : (
-                    <div className={styles.emptyChart}>No hay datos para mostrar</div>
-                  )}
-                </div>
-              </div>
+            <div className={styles.contentArea}>
+              <div className={styles.emptyState}>Funcionalidad en desarrollo.</div>
             </div>
           </div>
         );
@@ -303,7 +548,6 @@ function Inscripciones() {
 
       <main className={styles.main}>
         <div className={styles.layout}>
-          {/* Sidebar Navigation */}
           <nav className={styles.sidebar}>
             <button 
               className={`${styles.sidebarButton} ${activeTab === 'credenciales' ? styles.active : ''}`}
@@ -342,15 +586,13 @@ function Inscripciones() {
             </button>
           </nav>
 
-          {/* Content Area */}
           <div className={styles.content}>
             {renderContent()}
           </div>
         </div>
       </main>
 
-      {/* Modal de Detalles */}
-      {showModal && (
+      {showModal && selectedApplication && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
             <div className={styles.modalHeader}>
@@ -367,28 +609,20 @@ function Inscripciones() {
               <div className={styles.detailsGrid}>
                 <div className={styles.detailSection}>
                   <h4>Información del Alumno</h4>
-                  <p>Nombre: --</p>
-                  <p>Email: --</p>
-                  <p>Teléfono: --</p>
+                  <p><strong>Nombre:</strong> {selectedApplication.nombre_alumno}</p>
+                  <p><strong>Email:</strong> {selectedApplication.email_alumno}</p>
                 </div>
                 
                 <div className={styles.detailSection}>
                   <h4>Información del Curso</h4>
-                  <p>Curso: --</p>
-                  <p>Credencial: --</p>
-                  <p>Instructor: --</p>
+                  <p><strong>Curso:</strong> {selectedApplication.nombre_curso}</p>
+                  <p><strong>Credencial:</strong> {selectedApplication.nombre_credencial || 'N/A'}</p>
                 </div>
 
                 <div className={styles.detailSection}>
                   <h4>Estado de la Solicitud</h4>
-                  <p>Fecha de Solicitud: --</p>
-                  <p>Estado Actual: --</p>
-                  <p>Aprobado por: --</p>
-                </div>
-
-                <div className={styles.detailSection}>
-                  <h4>Motivo de Rechazo</h4>
-                  <p>--</p>
+                  <p><strong>Fecha:</strong> {new Date(selectedApplication.fecha_solicitud).toLocaleString()}</p>
+                  <p><strong>Estado:</strong> <span className={`${styles.status} ${styles[selectedApplication.estado]}`}>{selectedApplication.estado}</span></p>
                 </div>
               </div>
 
@@ -398,32 +632,24 @@ function Inscripciones() {
                   <button 
                     className={styles.approveButton}
                     onClick={handleApprove}
+                    disabled={isUpdating}
                   >
-                    <FontAwesomeIcon icon={faCheck} /> Aprobar
+                    {isUpdating ? <FontAwesomeIcon icon={faSpinner} spin /> : <FontAwesomeIcon icon={faCheck} />} Aprobar
                   </button>
                   <button 
                     className={styles.rejectButton}
                     onClick={handleReject}
+                    disabled={isUpdating}
                   >
                     <FontAwesomeIcon icon={faTimes} /> Rechazar
                   </button>
                 </div>
               </div>
             </div>
-
-            <div className={styles.modalFooter}>
-              <button 
-                className={styles.closeModalButton}
-                onClick={() => setShowModal(false)}
-              >
-                Cerrar
-              </button>
-            </div>
           </div>
         </div>
       )}
 
-      {/* Modal de Confirmación de Rechazo */}
       {showRejectModal && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
@@ -442,23 +668,29 @@ function Inscripciones() {
 
             <div className={styles.modalFooter}>
               <button 
-                className={styles.confirmButton}
-                onClick={confirmReject}
-              >
-                Confirmar rechazo
-              </button>
-              <button 
                 className={styles.cancelButton}
                 onClick={() => {
+                  setShowModal(true);
                   setShowRejectModal(false);
                   setRejectReason('');
                 }}
+                disabled={isUpdating}
               >
                 Cancelar
+              </button>
+              <button 
+                className={styles.confirmButton}
+                onClick={confirmReject}
+                disabled={isUpdating}
+              >
+                {isUpdating ? 'Confirmando...' : 'Confirmar rechazo'}
               </button>
             </div>
           </div>
         </div>
+      )}
+      {toast.show && (
+        <div className={styles.toast}><div className={`${styles.toastContent} ${styles[toast.type] || 'success'}`}><p>{toast.message}</p></div></div>
       )}
     </div>
   );

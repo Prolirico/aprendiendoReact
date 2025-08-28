@@ -1,15 +1,27 @@
 const express = require("express");
 const router = express.Router();
 const {
-  createInscripcion,
-  getInscripcionesByAlumno,
+    crearInscripcion,
+    getInscripcionesAlumno,
+    getAllInscripciones,
+    actualizarEstadoInscripcion,
 } = require("../controllers/inscripcionController");
-const { protect } = require("../middleware/authMiddleware.js");
+const { protect, isAdmin } = require("../middleware/authMiddleware.js");
 
+// Ruta para que un alumno cree una nueva inscripción
 // @route   POST /api/inscripciones
-router.post("/", protect, createInscripcion);
+router.post("/", protect, crearInscripcion);
 
+// Ruta para que un administrador obtenga TODAS las inscripciones (con filtros)
+// @route   GET /api/inscripciones/all
+router.get("/all", protect, isAdmin, getAllInscripciones);
+
+// Ruta para que un alumno obtenga sus propias inscripciones
 // @route   GET /api/inscripciones/alumno
-router.get("/alumno", protect, getInscripcionesByAlumno);
+router.get("/alumno", protect, getInscripcionesAlumno);
+
+// Ruta para que un administrador actualice el estado de una inscripción
+// @route   PUT /api/inscripciones/:id/estado
+router.put("/:id/estado", protect, isAdmin, actualizarEstadoInscripcion);
 
 module.exports = router;

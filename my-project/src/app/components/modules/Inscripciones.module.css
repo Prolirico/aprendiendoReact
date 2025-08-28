@@ -95,7 +95,7 @@
     color: white;
 }
 
-.sidebarButton i {
+.sidebarButton svg {
     font-size: 1.125rem;
     min-width: 18px;
     text-align: center;
@@ -148,7 +148,182 @@
 .contentArea {
     flex: 1;
     padding: 1.5rem;
+    background-color: #f9fafb;
 }
+
+/* Estilos para la pestaña de Credenciales */
+.credentialsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.credentialCard {
+    background-color: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    align-self: start; /* Evita que las tarjetas se estiren */
+}
+
+.credentialCard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.credentialHeader {
+    padding: 1rem 1.25rem;
+    background-color: #f9fafb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.credentialHeaderContent {
+    flex-grow: 1;
+}
+
+.credentialHeader h3 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.credentialHeader span {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.chevronIcon {
+    color: #9ca3af;
+    transition: transform 0.3s ease;
+}
+
+.chevronIcon.expanded {
+    transform: rotate(90deg);
+}
+
+.courseListContainer {
+    border-top: 1px solid #e5e7eb;
+    background-color: #fafbff;
+}
+
+.detailLoading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.courseList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.courseItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 0.875rem;
+    color: #374151;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.courseItem:last-child {
+    border-bottom: none;
+}
+
+.courseItem:hover {
+    background-color: #f0f2ff;
+}
+
+.courseItem.noCourses {
+    color: #9ca3af;
+    cursor: default;
+}
+.courseItem.noCourses:hover {
+    background-color: transparent;
+}
+
+.courseItem svg {
+    color: #9ca3af;
+    transition: transform 0.2s ease;
+}
+
+.courseItem:hover svg {
+    transform: translateX(4px);
+    color: #4f46e5;
+}
+
+/* Estilos para Cursos sin Credencial */
+.unassignedCourseList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background-color: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.unassignedCourseItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #f3f4f6;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.unassignedCourseItem:last-child {
+    border-bottom: none;
+}
+
+.unassignedCourseItem:hover {
+    background-color: #f0f2ff;
+}
+
+.unassignedCourseItem svg {
+    color: #9ca3af;
+    transition: transform 0.2s ease;
+}
+
+.unassignedCourseItem:hover svg {
+    transform: translateX(4px);
+    color: #4f46e5;
+}
+
+.unassignedCourseInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.unassignedCourseName {
+    font-weight: 600;
+    color: #1f2937;
+    font-size: 0.9rem;
+}
+
+.unassignedCourseUniversity {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
 
 /* Estados de carga y vacío */
 .loading {
@@ -158,12 +333,41 @@
     padding: 2.5rem;
     color: #6b7280;
     font-size: 1rem;
+    width: 100%;
 }
 
 .emptyState {
     text-align: center;
     padding: 2.5rem;
     color: #6b7280;
+    width: 100%;
+}
+
+.emptyState h4 {
+    color: #374151;
+    margin: 0 0 0.5rem 0;
+    font-size: 1.125rem;
+}
+
+.emptyState p {
+    color: #6b7280;
+    margin: 0;
+}
+
+.emptyStateButton {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: #4f46e5;
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+.emptyStateButton:hover {
+    background-color: #4338ca;
 }
 
 .emptyStateContent h4 {
@@ -192,6 +396,7 @@
     flex-direction: column;
     gap: 0.25rem;
     min-width: 200px;
+    flex: 1;
 }
 
 .filterGroup label {
@@ -219,8 +424,10 @@
 
 /* Sección de tabla */
 .tableSection {
-    padding: 0 1.5rem 1.5rem 1.5rem;
+    padding: 1.5rem;
     flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .tableHeader {
@@ -256,10 +463,25 @@
     background-color: #4338ca;
 }
 
+.updateButton:disabled {
+    background-color: #a5b4fc;
+    cursor: not-allowed;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.spinning {
+    animation: spin 1s linear infinite;
+}
+
 .tableContainer {
     border: 1px solid #e5e7eb;
     border-radius: 0.5rem;
     overflow: hidden;
+    flex-grow: 1;
 }
 
 .table {
@@ -294,36 +516,36 @@
 
 .status {
     padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
+    border-radius: 9999px;
     font-size: 0.75rem;
     font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    text-transform: capitalize;
+    display: inline-block;
 }
 
 .status.solicitada {
     background-color: #fef3c7;
-    color: #d97706;
+    color: #92400e;
 }
 
 .status.aprobada {
     background-color: #d1fae5;
-    color: #059669;
+    color: #065f46;
 }
 
 .status.rechazada {
     background-color: #fee2e2;
-    color: #dc2626;
+    color: #991b1b;
 }
 
 .status.completada {
     background-color: #dbeafe;
-    color: #2563eb;
+    color: #1e40af;
 }
 
 .status.abandonada {
-    background-color: #f3f4f6;
-    color: #6b7280;
+    background-color: #e5e7eb;
+    color: #4b5563;
 }
 
 .actionButton {
@@ -342,107 +564,6 @@
     background-color: #4338ca;
 }
 
-/* Sección de análisis */
-.analyticsActions {
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.exportButton {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background-color: #059669;
-    color: white;
-    border: none;
-    border-radius: 0.375rem;
-    cursor: pointer;
-    font-size: 0.875rem;
-    font-weight: 500;
-    transition: background-color 0.2s ease;
-}
-
-.exportButton:hover {
-    background-color: #047857;
-}
-
-.metricsGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.25rem;
-    padding: 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.metricCard {
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    padding: 1.25rem;
-}
-
-.metricHeader h4 {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #6b7280;
-    margin: 0 0 1rem 0;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.metricValue {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.bigNumber {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #1f2937;
-}
-
-.metricLabel {
-    font-size: 0.75rem;
-    color: #6b7280;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.chartsGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 1.5rem;
-    padding: 1.5rem;
-}
-
-.chartCard {
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    padding: 1.25rem;
-}
-
-.chartCard h4 {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #1f2937;
-    margin: 0 0 1rem 0;
-}
-
-.chartContent {
-    min-height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.emptyChart {
-    color: #6b7280;
-    font-size: 0.875rem;
-}
-
 /* Modales */
 .modalOverlay {
     position: fixed;
@@ -450,7 +571,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(17, 24, 39, 0.6);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -461,20 +582,21 @@
 .modal {
     background: white;
     border-radius: 0.75rem;
-    max-width: 600px;
+    max-width: 700px;
     width: 100%;
     max-height: 90vh;
     overflow-y: auto;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
 }
 
 .modalHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem 1.5rem 0 1.5rem;
+    padding: 1rem 1.5rem;
     border-bottom: 1px solid #e5e7eb;
-    margin-bottom: 1.5rem;
 }
 
 .modalHeader h3 {
@@ -500,27 +622,42 @@
 }
 
 .modalContent {
-    padding: 0 1.5rem 1.5rem 1.5rem;
+    padding: 1.5rem;
+    flex-grow: 1;
 }
 
 .detailsGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
     margin-bottom: 2rem;
 }
 
+.detailSection {
+    background-color: #f9fafb;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #f3f4f6;
+}
+
 .detailSection h4 {
-    font-size: 1rem;
+    font-size: 0.875rem;
     font-weight: 600;
-    color: #1f2937;
+    color: #374151;
     margin: 0 0 0.75rem 0;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .detailSection p {
     font-size: 0.875rem;
     color: #6b7280;
     margin: 0 0 0.5rem 0;
+}
+.detailSection p strong {
+    color: #374151;
 }
 
 .modalActions {
@@ -559,6 +696,12 @@
     background-color: #047857;
 }
 
+.approveButton:disabled {
+    background-color: #065f46;
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
 .rejectButton {
     display: flex;
     align-items: center;
@@ -578,28 +721,18 @@
     background-color: #b91c1c;
 }
 
+.rejectButton:disabled {
+    background-color: #991b1b;
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
 .modalFooter {
-    padding: 0 1.5rem 1.5rem 1.5rem;
+    padding: 1rem 1.5rem;
     border-top: 1px solid #e5e7eb;
-    padding-top: 1.5rem;
     display: flex;
     justify-content: flex-end;
-}
-
-.closeModalButton {
-    padding: 0.5rem 1rem;
-    background-color: #f3f4f6;
-    color: #374151;
-    border: 1px solid #d1d5db;
-    border-radius: 0.375rem;
-    cursor: pointer;
-    font-size: 0.875rem;
-    font-weight: 500;
-    transition: background-color 0.2s ease;
-}
-
-.closeModalButton:hover {
-    background-color: #e5e7eb;
+    background-color: #f9fafb;
 }
 
 .textarea {
@@ -611,7 +744,6 @@
     font-size: 0.875rem;
     color: #374151;
     resize: vertical;
-    margin-bottom: 1rem;
     font-family: inherit;
 }
 
@@ -631,11 +763,16 @@
     font-size: 0.875rem;
     font-weight: 500;
     transition: background-color 0.2s ease;
-    margin-right: 0.75rem;
 }
 
 .confirmButton:hover {
     background-color: #b91c1c;
+}
+
+.confirmButton:disabled {
+    background-color: #991b1b;
+    opacity: 0.7;
+    cursor: not-allowed;
 }
 
 .cancelButton {
@@ -648,10 +785,71 @@
     font-size: 0.875rem;
     font-weight: 500;
     transition: background-color 0.2s ease;
+    margin-right: 0.75rem;
 }
 
 .cancelButton:hover {
     background-color: #e5e7eb;
+}
+
+.cancelButton:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Toast Notifications */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2000;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: toast-in 0.5s, toast-out 0.5s 2.5s forwards;
+}
+
+.toastContent {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    color: white;
+    font-weight: 500;
+    border-radius: 0.5rem;
+}
+
+.toastContent.success {
+    background-color: #059669; /* green-600 */
+}
+
+.toastContent.error {
+    background-color: #dc2626; /* red-600 */
+}
+
+.toastContent p {
+    margin: 0;
+}
+
+@keyframes toast-in {
+    from {
+        bottom: -100px;
+        opacity: 0;
+    }
+    to {
+        bottom: 20px;
+        opacity: 1;
+    }
+}
+
+@keyframes toast-out {
+    from {
+        bottom: 20px;
+        opacity: 1;
+    }
+    to {
+        bottom: -100px;
+        opacity: 0;
+    }
 }
 
 /* Responsive Design */
@@ -684,16 +882,6 @@
     .sidebarLabel {
         opacity: 1;
         font-size: 0.75rem;
-    }
-
-    .metricsGrid {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-    }
-
-    .chartsGrid {
-        grid-template-columns: 1fr;
-        gap: 1.25rem;
     }
 }
 
@@ -736,7 +924,7 @@
         font-size: 1.25rem;
     }
 
-    .contentArea {
+    .contentArea, .tableSection {
         padding: 1rem;
     }
 
@@ -764,16 +952,6 @@
         align-items: flex-start;
     }
 
-    .metricsGrid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-        padding: 1rem;
-    }
-
-    .chartsGrid {
-        padding: 1rem;
-    }
-
     .detailsGrid {
         grid-template-columns: 1fr;
         gap: 1.25rem;
@@ -784,18 +962,6 @@
         max-width: calc(100vw - 1rem);
     }
 
-    .modalHeader {
-        padding: 1.25rem 1.25rem 0 1.25rem;
-    }
-
-    .modalContent {
-        padding: 0 1.25rem 1.25rem 1.25rem;
-    }
-
-    .modalFooter {
-        padding: 0 1.25rem 1.25rem 1.25rem;
-    }
-
     .actionButtons {
         flex-direction: column;
         gap: 0.5rem;
@@ -804,80 +970,5 @@
     .actionButtons button {
         width: 100%;
         justify-content: center;
-    }
-}
-
-@media (min-width: 640px) {
-    .userName {
-        display: block;
-        font-size: 0.875rem;
-    }
-}
-@media (max-width: 480px) {
-    .main {
-        padding: 0.5rem;
-    }
-
-    .headerContent {
-        padding: 0.5rem;
-    }
-
-    .title {
-        font-size: 1.125rem;
-    }
-
-    .sidebarButton {
-        min-width: 60px;
-        padding: 0.5rem 0.25rem;
-    }
-
-    .sidebarButton i {
-        font-size: 1rem;
-    }
-
-    .sidebarLabel {
-        font-size: 0.5rem;
-    }
-
-    .sectionHeader {
-        padding: 0.75rem;
-    }
-
-    .sectionHeader h2 {
-        font-size: 1.125rem;
-    }
-
-    .contentArea {
-        padding: 0.75rem;
-    }
-
-    .table th,
-    .table td {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.75rem;
-    }
-
-    .metricCard {
-        padding: 1rem;
-    }
-
-    .bigNumber {
-        font-size: 1.5rem;
-    }
-
-    .chartCard {
-        padding: 1rem;
-    }
-
-    .chartContent {
-        min-height: 150px;
-    }
-
-    .modalHeader h3 {
-        font-size: 1.125rem;
-    }
-
-    .modalActions h4 {
-        font-size: 0.875rem;
     }
 }
