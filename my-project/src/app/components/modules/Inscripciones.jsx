@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "./Inscripciones.module.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGraduationCap, faBook, faClipboardList, faChartBar, faSyncAlt, faDownload, faCheck, faTimes, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faAddressCard, faBook, faClipboardList, faChartBar, faSyncAlt, faDownload, faCheck, faTimes, faPlus } from '@fortawesome/free-solid-svg-icons';
 
 function Inscripciones() {
   const [activeTab, setActiveTab] = useState('credenciales');
@@ -310,7 +310,7 @@ function Inscripciones() {
               onClick={() => handleTabChange('credenciales')}
               title="Credenciales"
             >
-              <FontAwesomeIcon icon={faGraduationCap} />
+              <FontAwesomeIcon icon={faAddressCard} />
               <span className={styles.sidebarLabel}>Credenciales</span>
             </button>
             

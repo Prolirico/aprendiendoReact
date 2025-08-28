@@ -417,6 +417,7 @@ const CursoYCredencialesAlumno = () => {
                         onClose={handleCloseModal}
                         onSolicitar={handleSolicitarCurso}
                         onVerCredencial={handleVerMasCredencial}
+                        inscripciones={inscripciones}
                     />
                 )}
 

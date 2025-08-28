@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './CursoModal.module.css';
 
 // Reutilizamos las funciones de formato que estaban en la tarjeta
@@ -30,7 +30,9 @@ const formatStatusText = (estatus) => {
     return estatus || 'Sin estatus';
 };
 
-const CursoModal = ({ curso, onClose, onSolicitar, onVerCredencial }) => {
+const CursoModal = ({ curso, onClose, onSolicitar, onVerCredencial, inscripciones = [] }) => {
+    const [isSolicitando, setIsSolicitando] = useState(false);
+
     // Efecto para cerrar el modal con la tecla 'Escape'
     useEffect(() => {
         const handleEsc = (event) => {
@@ -43,6 +45,59 @@ const CursoModal = ({ curso, onClose, onSolicitar, onVerCredencial }) => {
     }, [onClose]);
 
     if (!curso) return null;
+
+    // Buscamos si existe una inscripción para este curso en particular.
+    const inscripcion = inscripciones.find(i => i.id_curso === curso.id_curso);
+
+    const handleSolicitarClick = async () => {
+        if (window.confirm("¿Está seguro de querer inscribirse a este curso?")) {
+            setIsSolicitando(true);
+            try {
+                await onSolicitar(curso.id_curso);
+                // El componente padre se encarga de mostrar la alerta de éxito y actualizar el estado global.
+            } catch (error) {
+                // El componente padre también maneja la alerta de error.
+                console.error("Error al solicitar inscripción desde CursoModal:", error);
+            } finally {
+                setIsSolicitando(false);
+            }
+        }
+    };
+
+    // Función para obtener el texto y la clase del botón según el estado
+    const getStatusInfo = (estatus) => {
+        switch (estatus) {
+            case 'solicitada':
+                return { text: 'Solicitud Enviada', className: styles.statusSolicitada };
+            case 'aprobada':
+                return { text: 'Inscrito', className: styles.statusAprobada };
+            case 'rechazada':
+                return { text: 'Solicitud Rechazada', className: styles.statusRechazada };
+            case 'completada':
+                return { text: 'Curso Completado', className: styles.statusCompletada };
+            case 'abandonada':
+                return { text: 'Curso Abandonado', className: styles.statusAbandonada };
+            default:
+                return { text: 'Estatus Desconocido', className: styles.statusDefault };
+        }
+    };
+
+    const renderFooterButton = () => {
+        if (inscripcion) {
+            const { text, className } = getStatusInfo(inscripcion.estatus_inscripcion);
+            return (
+                <button className={`${styles.solicitarBtn} ${className}`} disabled>
+                    {text}
+                </button>
+            );
+        }
+
+        return (
+            <button className={styles.solicitarBtn} onClick={handleSolicitarClick} disabled={isSolicitando}>
+                {isSolicitando ? 'Enviando...' : 'Solicitar Inscripción'}
+            </button>
+        );
+    };
 
     return (
         <div className={styles.modalOverlay} onClick={onClose}>
@@ -86,9 +141,7 @@ const CursoModal = ({ curso, onClose, onSolicitar, onVerCredencial }) => {
                 {curso.prerequisitos && <div className={styles.descriptionSection}><h3>Prerrequisitos</h3><p>{curso.prerequisitos}</p></div>}
 
                 <div className={styles.modalFooter}>
-                    <button className={styles.solicitarBtn} onClick={() => onSolicitar(curso.id_curso)}>
-                        Solicitar MicroCredencial
-                    </button>
+                    {renderFooterButton()}
                 </div>
             </div>
         </div>
