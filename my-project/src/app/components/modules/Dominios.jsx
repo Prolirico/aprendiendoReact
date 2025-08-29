@@ -272,13 +272,13 @@ function Dominios() {
                 <td>
                   <div className={styles.tableActions}>
                     <button
-                      onClick={() => handleOpenModal(domain)}
+                      onClick={() => handleOpenModal(cat)}
                       className={styles.editButton}
                     >
                       <FontAwesomeIcon icon={faEdit} />
                     </button>
                     <button
-                      onClick={() => handleOpenDeleteModal(domain)}
+                      onClick={() => handleOpenDeleteModal(cat)}
                       className={styles.deleteButton}
                     >
                       <FontAwesomeIcon icon={faTrash} />

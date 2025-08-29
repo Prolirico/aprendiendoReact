@@ -5,6 +5,7 @@ import {
   faEdit,
   faTrash,
   faChalkboardTeacher,
+  faPlus,
 } from "@fortawesome/free-solid-svg-icons";
 
 // Define the base URL of your backend API
@@ -464,7 +465,7 @@ function GestionMaestros() {
             onClick={() => handleOpenModal()}
             className={styles.addButton}
           >
-            <i className="fas fa-plus"></i> Agregar Maestro
+            <FontAwesomeIcon icon={faPlus} /> Agregar Maestro
           </button>
           <div className={styles.searchContainer}>
             <i className="fas fa-search"></i>

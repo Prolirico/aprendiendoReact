@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBook, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faBook, faEdit, faTrash, faPlus } from "@fortawesome/free-solid-svg-icons";
 import styles from "./GestionCursos.module.css";
 
 const API_URL = "http://localhost:5000/api/cursos";
@@ -441,7 +441,7 @@ function CourseManagement({ userId }) {
             onClick={() => handleOpenModal()}
             className={styles.addButton}
           >
-            <i className="fas fa-plus"></i> Agregar Curso
+            <FontAwesomeIcon icon={faPlus} /> Agregar Curso
           </button>
         </div>
         {renderContent()}

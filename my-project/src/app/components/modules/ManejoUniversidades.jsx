@@ -6,6 +6,7 @@ import {
   faUserShield,
   faTrash,
   faEdit,
+  faPlus,
 } from "@fortawesome/free-solid-svg-icons";
 
 // Define the base URL of your backend API
@@ -441,7 +442,7 @@ function ManejoUniversidades() {
             onClick={() => handleOpenModal()}
             className={styles.addButton}
           >
-            <i className="fas fa-plus"></i>{" "}
+            <FontAwesomeIcon icon={faPlus} />{" "}
             {activeView === "universidades"
               ? "Agregar Universidad"
               : "Agregar Administrador"}

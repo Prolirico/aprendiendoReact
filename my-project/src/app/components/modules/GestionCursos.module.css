@@ -45,9 +45,10 @@
 /* Toolbar */
 .toolbar {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
     gap: 1rem;
-    margin-bottom: 1.5rem;
 }
 
 .addButton {
@@ -66,8 +67,11 @@
 }
 
 .addButton:hover {
-    background-color: #4338ca;
+    background-color: #047857;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.4);
 }
+
 
 /* Loading State */
 .loadingState {

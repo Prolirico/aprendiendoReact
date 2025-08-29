@@ -272,7 +272,7 @@ function CategoriasCursos() {
             onClick={() => handleOpenModal()}
             className={styles.addButton}
           >
-            <FontAwesomeIcon icon={faPlus} /> Agregar Categoría
+            <FontAwesomeIcon icon={faPlus} /> Agregar Categoria
           </button>
         </div>
         {renderContent()}

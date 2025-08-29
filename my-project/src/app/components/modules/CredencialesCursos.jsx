@@ -496,7 +496,7 @@ function CredencialesCursos({ userId, dashboardType, userUniversityId }) {
             onClick={() => handleOpenModal()}
             className={styles.addButton}
           >
-            <i className="fas fa-plus"></i> Agregar Credencial
+            <FontAwesomeIcon icon={faPlus} /> Agregar Credencial
           </button>
         </div>
         {renderContent()}
