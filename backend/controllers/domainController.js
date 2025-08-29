@@ -32,7 +32,11 @@ exports.getDomains = async (req, res) => {
   try {
     const db = await pool.getConnection();
     try {
-      const [rows] = await db.execute("SELECT * FROM dominiosUniversidades");
+      const [rows] = await db.execute(`
+        SELECT d.id_dominio, d.dominio, d.estatus, d.id_universidad, u.nombre_universidad 
+        FROM dominiosUniversidades d
+        LEFT JOIN universidades u ON d.id_universidad = u.id_universidad
+      `);
       res.json(rows);
     } finally {
       db.release();
@@ -44,13 +48,16 @@ exports.getDomains = async (req, res) => {
 };
 
 exports.addDomain = async (req, res) => {
-  const { dominio, estatus } = req.body;
+  const { dominio, estatus, id_universidad } = req.body;
 
   if (!dominio) {
     return res.status(400).json({ error: "El dominio es requerido" });
   }
   if (estatus && !["activo", "inactivo"].includes(estatus)) {
     return res.status(400).json({ error: "Estado no válido" });
+  }
+  if (!id_universidad) {
+    return res.status(400).json({ error: "La universidad es requerida" });
   }
 
   try {
@@ -65,8 +72,8 @@ exports.addDomain = async (req, res) => {
       }
 
       const [result] = await db.execute(
-        "INSERT INTO dominiosUniversidades (dominio, estatus) VALUES (?, ?)",
-        [dominio.toLowerCase(), estatus || "activo"],
+        "INSERT INTO dominiosUniversidades (dominio, estatus, id_universidad) VALUES (?, ?, ?)",
+        [dominio.toLowerCase(), estatus || "activo", id_universidad],
       );
 
       cache.clearDomainCache();
@@ -89,9 +96,9 @@ exports.addDomain = async (req, res) => {
 
 exports.updateDomain = async (req, res) => {
   const { id } = req.params;
-  const { dominio, estatus } = req.body;
+  const { dominio, estatus, id_universidad } = req.body;
 
-  if (!dominio && !estatus) {
+  if (!dominio && !estatus && !id_universidad) {
     return res
       .status(400)
       .json({ error: "Se requiere al menos un campo para actualizar" });
@@ -120,6 +127,10 @@ exports.updateDomain = async (req, res) => {
       if (estatus) {
         updates.push("estatus = ?");
         params.push(estatus);
+      }
+      if (id_universidad) {
+        updates.push("id_universidad = ?");
+        params.push(id_universidad);
       }
       params.push(id);
 
