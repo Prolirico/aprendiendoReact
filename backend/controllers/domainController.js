@@ -33,9 +33,9 @@ exports.getDomains = async (req, res) => {
     const db = await pool.getConnection();
     try {
       const [rows] = await db.execute(`
-        SELECT d.id_dominio, d.dominio, d.estatus, d.id_universidad, u.nombre_universidad 
+        SELECT d.id_dominio, d.dominio, d.estatus, d.id_universidad, u.nombre AS nombre_universidad 
         FROM dominiosUniversidades d
-        LEFT JOIN universidades u ON d.id_universidad = u.id_universidad
+        LEFT JOIN universidad u ON d.id_universidad = u.id_universidad
       `);
       res.json(rows);
     } finally {

@@ -198,6 +198,11 @@ function Dominios() {
     }
   };
 
+  // Crear un mapa para buscar nombres de universidades eficientemente
+  const universityMap = new Map(
+    universities.map((uni) => [uni.id_universidad, uni.nombre])
+  );
+
   const renderContent = () => {
     if (loading) {
       return (
@@ -242,7 +247,7 @@ function Dominios() {
             <tr>
               <th>ID</th>
               <th>Dominio</th>
-              <th>ID Universidad</th>
+              <th>Universidad</th>
               <th>Estatus</th>
               <th>Acciones</th>
             </tr>
@@ -252,7 +257,7 @@ function Dominios() {
               <tr key={domain.id_dominio}>
                 <td>{domain.id_dominio}</td>
                 <td>{domain.dominio}</td>
-                <td>{domain.id_universidad}</td>
+                <td>{universityMap.get(domain.id_universidad) || 'N/A'}</td>
                 <td>
                   <span
                     className={
