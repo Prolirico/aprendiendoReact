@@ -22,7 +22,7 @@ const protect = async (req, res, next) => {
 
       // Obtener datos del usuario desde la BD para asegurar que existe y tener datos frescos
       const [users] = await pool.query(
-        "SELECT id_usuario, username as nombre, email, tipo_usuario FROM usuario WHERE id_usuario = ?",
+        "SELECT id_usuario, username, email, tipo_usuario FROM usuario WHERE id_usuario = ?",
         [decoded.id_usuario],
       );
 
