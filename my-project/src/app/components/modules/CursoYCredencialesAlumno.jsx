@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import CursoCard from "../controls/CursoCard"
 import CredencialCard from "../controls/CredencialCard"
 import CursoModal from "../modals/CursoModal"
@@ -16,6 +16,7 @@ const CursoYCredencialesAlumno = () => {
         universidades: [],
         categorias: [],
         estatus: [],
+        estatusInscripcion: [], // Nuevo filtro para estatus de inscripción
     })
 
     // Estados para controlar qué secciones están expandidas
@@ -23,6 +24,7 @@ const CursoYCredencialesAlumno = () => {
         universidades: false,
         categorias: false,
         estatus: false,
+        estatusInscripcion: false, // Nueva sección expandible
     })
 
     // --- ESTADOS PARA DATOS DE LA API ---
@@ -45,6 +47,7 @@ const CursoYCredencialesAlumno = () => {
     // Usamos los valores reales del backend para el filtrado
     const cursoStatusOptions = ["planificado", "abierto", "en_curso", "finalizado", "cancelado"];
     const credencialStatusOptions = ["activa", "inactiva"];
+    const inscripcionStatusOptions = ["solicitada", "aprobada", "rechazada", "completada", "abandonada", "lista de espera", "baja por el sistema"];
 
     // Función para formatear los estatus para mostrarlos en la UI
     const formatStatusLabel = (status) => {
@@ -52,6 +55,29 @@ const CursoYCredencialesAlumno = () => {
         // Reemplaza guiones bajos y capitaliza la primera letra de cada palabra
         return status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     };
+
+    const activeCredentialIdsByInscription = useMemo(() => {
+        if (filters.estatusInscripcion.length === 0) {
+            return null; // No hay filtro aplicado, no filtrar por esto.
+        }
+
+        // 1. Obtener los IDs de los cursos que coinciden con el filtro de inscripción
+        const filteredCourseIds = new Set(
+            inscripciones
+                .filter(insc => filters.estatusInscripcion.includes(insc.estatus_inscripcion))
+                .map(insc => insc.id_curso)
+        );
+
+        // 2. Encontrar a qué credenciales pertenecen esos cursos
+        const credentialIds = new Set();
+        cursos.forEach(curso => {
+            if (filteredCourseIds.has(curso.id_curso) && curso.id_credencial) {
+                credentialIds.add(curso.id_credencial);
+            }
+        });
+
+        return credentialIds;
+    }, [filters.estatusInscripcion, inscripciones, cursos]);
     
     // --- VINCULACIÓN CON API ---
     // Usamos useEffect para cargar todos los datos iniciales cuando el componente se monta.
@@ -237,8 +263,18 @@ const CursoYCredencialesAlumno = () => {
             universidades: [],
             categorias: [],
             estatus: [],
+            estatusInscripcion: [], // Limpiar también el nuevo filtro
         })
     }
+
+    // Función para obtener el estatus de inscripción de un item
+    const getInscripcionStatus = useCallback((itemId) => {
+        if (!inscripciones || inscripciones.length === 0) return null;
+        
+        // Para cursos, buscamos directamente en las inscripciones
+        const inscripcion = inscripciones.find(insc => insc.id_curso === itemId);
+        return inscripcion ? inscripcion.estatus_inscripcion : null;
+    }, [inscripciones]);
 
     // Función para filtrar datos
     const filterData = useCallback((data) => {
@@ -248,17 +284,36 @@ const CursoYCredencialesAlumno = () => {
         }
         return data.filter((item) => {
             const universidadNombre = item.nombre_universidad || item.universidad;
-
             const universidadMatch =
                 filters.universidades.length === 0 || filters.universidades.includes(universidadNombre)
             
             // Lógica de filtrado de estatus simplificada
             const itemStatus = item.nombre_curso ? item.estatus_curso : item.estatus;
             const estatusMatch = filters.estatus.length === 0 || filters.estatus.includes(itemStatus);
+            
+            // Nuevo filtro de estatus de inscripción
+            let estatusInscripcionMatch = true;
+            // Solo aplicamos el filtro de inscripción si hay alguno seleccionado
+            if (activeCredentialIdsByInscription) {
+                const isCredencial = !item.nombre_curso; // Si no tiene nombre_curso, es una credencial
+                if (isCredencial) {
+                    // Para una credencial, vemos si su ID está en el conjunto pre-calculado
+                    estatusInscripcionMatch = activeCredentialIdsByInscription.has(item.id_credencial || item.id_certificacion);
+                } else {
+                    // Para un curso, revisamos su estatus de inscripción individual
+                    const inscripcionStatus = getInscripcionStatus(item.id_curso);
+                    if (inscripcionStatus) {
+                        estatusInscripcionMatch = filters.estatusInscripcion.includes(inscripcionStatus);
+                    } else {
+                        // Si un curso no tiene inscripción, no debe coincidir con ningún filtro de estatus
+                        estatusInscripcionMatch = false;
+                    }
+                }
+            }
 
             // Si no hay filtro de categoría, solo evaluamos los otros filtros.
             if (filters.categorias.length === 0) {
-                return universidadMatch && estatusMatch;
+                return universidadMatch && estatusMatch && estatusInscripcionMatch;
             }
 
             // Lógica de filtrado de categoría
@@ -271,9 +326,9 @@ const CursoYCredencialesAlumno = () => {
                 categoriaMatch = credencialCategorias.some(cat => filters.categorias.includes(cat));
             }
 
-            return universidadMatch && estatusMatch && categoriaMatch;
+            return universidadMatch && estatusMatch && categoriaMatch && estatusInscripcionMatch;
         })
-    }, [filters])
+    }, [filters, getInscripcionStatus, activeCredentialIdsByInscription])
 
     const filteredCursos = filterData(cursos)
     const filteredCredenciales = filterData(credenciales)
@@ -344,6 +399,14 @@ const CursoYCredencialesAlumno = () => {
                         items={activeTab === "cursos" ? cursoStatusOptions : credencialStatusOptions}
                         filterType="estatus"
                         isExpanded={expandedSections.estatus}
+                        onToggle={toggleSection}
+                    />
+
+                    <FilterSection
+                        title="Estatus Inscripción"
+                        items={inscripcionStatusOptions}
+                        filterType="estatusInscripcion"
+                        isExpanded={expandedSections.estatusInscripcion}
                         onToggle={toggleSection}
                     />
                 </div>
