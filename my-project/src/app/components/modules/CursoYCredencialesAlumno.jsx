@@ -97,6 +97,25 @@ const CursoYCredencialesAlumno = () => {
 
         return credentialIds;
     }, [filters.estatusInscripcion, inscripciones, cursos]);
+
+    const activeCredentialIdsByModalidad = useMemo(() => {
+        // Si no hay filtro de modalidad, no hacemos nada y no se filtra por esto.
+        if (filters.modalidad.length === 0) {
+            return null;
+        }
+
+        // 1. Obtener los IDs de las credenciales a partir de los cursos que coinciden con el filtro.
+        const credentialIds = new Set();
+        cursos
+            .filter(curso => curso && filters.modalidad.includes(curso.modalidad))
+            .forEach(curso => {
+                if (curso.id_credencial) {
+                    credentialIds.add(curso.id_credencial);
+                }
+            });
+
+        return credentialIds;
+    }, [filters.modalidad, cursos]);
     
     // --- VINCULACIÓN CON API ---
     // Usamos useEffect para cargar todos los datos iniciales cuando el componente se monta.
@@ -290,11 +309,11 @@ const CursoYCredencialesAlumno = () => {
             universidades: [],
             categorias: [],
             estatus: [],
-            estatusInscripcion: [], // Limpiar también el nuevo filtro
+            estatusInscripcion: [],
             modalidad: [],
-            searchTerm: "",
-        })
-    }
+            searchTerm: ""
+        });
+    };
 
     // Función para obtener el estatus de inscripción de un item
     const getInscripcionStatus = useCallback((itemId) => {
@@ -347,11 +366,16 @@ const CursoYCredencialesAlumno = () => {
                 }
             }
 
+            // Lógica de filtrado de modalidad (corregida)
+            const modalidadMatch =
+                filters.modalidad.length === 0 || // Si no hay filtro, todo coincide
+                (item.nombre_curso && filters.modalidad.includes(item.modalidad)) || // Si es un curso, se filtra por su modalidad
+                (!!item.nombre_credencial && activeCredentialIdsByModalidad?.has(item.id_credencial || item.id_certificacion)); // Si es una credencial, se usa la lista pre-calculada
+            
             // Si no hay filtro de categoría, solo evaluamos los otros filtros.
             if (filters.categorias.length === 0) {
-                return searchTermMatch && universidadMatch && estatusMatch && estatusInscripcionMatch;
+                return searchTermMatch && universidadMatch && estatusMatch && estatusInscripcionMatch && modalidadMatch;
             }
-
             // Lógica de filtrado de categoría
             let categoriaMatch = false;
             if (item.nombre_curso) { // Es un curso
@@ -362,44 +386,57 @@ const CursoYCredencialesAlumno = () => {
                 categoriaMatch = credencialCategorias.some(cat => filters.categorias.includes(cat));
             }
 
-            // Lógica de filtrado de modalidad
-            const modalidadMatch = filters.modalidad.length === 0 ||
-                (item.nombre_curso && filters.modalidad.includes(item.modalidad)) ||
-                (item.nombre_credencial && item.cursos?.some(c => c && filters.modalidad.includes(c.modalidad)));
-
-
             return searchTermMatch && universidadMatch && estatusMatch && categoriaMatch && estatusInscripcionMatch && modalidadMatch;
         })
-    }, [filters, getInscripcionStatus, activeCredentialIdsByInscription])
+    }, [filters, getInscripcionStatus, activeCredentialIdsByInscription, activeCredentialIdsByModalidad])
 
     const filteredCursos = filterData(cursos)
     const filteredCredenciales = filterData(credenciales)
 
     // Componente para renderizar filtros
-    const FilterSection = ({ title, items, filterType, isExpanded, onToggle, formatLabel = formatStatusLabel }) => (
-        <div className={styles.filterSection}>
+    const FilterSection = ({ title, items, filterType, isExpanded, onToggle, formatLabel = formatStatusLabel }) => {
+        const getUniqueKey = (item) => {
+            // Prefijo para evitar colisiones entre diferentes tipos de filtros (ej. id 1 de categoría y id 1 de universidad)
+            return `${filterType}-${item.id_universidad || item.id_categoria || item}`;
+        };
+
+        const getValue = (item) => {
+            // El valor que se guarda en el estado de filtros
+            return item.nombre || item.nombre_categoria || item;
+        };
+
+        const getLabel = (item) => {
+            // El texto que se muestra al usuario
+            return item.nombre || item.nombre_categoria || formatLabel(item);
+        };
+
+        return (
+            <div className={styles.filterSection}>
             <button className={styles.filterHeader} onClick={() => onToggle(filterType)}>
                 <span>{title}</span>
                 <span className={`${styles.arrow} ${isExpanded ? styles.expanded : ""}`}>▼</span>
             </button>
             {isExpanded && (
                 <div className={styles.filterOptions}>
-                    {items.map((item) => (
-                        <label key={item.id_universidad || item.id_categoria || item} className={styles.checkboxLabel}>
-                            <input
-                                type="checkbox"
-                                // Para universidades es 'nombre', para categorías es 'nombre_categoria', y para estatus es el item mismo.
-                                checked={filters[filterType].includes(item.nombre || item.nombre_categoria || item)}
-                                onChange={() => handleFilterChange(filterType, item.nombre || item.nombre_categoria || item)}
-                                className={styles.checkbox}
-                            />
-                            <span className={styles.checkboxText}>{item.nombre || item.nombre_categoria || formatLabel(item)}</span>
-                        </label>
-                    ))}
+                    {items.map((item) => {
+                        const value = getValue(item);
+                        return (
+                            <label key={getUniqueKey(item)} className={styles.checkboxLabel}>
+                                <input
+                                    type="checkbox"
+                                    checked={filters[filterType].includes(value)}
+                                    onChange={() => handleFilterChange(filterType, value)}
+                                    className={styles.checkbox}
+                                />
+                                <span className={styles.checkboxText}>{getLabel(item)}</span>
+                            </label>
+                        );
+                    })}
                 </div>
             )}
         </div>
-    )
+        );
+    }
 
     // Función auxiliar para formatear fechas
     const formatDate = (dateString) => {
