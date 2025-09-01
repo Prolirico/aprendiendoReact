@@ -1,6 +1,8 @@
 "use client"
 
 import { useState, useEffect, useCallback, useMemo } from "react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons"
 import CursoCard from "../controls/CursoCard"
 import CredencialCard from "../controls/CredencialCard"
 import CursoModal from "../modals/CursoModal"
@@ -17,6 +19,7 @@ const CursoYCredencialesAlumno = () => {
         categorias: [],
         estatus: [],
         estatusInscripcion: [], // Nuevo filtro para estatus de inscripción
+        searchTerm: "", // Para la barra de búsqueda
     })
 
     // Estados para controlar qué secciones están expandidas
@@ -239,6 +242,14 @@ const CursoYCredencialesAlumno = () => {
         setSelectedCredencial(null)
     }
 
+    // Función para manejar el cambio en la barra de búsqueda
+    const handleSearchChange = (e) => {
+        setFilters(prev => ({
+            ...prev,
+            searchTerm: e.target.value,
+        }));
+    };
+
     // Función para alternar secciones expandidas
     const toggleSection = (section) => {
         setExpandedSections((prev) => ({
@@ -264,6 +275,7 @@ const CursoYCredencialesAlumno = () => {
             categorias: [],
             estatus: [],
             estatusInscripcion: [], // Limpiar también el nuevo filtro
+            searchTerm: "",
         })
     }
 
@@ -283,6 +295,13 @@ const CursoYCredencialesAlumno = () => {
             return []
         }
         return data.filter((item) => {
+            // Filtro por término de búsqueda
+            const searchTermMatch =
+                filters.searchTerm.trim() === '' ||
+                (item.nombre_curso || item.nombre_credencial || '')
+                    .toLowerCase()
+                    .includes(filters.searchTerm.toLowerCase());
+
             const universidadNombre = item.nombre_universidad || item.universidad;
             const universidadMatch =
                 filters.universidades.length === 0 || filters.universidades.includes(universidadNombre)
@@ -313,7 +332,7 @@ const CursoYCredencialesAlumno = () => {
 
             // Si no hay filtro de categoría, solo evaluamos los otros filtros.
             if (filters.categorias.length === 0) {
-                return universidadMatch && estatusMatch && estatusInscripcionMatch;
+                return searchTermMatch && universidadMatch && estatusMatch && estatusInscripcionMatch;
             }
 
             // Lógica de filtrado de categoría
@@ -326,7 +345,7 @@ const CursoYCredencialesAlumno = () => {
                 categoriaMatch = credencialCategorias.some(cat => filters.categorias.includes(cat));
             }
 
-            return universidadMatch && estatusMatch && categoriaMatch && estatusInscripcionMatch;
+            return searchTermMatch && universidadMatch && estatusMatch && categoriaMatch && estatusInscripcionMatch;
         })
     }, [filters, getInscripcionStatus, activeCredentialIdsByInscription])
 
@@ -416,18 +435,30 @@ const CursoYCredencialesAlumno = () => {
             <div className={styles.mainContent}>
                 {/* Pestañas */}
                 <div className={styles.tabsContainer}>
-                    <button
-                        className={`${styles.tab} ${activeTab === "cursos" ? styles.activeTab : ""}`}
-                        onClick={() => setActiveTab("cursos")}
-                    >
-                        Cursos ({filteredCursos.length})
-                    </button>
-                    <button
-                        className={`${styles.tab} ${activeTab === "credenciales" ? styles.activeTab : ""}`}
-                        onClick={() => setActiveTab("credenciales")}
-                    >
-                        Credenciales ({filteredCredenciales.length})
-                    </button>
+                    <div className={styles.tabButtons}>
+                        <button
+                            className={`${styles.tab} ${activeTab === "cursos" ? styles.activeTab : ""}`}
+                            onClick={() => setActiveTab("cursos")}
+                        >
+                            Cursos ({filteredCursos.length})
+                        </button>
+                        <button
+                            className={`${styles.tab} ${activeTab === "credenciales" ? styles.activeTab : ""}`}
+                            onClick={() => setActiveTab("credenciales")}
+                        >
+                            Credenciales ({filteredCredenciales.length})
+                        </button>
+                    </div>
+                    <div className={styles.searchBarContainer}>
+                        <FontAwesomeIcon icon={faMagnifyingGlass} className={styles.searchIcon} />
+                        <input
+                            type="text"
+                            placeholder="Buscar por nombre..."
+                            className={styles.searchInput}
+                            value={filters.searchTerm}
+                            onChange={handleSearchChange}
+                        />
+                    </div>
                 </div>
 
                 {/* Contenido de las pestañas */}

@@ -130,12 +130,11 @@
 
 .tabsContainer {
     display: flex;
-    margin-bottom: 20px;
-    border-bottom: 2px solid #e0e0e0;
-    background-color: white;
-    border-radius: 8px 8px 0 0;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
 }
 
 .tab {
@@ -168,6 +167,47 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     min-height: 500px;
 }
+/* Contenedor solo para los botones de las pestañas (NUEVO) */
+.tabButtons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Contenedor para la barra de búsqueda (NUEVO) */
+.searchBarContainer {
+  position: relative; /* Necesario para posicionar el ícono dentro */
+  display: flex;
+  align-items: center;
+}
+
+/* Estilos para el ícono de búsqueda (NUEVO) */
+.searchIcon {
+  position: absolute;
+  left: 15px; /* Posición desde la izquierda dentro del input */
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  font-size: 0.9rem;
+  pointer-events: none; /* Permite hacer clic "a través" del ícono para enfocar el input */
+}
+
+/* Estilos para el campo de texto de la búsqueda (NUEVO) */
+.searchInput {
+  padding: 0.6rem 1rem 0.6rem 40px; /* Padding izquierdo para dejar espacio al ícono */
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  width: 280px; /* Ancho fijo para que no se expanda */
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background-color: #fff;
+}
+
+.searchInput:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
 
 .cardsGrid {
     display: grid;
