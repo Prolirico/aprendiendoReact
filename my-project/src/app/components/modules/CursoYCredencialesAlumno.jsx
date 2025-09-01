@@ -19,6 +19,7 @@ const CursoYCredencialesAlumno = () => {
         categorias: [],
         estatus: [],
         estatusInscripcion: [], // Nuevo filtro para estatus de inscripción
+        modalidad: [],
         searchTerm: "", // Para la barra de búsqueda
     })
 
@@ -28,6 +29,7 @@ const CursoYCredencialesAlumno = () => {
         categorias: false,
         estatus: false,
         estatusInscripcion: false, // Nueva sección expandible
+        modalidad: false,
     })
 
     // --- ESTADOS PARA DATOS DE LA API ---
@@ -51,6 +53,20 @@ const CursoYCredencialesAlumno = () => {
     const cursoStatusOptions = ["planificado", "abierto", "en_curso", "finalizado", "cancelado"];
     const credencialStatusOptions = ["activa", "inactiva"];
     const inscripcionStatusOptions = ["solicitada", "aprobada", "rechazada", "completada", "abandonada", "lista de espera", "baja por el sistema"];
+    const modalidadOptions = ["presencial", "mixto", "virtual"];
+
+    const formatModalidadLabel = (modalidad) => {
+        if (!modalidad) return '';
+        switch (modalidad) {
+            case 'presencial':
+                return 'Presencial';
+            case 'mixto':
+                return 'SemiPresencial/Mixto';
+            case 'virtual':
+                return 'Virtual';
+            default: return modalidad.charAt(0).toUpperCase() + modalidad.slice(1);
+        }
+    };
 
     // Función para formatear los estatus para mostrarlos en la UI
     const formatStatusLabel = (status) => {
@@ -275,6 +291,7 @@ const CursoYCredencialesAlumno = () => {
             categorias: [],
             estatus: [],
             estatusInscripcion: [], // Limpiar también el nuevo filtro
+            modalidad: [],
             searchTerm: "",
         })
     }
@@ -345,7 +362,13 @@ const CursoYCredencialesAlumno = () => {
                 categoriaMatch = credencialCategorias.some(cat => filters.categorias.includes(cat));
             }
 
-            return searchTermMatch && universidadMatch && estatusMatch && categoriaMatch && estatusInscripcionMatch;
+            // Lógica de filtrado de modalidad
+            const modalidadMatch = filters.modalidad.length === 0 ||
+                (item.nombre_curso && filters.modalidad.includes(item.modalidad)) ||
+                (item.nombre_credencial && item.cursos?.some(c => c && filters.modalidad.includes(c.modalidad)));
+
+
+            return searchTermMatch && universidadMatch && estatusMatch && categoriaMatch && estatusInscripcionMatch && modalidadMatch;
         })
     }, [filters, getInscripcionStatus, activeCredentialIdsByInscription])
 
@@ -353,7 +376,7 @@ const CursoYCredencialesAlumno = () => {
     const filteredCredenciales = filterData(credenciales)
 
     // Componente para renderizar filtros
-    const FilterSection = ({ title, items, filterType, isExpanded, onToggle }) => (
+    const FilterSection = ({ title, items, filterType, isExpanded, onToggle, formatLabel = formatStatusLabel }) => (
         <div className={styles.filterSection}>
             <button className={styles.filterHeader} onClick={() => onToggle(filterType)}>
                 <span>{title}</span>
@@ -370,7 +393,7 @@ const CursoYCredencialesAlumno = () => {
                                 onChange={() => handleFilterChange(filterType, item.nombre || item.nombre_categoria || item)}
                                 className={styles.checkbox}
                             />
-                            <span className={styles.checkboxText}>{item.nombre || item.nombre_categoria || formatStatusLabel(item)}</span>
+                            <span className={styles.checkboxText}>{item.nombre || item.nombre_categoria || formatLabel(item)}</span>
                         </label>
                     ))}
                 </div>
@@ -427,6 +450,14 @@ const CursoYCredencialesAlumno = () => {
                         filterType="estatusInscripcion"
                         isExpanded={expandedSections.estatusInscripcion}
                         onToggle={toggleSection}
+                    />
+                    <FilterSection
+                        title="Modalidad"
+                        items={modalidadOptions}
+                        filterType="modalidad"
+                        isExpanded={expandedSections.modalidad}
+                        onToggle={toggleSection}
+                        formatLabel={formatModalidadLabel}
                     />
                 </div>
             </div>

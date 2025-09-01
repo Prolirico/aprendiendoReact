@@ -17,12 +17,13 @@ const initialCourseState = {
   id_maestro: "",
   horario: "",
   objetivos: "",
-  prefrequisitos: "",
+  prerequisitos: "",
   duracion_horas: "",
   cupo_maximo: "",
   fecha_inicio: "",
   fecha_fin: "",
   nivel: "basico",
+  modalidad: "virtual",
   link_clase: "",
   codigo_curso: "",
 };
@@ -694,7 +695,7 @@ function CourseManagement({ userId }) {
                     required
                   />
                 </div>
-                <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                <div className={styles.formGroup}>
                   <label htmlFor="nivel">Nivel</label>
                   <select
                     id="nivel"
@@ -706,6 +707,20 @@ function CourseManagement({ userId }) {
                     <option value="basico">Básico</option>
                     <option value="intermedio">Intermedio</option>
                     <option value="avanzado">Avanzado</option>
+                  </select>
+                </div>
+                <div className={styles.formGroup}>
+                  <label htmlFor="modalidad">Modalidad</label>
+                  <select
+                    id="modalidad"
+                    name="modalidad"
+                    value={formState.modalidad}
+                    onChange={handleFormChange}
+                    required
+                  >
+                    <option value="virtual">Virtual</option>
+                    <option value="presencial">Presencial</option>
+                    <option value="mixto">Semipresencial/Mixto</option>
                   </select>
                 </div>
               </div>

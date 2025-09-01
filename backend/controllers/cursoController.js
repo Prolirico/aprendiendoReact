@@ -146,6 +146,7 @@ const createCurso = async (req, res) => {
     fecha_fin,
     horario,
     link_clase,
+    modalidad,
   } = req.body;
 
   if (
@@ -168,8 +169,8 @@ const createCurso = async (req, res) => {
 
     // 1. Insertar el curso sin el código
     const [result] = await connection.query(
-      `INSERT INTO curso (id_maestro, id_categoria, id_universidad, id_facultad, id_carrera, nombre_curso, descripcion, objetivos, prerequisitos, duracion_horas, nivel, cupo_maximo, fecha_inicio, fecha_fin, horario, link_clase)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO curso (id_maestro, id_categoria, id_universidad, id_facultad, id_carrera, nombre_curso, descripcion, objetivos, prerequisitos, duracion_horas, nivel, cupo_maximo, fecha_inicio, fecha_fin, horario, link_clase, modalidad)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id_maestro,
         id_categoria || null,
@@ -187,6 +188,7 @@ const createCurso = async (req, res) => {
         fecha_fin,
         horario,
         link_clase,
+        modalidad || 'virtual', // Valor por defecto si no se envía
       ],
     );
 
@@ -245,6 +247,7 @@ const updateCurso = async (req, res) => {
     horario,
     link_clase,
     estatus_curso,
+    modalidad,
   } = req.body;
 
   if (
@@ -263,10 +266,10 @@ const updateCurso = async (req, res) => {
   try {
     const [result] = await pool.query(
       `UPDATE curso SET
-                id_maestro = ?, id_categoria = ?, id_universidad = ?, id_facultad = ?, id_carrera = ?,
-                nombre_curso = ?, descripcion = ?, objetivos = ?, prerequisitos = ?, duracion_horas = ?,
-                nivel = ?, cupo_maximo = ?, fecha_inicio = ?, fecha_fin = ?, horario = ?,
-                link_clase = ?, estatus_curso = ?
+                id_maestro = ?, id_categoria = ?, id_universidad = ?, id_facultad = ?, id_carrera = ?, /* 5 */
+                nombre_curso = ?, descripcion = ?, objetivos = ?, prerequisitos = ?, duracion_horas = ?, /* 10 */
+                nivel = ?, cupo_maximo = ?, fecha_inicio = ?, fecha_fin = ?, horario = ?, /* 15 */
+                link_clase = ?, estatus_curso = ?, modalidad = ? /* 18 */
               WHERE id_curso = ?`,
       [
         id_maestro,
@@ -286,6 +289,7 @@ const updateCurso = async (req, res) => {
         horario,
         link_clase,
         estatus_curso,
+        modalidad,
         id,
       ],
     );

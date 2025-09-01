@@ -29,6 +29,19 @@ const formatStatusText = (estatus) => {
     if (estatus?.toLowerCase() === 'activo') return 'En Curso';
     return estatus || 'Sin estatus';
 };
+const formatModalidadText = (modalidad) => {
+    if (!modalidad) return 'No especificada';
+    switch (modalidad.toLowerCase()) {
+        case 'presencial':
+            return 'Presencial';
+        case 'virtual':
+            return 'Virtual';
+        case 'mixto':
+            return 'Semipresencial/Mixto';
+        default:
+            return modalidad.charAt(0).toUpperCase() + modalidad.slice(1);
+    }
+};
 
 const CursoModal = ({ curso, onClose, onSolicitar, onVerCredencial, inscripciones = [] }) => {
     const [isSolicitando, setIsSolicitando] = useState(false);
@@ -128,6 +141,7 @@ const CursoModal = ({ curso, onClose, onSolicitar, onVerCredencial, inscripcione
                             </button>
                         ) : ( 'N/A' )}
                     </p>
+                    <p><strong>Modalidad:</strong> {formatModalidadText(curso.modalidad)}</p>
                 </div>
 
                 {curso.descripcion && (

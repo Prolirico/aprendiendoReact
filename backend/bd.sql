@@ -360,6 +360,7 @@ CREATE TABLE `curso` (
   `prerequisitos` text DEFAULT NULL,
   `duracion_horas` smallint(5) unsigned NOT NULL,
   `nivel` enum('basico','intermedio','avanzado') NOT NULL,
+  `modalidad` enum('presencial','mixto','virtual') NOT NULL DEFAULT 'virtual',
   `cupo_maximo` smallint(5) unsigned DEFAULT 30,
   `fecha_inicio` date NOT NULL,
   `fecha_fin` date NOT NULL,
@@ -406,11 +407,11 @@ LOCK TABLES `curso` WRITE;
 /*!40000 ALTER TABLE `curso` DISABLE KEYS */;
 set autocommit=0;
 INSERT INTO `curso` VALUES
-(1,5,6,14,34,1,'CURSO-00001','Dominando los Modelos LLM de IA','Curso especializado en el estudio y comprensión de los Modelos de Lenguaje de Gran Escala (LLM), abordando su arquitectura, funcionamiento, entrenamiento y aplicaciones prácticas en generación y análisis de texto.','Conocimientos básicos de Python y manejo de librerías para IA.\nFundamentos de redes neuronales y procesamiento de lenguaje natural (NLP).\nnociones de álgebra lineal y probabilidad.','Comprender la arquitectura y principios de funcionamiento de los LLM.\nAnalizar cómo se entrenan y optimizan estos modelos.\nImplementar ejemplos prácticos con APIs de LLM.\nEvaluar ventajas, limitaciones y consideraciones éticas en su uso.',30,'basico',80,'2025-08-13','2025-08-31','','','planificado',0,0,NULL,NULL,NULL,'2025-08-12 14:35:13','2025-08-18 15:48:30'),
-(2,13,6,14,34,7,'CURSO-00002','Python Primeros pasos','Aprenderas la base de python para entender las redes neuronales.','Poder crear tu propia IA.','Saber  tipos de datos, arreglos y dominar un lenguaje de programacion, puede ser C++ o Java.',20,'basico',60,'2025-08-18','2025-08-29','','','planificado',0,0,NULL,NULL,NULL,'2025-08-15 16:28:52','2025-08-18 15:48:47'),
-(3,15,10,15,35,6,'CURSO-00003','Bases de datos en mysql','Aprender mysql','Manejar bases de datos robustas para proyectos grandes.','Saber de entidad relacion y tipos de datos.',30,'basico',150,'2025-08-25','2025-08-31','','','planificado',0,0,NULL,NULL,NULL,'2025-08-15 17:41:23','2025-08-18 15:40:28'),
-(4,5,8,14,34,1,'CURSO-00004','Edge Computing','Aprenderas edge computing','Aprender mejores bases para proyectos que necesitan enviar y recibir datos en distancias cortas.','Saber acerca de redes y conexiones.',60,'intermedio',120,'2025-09-01','2025-09-07','','','planificado',0,0,NULL,NULL,NULL,'2025-08-20 15:19:55','2025-08-20 15:19:55'),
-(5,16,17,16,36,9,'CURSO-00005','Github desde 0','Con esto comprenderas como funciona un control de versiones para siempre respaldar tus proyectos.','Que puedas trabajar en un proyecto haciendo commits y push en equipo, dominaras los merge y podras estar preparado para proyectos mas robustos.','Dominar comandos basicos en terminal.\nTener cuenta en github.\nSaber que son conexiones por SSH.',45,'basico',80,'2025-09-15','2025-09-29','','','planificado',0,0,NULL,NULL,NULL,'2025-08-21 16:51:58','2025-08-21 16:51:58');
+(1,5,6,14,34,1,'CURSO-00001','Dominando los Modelos LLM de IA','Curso especializado en el estudio y comprensión de los Modelos de Lenguaje de Gran Escala (LLM), abordando su arquitectura, funcionamiento, entrenamiento y aplicaciones prácticas en generación y análisis de texto.','Conocimientos básicos de Python y manejo de librerías para IA.\nFundamentos de redes neuronales y procesamiento de lenguaje natural (NLP).\nnociones de álgebra lineal y probabilidad.','Comprender la arquitectura y principios de funcionamiento de los LLM.\nAnalizar cómo se entrenan y optimizan estos modelos.\nImplementar ejemplos prácticos con APIs de LLM.\nEvaluar ventajas, limitaciones y consideraciones éticas en su uso.',30,'basico','virtual',80,'2025-08-13','2025-08-31','','','planificado',0,0,NULL,NULL,NULL,'2025-08-12 14:35:13','2025-08-18 15:48:30'),
+(2,13,6,14,34,7,'CURSO-00002','Python Primeros pasos','Aprenderas la base de python para entender las redes neuronales.','Poder crear tu propia IA.','Saber  tipos de datos, arreglos y dominar un lenguaje de programacion, puede ser C++ o Java.',20,'basico','virtual',60,'2025-08-18','2025-08-29','','','planificado',0,0,NULL,NULL,NULL,'2025-08-15 16:28:52','2025-08-18 15:48:47'),
+(3,15,10,15,35,6,'CURSO-00003','Bases de datos en mysql','Aprender mysql','Manejar bases de datos robustas para proyectos grandes.','Saber de entidad relacion y tipos de datos.',30,'basico','virtual',150,'2025-08-25','2025-08-31','','','planificado',0,0,NULL,NULL,NULL,'2025-08-15 17:41:23','2025-08-18 15:40:28'),
+(4,5,8,14,34,1,'CURSO-00004','Edge Computing','Aprenderas edge computing','Aprender mejores bases para proyectos que necesitan enviar y recibir datos en distancias cortas.','Saber acerca de redes y conexiones.',60,'intermedio','virtual',120,'2025-09-01','2025-09-07','','','planificado',0,0,NULL,NULL,NULL,'2025-08-20 15:19:55','2025-08-20 15:19:55'),
+(5,16,17,16,36,9,'CURSO-00005','Github desde 0','Con esto comprenderas como funciona un control de versiones para siempre respaldar tus proyectos.','Que puedas trabajar en un proyecto haciendo commits y push en equipo, dominaras los merge y podras estar preparado para proyectos mas robustos.','Dominar comandos basicos en terminal.\nTener cuenta en github.\nSaber que son conexiones por SSH.',45,'basico','virtual',80,'2025-09-15','2025-09-29','','','planificado',0,0,NULL,NULL,NULL,'2025-08-21 16:51:58','2025-08-21 16:51:58');
 /*!40000 ALTER TABLE `curso` ENABLE KEYS */;
 UNLOCK TABLES;
 commit;
@@ -825,7 +826,7 @@ CREATE TABLE `sesiones_usuario` (
   KEY `idx_estatus` (`estatus_sesion`),
   KEY `idx_sesiones_reporte` (`id_usuario`,`fecha_login`,`estatus_sesion`),
   CONSTRAINT `fk_sesion_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id_usuario`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=178 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=179 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -962,7 +963,8 @@ INSERT INTO `sesiones_usuario` VALUES
 (174,4,'2025-08-29 17:49:01',NULL,NULL,'activa'),
 (175,73,'2025-08-29 18:13:54',NULL,NULL,'activa'),
 (176,4,'2025-09-01 14:37:21',NULL,NULL,'activa'),
-(177,73,'2025-09-01 14:44:09',NULL,NULL,'activa');
+(177,73,'2025-09-01 14:44:09',NULL,NULL,'activa'),
+(178,4,'2025-09-01 15:59:03',NULL,NULL,'activa');
 /*!40000 ALTER TABLE `sesiones_usuario` ENABLE KEYS */;
 UNLOCK TABLES;
 commit;
@@ -1069,4 +1071,4 @@ commit;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2025-09-01  9:32:48
+-- Dump completed on 2025-09-01 10:07:47
