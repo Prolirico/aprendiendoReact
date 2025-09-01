@@ -48,7 +48,7 @@ CREATE TABLE `alumno` (
   CONSTRAINT `fk_alumno_carrera` FOREIGN KEY (`id_carrera`) REFERENCES `carreras` (`id_carrera`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_alumno_universidad` FOREIGN KEY (`id_universidad`) REFERENCES `universidad` (`id_universidad`) ON UPDATE CASCADE,
   CONSTRAINT `fk_alumno_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id_usuario`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -58,6 +58,8 @@ CREATE TABLE `alumno` (
 LOCK TABLES `alumno` WRITE;
 /*!40000 ALTER TABLE `alumno` DISABLE KEYS */;
 set autocommit=0;
+INSERT INTO `alumno` VALUES
+(2,73,15,'AXEL DAVID AREVALO GOMEZ','022000708','022000708@upsrj.edu.mx',NULL,9,'regular','2025-08-27 16:15:07','2025-08-27 16:15:07',6);
 /*!40000 ALTER TABLE `alumno` ENABLE KEYS */;
 UNLOCK TABLES;
 commit;
@@ -156,7 +158,7 @@ CREATE TABLE `carreras` (
   KEY `id_facultad` (`id_facultad`),
   KEY `idx_nombre_carrera` (`nombre`),
   CONSTRAINT `carreras_ibfk_1` FOREIGN KEY (`id_facultad`) REFERENCES `facultades` (`id_facultad`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -171,7 +173,8 @@ INSERT INTO `carreras` VALUES
 (6,35,'Ingeniería en Software','111',4,'2025-08-15 14:54:46','2025-08-15 14:54:46'),
 (7,34,'Ingeniería de Software','124',4,'2025-08-15 15:25:02','2025-08-15 15:25:02'),
 (8,34,'Ingeniería en Ciencia y Analítica de Datos','125',4,'2025-08-15 15:25:28','2025-08-15 15:25:28'),
-(9,36,'Ingeniería en Sistemas Computacionales','999',4,'2025-08-21 16:46:41','2025-08-21 16:46:41');
+(9,36,'Ingeniería en Sistemas Computacionales','999',4,'2025-08-21 16:46:41','2025-08-21 16:46:41'),
+(10,34,'Redes','65',4,'2025-08-29 17:50:16','2025-08-29 17:50:33');
 /*!40000 ALTER TABLE `carreras` ENABLE KEYS */;
 UNLOCK TABLES;
 commit;
@@ -440,12 +443,12 @@ LOCK TABLES `dominiosUniversidades` WRITE;
 set autocommit=0;
 INSERT INTO `dominiosUniversidades` VALUES
 (1,15,'upsrj.edu.mx','activo','2025-06-30 15:28:48','2025-08-26 15:04:35'),
-(2,15,'upq.mx','activo','2025-06-30 15:28:48','2025-08-26 15:04:35'),
+(2,NULL,'upq.mx','activo','2025-06-30 15:28:48','2025-08-29 16:39:22'),
 (3,NULL,'utcorregidora.edu.mx','activo','2025-06-30 15:28:48','2025-06-30 15:28:48'),
 (4,NULL,'utsrj.edu.mx','activo','2025-06-30 15:28:48','2025-06-30 15:28:48'),
 (5,NULL,'uteq.edu.mx','activo','2025-06-30 15:28:48','2025-06-30 15:28:48'),
-(6,14,'soyunaq.mx','activo','2025-06-30 15:28:48','2025-08-26 15:04:35'),
-(7,14,'unaq.mx','activo','2025-06-30 15:28:48','2025-08-26 15:04:35'),
+(6,NULL,'soyunaq.mx','activo','2025-06-30 15:28:48','2025-08-29 16:39:38'),
+(7,NULL,'unaq.mx','activo','2025-06-30 15:28:48','2025-08-29 16:39:44'),
 (8,16,'queretaro.tecnm.mx','activo','2025-06-30 15:28:48','2025-08-26 15:04:35'),
 (9,14,'uaq.mx','activo','2025-06-30 15:28:48','2025-08-26 15:04:35');
 /*!40000 ALTER TABLE `dominiosUniversidades` ENABLE KEYS */;
@@ -544,7 +547,7 @@ CREATE TABLE `inscripcion` (
   `fecha_solicitud` timestamp NULL DEFAULT current_timestamp(),
   `fecha_aprobacion` timestamp NULL DEFAULT NULL,
   `aprobado_por` int(10) unsigned DEFAULT NULL,
-  `estatus_inscripcion` enum('solicitada','aprobada','rechazada','completada','abandonada') DEFAULT 'solicitada',
+  `estatus_inscripcion` enum('solicitada','aprobada','rechazada','completada','abandonada','lista de espera','baja por el sistema') DEFAULT 'solicitada',
   `motivo_rechazo` text DEFAULT NULL,
   `calificacion_final` decimal(5,2) DEFAULT NULL,
   `porcentaje_asistencia` decimal(5,2) DEFAULT NULL,
@@ -568,7 +571,7 @@ CREATE TABLE `inscripcion` (
   CONSTRAINT `fk_inscripcion_curso` FOREIGN KEY (`id_curso`) REFERENCES `curso` (`id_curso`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `chk_calificacion_final` CHECK (`calificacion_final` >= 0 and `calificacion_final` <= 10),
   CONSTRAINT `chk_porcentaje_asistencia` CHECK (`porcentaje_asistencia` >= 0 and `porcentaje_asistencia` <= 100)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -578,6 +581,10 @@ CREATE TABLE `inscripcion` (
 LOCK TABLES `inscripcion` WRITE;
 /*!40000 ALTER TABLE `inscripcion` DISABLE KEYS */;
 set autocommit=0;
+INSERT INTO `inscripcion` VALUES
+(8,2,1,'2025-08-27 17:27:20',NULL,NULL,'solicitada',NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,'2025-08-27 17:27:20'),
+(9,2,2,'2025-08-29 17:48:39',NULL,NULL,'solicitada',NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,'2025-08-29 17:48:39'),
+(10,2,4,'2025-09-01 15:14:03',NULL,NULL,'solicitada',NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,'2025-09-01 15:14:03');
 /*!40000 ALTER TABLE `inscripcion` ENABLE KEYS */;
 UNLOCK TABLES;
 commit;
@@ -782,7 +789,7 @@ CREATE TABLE `requisitos_certificado` (
   KEY `idx_curso` (`id_curso`),
   CONSTRAINT `fk_requisito_certificacion` FOREIGN KEY (`id_certificacion`) REFERENCES `certificacion` (`id_certificacion`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_requisito_curso` FOREIGN KEY (`id_curso`) REFERENCES `curso` (`id_curso`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -793,8 +800,8 @@ LOCK TABLES `requisitos_certificado` WRITE;
 /*!40000 ALTER TABLE `requisitos_certificado` DISABLE KEYS */;
 set autocommit=0;
 INSERT INTO `requisitos_certificado` VALUES
-(11,1,1,1),
-(12,1,2,1);
+(13,1,2,1),
+(14,1,4,1);
 /*!40000 ALTER TABLE `requisitos_certificado` ENABLE KEYS */;
 UNLOCK TABLES;
 commit;
@@ -818,7 +825,7 @@ CREATE TABLE `sesiones_usuario` (
   KEY `idx_estatus` (`estatus_sesion`),
   KEY `idx_sesiones_reporte` (`id_usuario`,`fecha_login`,`estatus_sesion`),
   CONSTRAINT `fk_sesion_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id_usuario`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=155 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=178 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -933,7 +940,29 @@ INSERT INTO `sesiones_usuario` VALUES
 (140,4,'2025-08-21 17:34:43',NULL,NULL,'activa'),
 (150,4,'2025-08-26 17:10:03',NULL,NULL,'activa'),
 (151,4,'2025-08-26 17:11:31',NULL,NULL,'activa'),
-(153,4,'2025-08-26 17:24:26',NULL,NULL,'activa');
+(153,4,'2025-08-26 17:24:26',NULL,NULL,'activa'),
+(156,73,'2025-08-27 16:15:15',NULL,NULL,'activa'),
+(157,73,'2025-08-27 16:15:28',NULL,NULL,'activa'),
+(158,73,'2025-08-27 16:23:56',NULL,NULL,'activa'),
+(159,73,'2025-08-27 16:29:02',NULL,NULL,'activa'),
+(160,73,'2025-08-27 16:29:27',NULL,NULL,'activa'),
+(161,73,'2025-08-27 16:35:43',NULL,NULL,'activa'),
+(162,4,'2025-08-27 17:34:47',NULL,NULL,'activa'),
+(163,73,'2025-08-27 17:36:21',NULL,NULL,'activa'),
+(164,73,'2025-08-28 14:26:06',NULL,NULL,'activa'),
+(165,4,'2025-08-28 14:26:55',NULL,NULL,'activa'),
+(166,4,'2025-08-28 15:13:27',NULL,NULL,'activa'),
+(167,4,'2025-08-28 15:45:47',NULL,NULL,'activa'),
+(168,4,'2025-08-28 16:01:04',NULL,NULL,'activa'),
+(169,4,'2025-08-28 16:36:17',NULL,NULL,'activa'),
+(170,4,'2025-08-29 15:31:45',NULL,NULL,'activa'),
+(171,4,'2025-08-29 16:37:28',NULL,NULL,'activa'),
+(172,4,'2025-08-29 17:32:34',NULL,NULL,'activa'),
+(173,73,'2025-08-29 17:46:52',NULL,NULL,'activa'),
+(174,4,'2025-08-29 17:49:01',NULL,NULL,'activa'),
+(175,73,'2025-08-29 18:13:54',NULL,NULL,'activa'),
+(176,4,'2025-09-01 14:37:21',NULL,NULL,'activa'),
+(177,73,'2025-09-01 14:44:09',NULL,NULL,'activa');
 /*!40000 ALTER TABLE `sesiones_usuario` ENABLE KEYS */;
 UNLOCK TABLES;
 commit;
@@ -1004,7 +1033,7 @@ CREATE TABLE `usuario` (
   KEY `idx_tipo_estatus` (`tipo_usuario`,`estatus`),
   KEY `fk_usuario_universidad` (`id_universidad`),
   CONSTRAINT `fk_usuario_universidad` FOREIGN KEY (`id_universidad`) REFERENCES `universidad` (`id_universidad`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=74 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1026,7 +1055,7 @@ INSERT INTO `usuario` VALUES
 (61,'prueba2@uaq.edu.mx','prueba2@uaq.edu.mx','$2b$10$s/QX282yfZCnRev1.6LMYONgWBic4TsWlOgBo.rEwFaft3qgqvxWO','maestro','activo',14,NULL,'2025-08-14 17:15:47','2025-08-14 17:15:47',NULL),
 (62,'axel@upsrj.edu.mx','axel@upsrj.edu.mx','$2b$10$QR6IngBSerO4UiKjseElIeeDfLLZY0c6uyTTqhJiFfHQqxmORr4sG','maestro','activo',15,NULL,'2025-08-15 17:39:54','2025-08-15 17:39:54',NULL),
 (63,'OscarMaestro@itq.edu.mx','OscarMaestro@itq.edu.mx','$2b$10$J2tH7q8L7wgEqbgEx3Kep.Picql4GkTha0ckc4qC1jW30AcorALiW','maestro','activo',16,NULL,'2025-08-21 16:48:12','2025-08-21 16:48:12',NULL),
-(70,'AXEL DAVID AREVALO GOMEZ','022000708@upsrj.edu.mx',NULL,'alumno','pendiente',NULL,NULL,'2025-08-27 15:52:48','2025-08-27 15:52:48','111960635237928893373');
+(73,'AXEL DAVID AREVALO GOMEZ','022000708@upsrj.edu.mx',NULL,'alumno','activo',NULL,NULL,'2025-08-27 16:14:26','2025-08-27 16:15:07','111960635237928893373');
 /*!40000 ALTER TABLE `usuario` ENABLE KEYS */;
 UNLOCK TABLES;
 commit;
@@ -1040,4 +1069,4 @@ commit;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2025-08-27  9:57:04
+-- Dump completed on 2025-09-01  9:32:48
