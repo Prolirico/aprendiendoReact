@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "./Dashboard.module.css";
 import CursosYCredencialesAlumno from "../modules/CursoYCredencialesAlumno";
+import CardConvocatoriaBienvenido from "../controls/CardConvocatoriaBienvenido";
 
 function StudentDashboard({ userId }) {
   const [courses, setCourses] = useState([]);
@@ -17,6 +18,7 @@ function StudentDashboard({ userId }) {
   return (
     <div className={styles.todo}>
       <div className={styles.modulos}>
+        <CardConvocatoriaBienvenido></CardConvocatoriaBienvenido>
         <h1>Tomar Cursos y Credenciales</h1>
         <section>
           <CursosYCredencialesAlumno userId={userId} canEdit={true} />

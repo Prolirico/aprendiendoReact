@@ -1,0 +1,122 @@
+.card {
+    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+    border-radius: 16px;
+    padding: 24px;
+    color: white;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    max-width: 500px;
+    margin: 20px auto;
+    font-family: "Arial", sans-serif;
+    position: relative;
+    overflow: hidden;
+}
+
+.card::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.titulo {
+    font-size: 28px;
+    font-weight: bold;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.contenido {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.mensaje {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 16px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.nombre {
+    font-weight: bold;
+    font-size: 18px;
+    color: #93c5fd;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.convocatoria {
+    font-weight: 600;
+    color: #ddd6fe;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.fecha {
+    font-weight: 500;
+    color: #bfdbfe;
+}
+
+.subtitulo {
+    font-size: 14px;
+    opacity: 0.9;
+    font-style: italic;
+    margin: 0;
+}
+
+.footer {
+    text-align: center;
+}
+
+.botonExplorar {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.botonExplorar:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.botonExplorar:active {
+    transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .card {
+        margin: 10px;
+        padding: 20px;
+    }
+
+    .titulo {
+        font-size: 24px;
+    }
+
+    .mensaje {
+        font-size: 15px;
+    }
+
+    .nombre {
+        font-size: 16px;
+    }
+}

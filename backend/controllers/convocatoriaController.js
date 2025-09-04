@@ -27,8 +27,23 @@ const manageConvocatoriaUniversidades = async (
 // @route   GET /api/convocatorias
 // @access  Public
 const getAllConvocatorias = async (req, res) => {
-    try {
-        const query = `
+  try {
+    // Primero, actualizamos los estados basados en las fechas actuales
+    const updateStatusesQuery = `
+        UPDATE convocatorias
+        SET estado = CASE
+            WHEN estado IN ('cancelada', 'rechazada', 'llena') THEN estado
+            WHEN CURDATE() > fecha_ejecucion_fin THEN 'finalizada'
+            WHEN CURDATE() >= fecha_ejecucion_inicio THEN 'activa'
+            WHEN fecha_revision_inicio IS NOT NULL AND fecha_revision_fin IS NOT NULL AND CURDATE() BETWEEN fecha_revision_inicio AND fecha_revision_fin THEN 'revision'
+            WHEN CURDATE() BETWEEN fecha_aviso_inicio AND fecha_aviso_fin THEN 'aviso'
+            ELSE 'planeada'
+        END;
+    `;
+    await pool.query(updateStatusesQuery);
+
+    // Luego, obtenemos todas las convocatorias con los estados ya actualizados
+    const getQuery = `
       SELECT 
         c.*,
         GROUP_CONCAT(u.nombre SEPARATOR ', ') as universidades_nombres
@@ -36,14 +51,14 @@ const getAllConvocatorias = async (req, res) => {
       LEFT JOIN convocatoria_universidades cu ON c.id = cu.convocatoria_id
       LEFT JOIN universidad u ON cu.universidad_id = u.id_universidad
       GROUP BY c.id
-      ORDER BY c.fecha_inicio DESC;
+      ORDER BY c.fecha_ejecucion_inicio DESC;
     `;
-        const [convocatorias] = await pool.query(query);
-        res.json(convocatorias);
-    } catch (error) {
-        console.error("Error al obtener las convocatorias:", error);
-        res.status(500).json({ error: "Error interno del servidor." });
-    }
+    const [convocatorias] = await pool.query(getQuery);
+    res.json(convocatorias);
+  } catch (error) {
+    console.error("Error al obtener las convocatorias:", error);
+    res.status(500).json({ error: "Error interno del servidor." });
+  }
 };
 
 // @desc    Obtener una convocatoria por ID
@@ -82,23 +97,46 @@ const getConvocatoriaById = async (req, res) => {
 // @route   POST /api/convocatorias
 // @access  Private (SEDEQ)
 const createConvocatoria = async (req, res) => {
-    const { nombre, descripcion, fecha_inicio, fecha_fin, estado, universidades } =
-        req.body;
+  const {
+    nombre,
+    descripcion,
+    fecha_aviso_inicio,
+    fecha_aviso_fin,
+    fecha_revision_inicio,
+    fecha_revision_fin,
+    fecha_ejecucion_inicio,
+    fecha_ejecucion_fin,
+    capacidad_maxima,
+    universidades,
+  } = req.body;
 
-    if (!nombre || !fecha_inicio || !fecha_fin || !estado) {
-        return res
-            .status(400)
-            .json({ error: "Nombre, fechas y estado son obligatorios." });
-    }
+  if (!nombre || !fecha_aviso_inicio || !fecha_aviso_fin || !fecha_revision_inicio || !fecha_revision_fin || !fecha_ejecucion_inicio || !fecha_ejecucion_fin || capacidad_maxima === null || capacidad_maxima === undefined || !universidades || !Array.isArray(universidades) || universidades.length === 0) {
+    return res.status(400).json({
+      error: "Todos los campos son obligatorios, y se debe seleccionar al menos una universidad.",
+    });
+  }
 
     let connection;
     try {
         connection = await pool.getConnection();
         await connection.beginTransaction();
 
+        // El estado inicial siempre es 'planeada'
         const [result] = await connection.query(
-            "INSERT INTO convocatorias (nombre, descripcion, fecha_inicio, fecha_fin, estado) VALUES (?, ?, ?, ?, ?)",
-            [nombre, descripcion, fecha_inicio, fecha_fin, estado],
+            `INSERT INTO convocatorias (
+                nombre, descripcion, estado, 
+                fecha_aviso_inicio, fecha_aviso_fin, 
+                fecha_revision_inicio, fecha_revision_fin, 
+                fecha_ejecucion_inicio, fecha_ejecucion_fin, 
+                capacidad_maxima
+            ) VALUES (?, ?, 'planeada', ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                nombre, descripcion,
+                fecha_aviso_inicio, fecha_aviso_fin,
+                fecha_revision_inicio || null, fecha_revision_fin || null,
+                fecha_ejecucion_inicio, fecha_ejecucion_fin,
+                capacidad_maxima || null
+            ],
         );
         const newConvocatoriaId = result.insertId;
 
@@ -126,24 +164,53 @@ const createConvocatoria = async (req, res) => {
 // @route   PUT /api/convocatorias/:id
 // @access  Private (SEDEQ)
 const updateConvocatoria = async (req, res) => {
-    const { id } = req.params;
-    const { nombre, descripcion, fecha_inicio, fecha_fin, estado, universidades } =
-        req.body;
+  const { id } = req.params;
+  const {
+    nombre,
+    descripcion,
+    estado, // Mantenemos estado para cambios manuales como 'cancelada'
+    fecha_aviso_inicio,
+    fecha_aviso_fin,
+    fecha_revision_inicio,
+    fecha_revision_fin,
+    fecha_ejecucion_inicio,
+    fecha_ejecucion_fin,
+    capacidad_maxima,
+    universidades,
+  } = req.body;
 
-    if (!nombre || !fecha_inicio || !fecha_fin || !estado) {
-        return res
-            .status(400)
-            .json({ error: "Nombre, fechas y estado son obligatorios." });
-    }
+  if (!nombre || !fecha_aviso_inicio || !fecha_aviso_fin || !fecha_revision_inicio || !fecha_revision_fin || !fecha_ejecucion_inicio || !fecha_ejecucion_fin || !estado || capacidad_maxima === null || capacidad_maxima === undefined || !universidades || !Array.isArray(universidades) || universidades.length === 0) {
+    return res.status(400).json({
+      error: "Todos los campos son obligatorios, y se debe seleccionar al menos una universidad.",
+    });
+  }
 
     let connection;
     try {
         connection = await pool.getConnection();
         await connection.beginTransaction();
 
+        // Obtener cupo_actual antes de actualizar
+        const [convocatoriaActual] = await connection.query("SELECT cupo_actual FROM convocatorias WHERE id = ?", [id]);
+        const cupo_actual = convocatoriaActual[0]?.cupo_actual || 0;
+
+        // No actualizamos el estado directamente a menos que sea un estado manual. La lógica de GET se encarga del resto.
         const [result] = await connection.query(
-            "UPDATE convocatorias SET nombre = ?, descripcion = ?, fecha_inicio = ?, fecha_fin = ?, estado = ? WHERE id = ?",
-            [nombre, descripcion, fecha_inicio, fecha_fin, estado, id],
+            `UPDATE convocatorias SET 
+                nombre = ?, descripcion = ?, estado = ?,
+                fecha_aviso_inicio = ?, fecha_aviso_fin = ?,
+                fecha_revision_inicio = ?, fecha_revision_fin = ?,
+                fecha_ejecucion_inicio = ?, fecha_ejecucion_fin = ?,
+                capacidad_maxima = ?,
+                llena = ?
+             WHERE id = ?`,
+            [
+                nombre, descripcion, estado,
+                fecha_aviso_inicio, fecha_aviso_fin,
+                fecha_revision_inicio || null, fecha_revision_fin || null,
+                fecha_ejecucion_inicio, fecha_ejecucion_fin,
+                capacidad_maxima || null, (capacidad_maxima !== null && cupo_actual >= capacidad_maxima), id
+            ],
         );
 
         if (result.affectedRows === 0) {

@@ -160,23 +160,67 @@ const actualizarEstadoInscripcion = async (req, res) => {
       .json({ error: "El motivo de rechazo es obligatorio." });
   }
 
+  let connection;
   try {
-    const [result] = await pool.query(
-      "UPDATE inscripcion SET estatus_inscripcion = ?, motivo_rechazo = ? WHERE id_inscripcion = ?",
-      [estado, estado === "rechazada" ? motivo_rechazo.trim() : null, id],
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    // 1. Obtener el estado actual y el id del curso de la inscripción
+    const [inscripciones] = await connection.query(
+      "SELECT estatus_inscripcion, id_curso FROM inscripcion WHERE id_inscripcion = ?",
+      [id]
     );
 
-    if (result.affectedRows === 0) {
+    if (inscripciones.length === 0) {
+      await connection.rollback();
       return res.status(404).json({ error: "Inscripción no encontrada." });
     }
 
-    // Cache functionality removed for now
-    logger.info(`Estado de inscripción actualizado para ID: ${id}.`);
+    const estadoActual = inscripciones[0].estatus_inscripcion;
+    const id_curso = inscripciones[0].id_curso; // Asumimos que id_curso es el id de la convocatoria
 
+    // 2. Actualizar la inscripción
+    await connection.query(
+      "UPDATE inscripcion SET estatus_inscripcion = ?, motivo_rechazo = ? WHERE id_inscripcion = ?",
+      [estado, estado === "rechazada" ? motivo_rechazo.trim() : null, id]
+    );
+
+    // 3. Si la inscripción se está APROBANDO (y no estaba ya aprobada)
+    if (estado === "aprobada" && estadoActual !== "aprobada") {
+      // Incrementar el cupo_actual de la convocatoria
+      await connection.query(
+        "UPDATE convocatorias SET cupo_actual = cupo_actual + 1 WHERE id = ?",
+        [id_curso]
+      );
+
+      // Verificar si la convocatoria se ha llenado
+      const [convocatorias] = await connection.query(
+        "SELECT cupo_actual, capacidad_maxima FROM convocatorias WHERE id = ?",
+        [id_curso]
+      );
+
+      if (convocatorias.length > 0) {
+        const conv = convocatorias[0];
+        if (conv.capacidad_maxima !== null && conv.cupo_actual >= conv.capacidad_maxima) {
+          await connection.query(
+            "UPDATE convocatorias SET llena = 1 WHERE id = ?",
+            [id_curso]
+          );
+        }
+      }
+    }
+
+    await connection.commit();
+
+    logger.info(`Estado de inscripción actualizado para ID: ${id}.`);
     res.json({ message: "Estado de la inscripción actualizado con éxito." });
+
   } catch (error) {
+    if (connection) await connection.rollback();
     logger.error(`Error al actualizar estado de inscripción: ${error.message}`);
     res.status(500).json({ error: "Error interno del servidor" });
+  } finally {
+    if (connection) connection.release();
   }
 };
 

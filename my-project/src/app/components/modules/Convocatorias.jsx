@@ -16,14 +16,54 @@ const API_URL_UNIVERSIDADES = "http://localhost:5000/api/universidades";
 const initialFormState = {
     nombre: "",
     descripcion: "",
-    fecha_inicio: "",
-    fecha_fin: "",
+    fecha_aviso_inicio: "",
+    fecha_aviso_fin: "",
+    fecha_revision_inicio: "",
+    fecha_revision_fin: "",
+    fecha_ejecucion_inicio: "",
+    fecha_ejecucion_fin: "",
+    capacidad_maxima: "",
     estado: "planeada",
-    universidades: [],
+    universidades: []
 };
 
 // Helper para obtener el token (asumiendo que lo guardas en localStorage)
 const getAuthToken = () => localStorage.getItem("token");
+
+const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    // La fecha viene como YYYY-MM-DDTHH:mm:ss.sssZ, la cortamos para evitar problemas de zona horaria
+    const date = new Date(dateString.split('T')[0] + 'T00:00:00');
+    return date.toLocaleDateString("es-ES", { timeZone: 'UTC' });
+};
+
+const getEstadoBadge = (estado, llena) => {
+    const estadoFinal = llena ? 'llena' : estado;
+    const estadoText = {
+        planeada: "Planeada",
+        aviso: "Aviso",
+        revision: "Revisión",
+        activa: "Activa",
+        finalizada: "Finalizada",
+        cancelada: "Cancelada",
+        llena: "Llena",
+    };
+    const estadoClasses = {
+        planeada: styles.estadoPlaneada,
+        aviso: styles.estadoAviso,
+        revision: styles.estadoRevision,
+        activa: styles.estadoActiva,
+        finalizada: styles.estadoFinalizada,
+        cancelada: styles.estadoCancelada,
+        llena: styles.estadoLlena,
+    };
+
+    return (
+        <span className={`${styles.estadoBadge} ${estadoClasses[estadoFinal] || ""}`}>
+            {estadoText[estadoFinal] || estadoFinal.charAt(0).toUpperCase() + estadoFinal.slice(1)}
+        </span>
+    );
+};
 
 function GestionConvocatorias() {
     const [convocatorias, setConvocatorias] = useState([]);
@@ -85,8 +125,12 @@ function GestionConvocatorias() {
 
                 const formattedData = {
                     ...data,
-                    fecha_inicio: data.fecha_inicio.split('T')[0],
-                    fecha_fin: data.fecha_fin.split('T')[0],
+                    fecha_aviso_inicio: data.fecha_aviso_inicio.split('T')[0],
+                    fecha_aviso_fin: data.fecha_aviso_fin.split('T')[0],
+                    fecha_revision_inicio: data.fecha_revision_inicio ? data.fecha_revision_inicio.split('T')[0] : "",
+                    fecha_revision_fin: data.fecha_revision_fin ? data.fecha_revision_fin.split('T')[0] : "",
+                    fecha_ejecucion_inicio: data.fecha_ejecucion_inicio.split('T')[0],
+                    fecha_ejecucion_fin: data.fecha_ejecucion_fin.split('T')[0],
                 };
                 setFormState(formattedData);
 
@@ -236,37 +280,56 @@ function GestionConvocatorias() {
             );
         }
         return (
-            <table className={styles.table}>
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Estado</th>
-                        <th>Fechas</th>
-                        <th>Universidades</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {convocatorias.map((conv) => (
-                        <tr key={conv.id}>
-                            <td>{conv.nombre}</td>
-                            <td>{conv.estado}</td>
-                            <td>{new Date(conv.fecha_inicio).toLocaleDateString()} - {new Date(conv.fecha_fin).toLocaleDateString()}</td>
-                            <td>{conv.universidades_nombres || 'Ninguna'}</td>
-                            <td>
-                                <div className={styles.tableActions}>
-                                    <button onClick={() => handleOpenModal(conv)} className={styles.editButton} title="Editar">
-                                        <FontAwesomeIcon icon={faEdit} />
-                                    </button>
-                                    <button onClick={() => handleOpenDeleteModal(conv)} className={styles.deleteButton} title="Eliminar">
-                                        <FontAwesomeIcon icon={faTrash} />
-                                    </button>
-                                </div>
-                            </td>
+            <div className={styles.tableContainer}>
+                <table className={styles.table}>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Estado</th>
+                            <th>Fechas Aviso</th>
+                            <th>Fechas Revisión</th>
+                            <th>Fechas Ejecución</th>
+                            <th>Capacidad</th>
+                            <th>Universidades</th>
+                            <th>Acciones</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {convocatorias.map((conv) => (
+                            <tr key={conv.id}>
+                                <td className={styles.nombreCell}>{conv.nombre}</td>
+                                <td>{getEstadoBadge(conv.estado, conv.llena)}</td>
+                                <td className={styles.dateRangeCell}>
+                                    <div>{formatDate(conv.fecha_aviso_inicio)}</div>
+                                    <div>{formatDate(conv.fecha_aviso_fin)}</div>
+                                </td>
+                                <td className={styles.dateRangeCell}>
+                                    <div>{formatDate(conv.fecha_revision_inicio)}</div>
+                                    <div>{formatDate(conv.fecha_revision_fin)}</div>
+                                </td>
+                                <td className={styles.dateRangeCell}>
+                                    <div>{formatDate(conv.fecha_ejecucion_inicio)}</div>
+                                    <div>{formatDate(conv.fecha_ejecucion_fin)}</div>
+                                </td>
+                                <td className={styles.numberCell}>
+                                    {conv.cupo_actual} / {conv.capacidad_maxima || "∞"}
+                                </td>
+                                <td>{conv.universidades_nombres || 'N/A'}</td>
+                                <td>
+                                    <div className={styles.tableActions}>
+                                        <button onClick={() => handleOpenModal(conv)} className={styles.editButton} title="Editar">
+                                            <FontAwesomeIcon icon={faEdit} />
+                                        </button>
+                                        <button onClick={() => handleOpenDeleteModal(conv)} className={styles.deleteButton} title="Eliminar">
+                                            <FontAwesomeIcon icon={faTrash} />
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         );
     };
 
@@ -300,25 +363,55 @@ function GestionConvocatorias() {
                                     <input type="text" id="nombre" name="nombre" value={formState.nombre} onChange={handleFormChange} required />
                                 </div>
                                 <div className={styles.formGroup}>
-                                    <label htmlFor="estado">Estado</label>
-                                    <select id="estado" name="estado" value={formState.estado} onChange={handleFormChange} required>
-                                        <option value="planeada">Planeada</option>
-                                        <option value="activa">Activa</option>
-                                        <option value="finalizada">Finalizada</option>
-                                        <option value="cancelada">Cancelada</option>
-                                    </select>
+                                    <label htmlFor="capacidad_maxima">Capacidad Máxima</label>
+                                    <input type="number" id="capacidad_maxima" name="capacidad_maxima" value={formState.capacidad_maxima} onChange={handleFormChange} required min="0" />
                                 </div>
-                                <div className={styles.formGroup}>
-                                    <label htmlFor="fecha_inicio">Fecha de Inicio</label>
-                                    <input type="date" id="fecha_inicio" name="fecha_inicio" value={formState.fecha_inicio} onChange={handleFormChange} required />
-                                </div>
-                                <div className={styles.formGroup}>
-                                    <label htmlFor="fecha_fin">Fecha de Fin</label>
-                                    <input type="date" id="fecha_fin" name="fecha_fin" value={formState.fecha_fin} onChange={handleFormChange} required />
-                                </div>
+
                                 <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                                     <label htmlFor="descripcion">Descripción</label>
-                                    <textarea id="descripcion" name="descripcion" value={formState.descripcion} onChange={handleFormChange} rows="3"></textarea>
+                                    <textarea id="descripcion" name="descripcion" value={formState.descripcion} onChange={handleFormChange} rows="3" placeholder="Opcional"></textarea>
+                                </div>
+
+                                <div className={styles.formSection}>
+                                    <h4 className={styles.formSectionTitle}>Periodo de Aviso</h4>
+                                    <div className={styles.formGrid}>
+                                        <div className={styles.formGroup}>
+                                            <label htmlFor="fecha_aviso_inicio">Fecha de Inicio</label>
+                                            <input type="date" id="fecha_aviso_inicio" name="fecha_aviso_inicio" value={formState.fecha_aviso_inicio} onChange={handleFormChange} required />
+                                        </div>
+                                        <div className={styles.formGroup}>
+                                            <label htmlFor="fecha_aviso_fin">Fecha de Fin</label>
+                                            <input type="date" id="fecha_aviso_fin" name="fecha_aviso_fin" value={formState.fecha_aviso_fin} onChange={handleFormChange} required />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className={styles.formSection}>
+                                    <h4 className={styles.formSectionTitle}>Periodo de Revisión</h4>
+                                    <div className={styles.formGrid}>
+                                        <div className={styles.formGroup}>
+                                            <label htmlFor="fecha_revision_inicio">Fecha de Inicio</label>
+                                            <input type="date" id="fecha_revision_inicio" name="fecha_revision_inicio" value={formState.fecha_revision_inicio} onChange={handleFormChange} required />
+                                        </div>
+                                        <div className={styles.formGroup}>
+                                            <label htmlFor="fecha_revision_fin">Fecha de Fin</label>
+                                            <input type="date" id="fecha_revision_fin" name="fecha_revision_fin" value={formState.fecha_revision_fin} onChange={handleFormChange} required />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className={styles.formSection}>
+                                    <h4 className={styles.formSectionTitle}>Periodo de Ejecución</h4>
+                                    <div className={styles.formGrid}>
+                                        <div className={styles.formGroup}>
+                                            <label htmlFor="fecha_ejecucion_inicio">Fecha de Inicio</label>
+                                            <input type="date" id="fecha_ejecucion_inicio" name="fecha_ejecucion_inicio" value={formState.fecha_ejecucion_inicio} onChange={handleFormChange} required />
+                                        </div>
+                                        <div className={styles.formGroup}>
+                                            <label htmlFor="fecha_ejecucion_fin">Fecha de Fin</label>
+                                            <input type="date" id="fecha_ejecucion_fin" name="fecha_ejecucion_fin" value={formState.fecha_ejecucion_fin} onChange={handleFormChange} required />
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div className={`${styles.formGroup} ${styles.fullWidth}`}>
@@ -377,6 +470,20 @@ function GestionConvocatorias() {
                                         </div>
                                     </div>
                                 </div>
+                                {isEditing && (
+                                    <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                                        <label htmlFor="estado">Forzar Estado (ej. Cancelar)</label>
+                                        <select id="estado" name="estado" value={formState.estado} onChange={handleFormChange} required>
+                                            <option value="planeada">Planeada</option>
+                                            <option value="aviso">Aviso</option>
+                                            <option value="revision">Revisión</option>
+                                            <option value="activa">Activa</option>
+                                            <option value="finalizada">Finalizada</option>
+                                            <option value="cancelada">Cancelada</option>
+                                        </select>
+                                        <small>El estado se calcula automáticamente. Usa esta opción solo para forzar un estado como "Cancelada".</small>
+                                    </div>
+                                )}
                             </div>
                             <div className={styles.formActions}>
                                 <button type="button" onClick={handleCloseModal} className={styles.cancelButton}>Cancelar</button>
