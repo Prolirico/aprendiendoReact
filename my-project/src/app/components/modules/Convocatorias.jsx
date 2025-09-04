@@ -22,9 +22,8 @@ const initialFormState = {
     fecha_revision_fin: "",
     fecha_ejecucion_inicio: "",
     fecha_ejecucion_fin: "",
-    capacidad_maxima: "",
     estado: "planeada",
-    universidades: []
+    universidades: [] // Ahora será un array de objetos: { id_universidad, capacidad_maxima }
 };
 
 // Helper para obtener el token (asumiendo que lo guardas en localStorage)
@@ -73,7 +72,6 @@ function GestionConvocatorias() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [formState, setFormState] = useState(initialFormState);
     const [isEditing, setIsEditing] = useState(false);
     const [convocatoriaToDelete, setConvocatoriaToDelete] = useState(null);
@@ -134,8 +132,9 @@ function GestionConvocatorias() {
                 };
                 setFormState(formattedData);
 
-                const enConvocatoria = allUniversidades.filter(uni => data.universidades.includes(uni.id_universidad));
-                const disponibles = allUniversidades.filter(uni => !data.universidades.includes(uni.id_universidad));
+                const idsEnConvocatoria = new Set(data.universidades.map(u => u.universidad_id));
+                const enConvocatoria = data.universidades.map(uniConv => ({ ...allUniversidades.find(u => u.id_universidad === uniConv.universidad_id), capacidad_maxima: uniConv.capacidad_maxima }));
+                const disponibles = allUniversidades.filter(uni => !idsEnConvocatoria.has(uni.id_universidad));
                 setUniversidadesEnConvocatoria(enConvocatoria);
                 setUniversidadesDisponibles(disponibles);
 
@@ -159,10 +158,6 @@ function GestionConvocatorias() {
         setUniversidadesDisponibles([]);
     };
 
-    const handleOpenDeleteModal = (convocatoria) => {
-        setConvocatoriaToDelete(convocatoria);
-        setIsDeleteModalOpen(true);
-    };
 
     const handleCloseDeleteModal = () => setIsDeleteModalOpen(false);
 
@@ -171,22 +166,34 @@ function GestionConvocatorias() {
         setFormState((prev) => ({ ...prev, [name]: value }));
     };
 
+    const handleCapacidadChange = (id_universidad, capacidad) => {
+        const nuevaCapacidad = parseInt(capacidad, 10) || 0;
+        setUniversidadesEnConvocatoria(prev =>
+            prev.map(uni =>
+                uni.id_universidad === id_universidad ? { ...uni, capacidad_maxima: nuevaCapacidad } : uni
+            )
+        );
+        setFormState(prev => ({
+            ...prev,
+            universidades: prev.universidades.map(uni =>
+                uni.id_universidad === id_universidad ? { ...uni, capacidad_maxima: nuevaCapacidad } : uni
+            )
+        }));
+    };
+
     const agregarUniversidad = (universidad) => {
-        setUniversidadesEnConvocatoria((prev) => [...prev, universidad]);
+        const universidadConCapacidad = { ...universidad, capacidad_maxima: 30 }; // Capacidad por defecto
+        setUniversidadesEnConvocatoria((prev) => [...prev, universidadConCapacidad]);
         setUniversidadesDisponibles((prev) => prev.filter((u) => u.id_universidad !== universidad.id_universidad));
         setFormState((prev) => ({
             ...prev,
-            universidades: [...prev.universidades, universidad.id_universidad],
+            universidades: [...prev.universidades, { id_universidad: universidad.id_universidad, capacidad_maxima: 30 }],
         }));
     };
 
     const quitarUniversidad = (universidad) => {
         setUniversidadesDisponibles((prev) => [...prev, universidad]);
         setUniversidadesEnConvocatoria((prev) => prev.filter((u) => u.id_universidad !== universidad.id_universidad));
-        setFormState((prev) => ({
-            ...prev,
-            universidades: prev.universidades.filter((id) => id !== universidad.id_universidad),
-        }));
     };
 
     const handleFormSubmit = async (e) => {
@@ -194,6 +201,17 @@ function GestionConvocatorias() {
         const token = getAuthToken();
         if (!token) {
             showToast("No estás autenticado.", "error");
+            return;
+        }
+
+        // Validar que todas las universidades en convocatoria tengan una capacidad > 0
+        const universidadesFinales = universidadesEnConvocatoria.map(uni => ({
+            id_universidad: uni.id_universidad,
+            capacidad_maxima: uni.capacidad_maxima || 0
+        }));
+
+        if (universidadesFinales.some(uni => uni.capacidad_maxima <= 0)) {
+            showToast("Todas las universidades seleccionadas deben tener una capacidad mayor a 0.", "error");
             return;
         }
 
@@ -208,7 +226,7 @@ function GestionConvocatorias() {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 },
-                body: JSON.stringify(formState),
+                body: JSON.stringify({ ...formState, universidades: universidadesFinales }),
             });
             const result = await response.json();
             if (!response.ok) throw new Error(result.error || "Ocurrió un error.");
@@ -221,30 +239,6 @@ function GestionConvocatorias() {
         }
     };
 
-    const handleConfirmDelete = async () => {
-        if (!convocatoriaToDelete) return;
-        const token = getAuthToken();
-        if (!token) {
-            showToast("No estás autenticado.", "error");
-            return;
-        }
-
-        try {
-            const response = await fetch(`${API_URL_CONVOCATORIAS}/${convocatoriaToDelete.id}`, {
-                method: "DELETE",
-                headers: { "Authorization": `Bearer ${token}` }
-            });
-            if (!response.ok) {
-                const result = await response.json();
-                throw new Error(result.error || "La eliminación falló.");
-            }
-            showToast("Convocatoria eliminada con éxito.");
-            handleCloseDeleteModal();
-            fetchConvocatorias();
-        } catch (err) {
-            showToast(`Error: ${err.message}`, "error");
-        }
-    };
 
     const renderContent = () => {
         if (loading) {
@@ -320,7 +314,7 @@ function GestionConvocatorias() {
                                         <button onClick={() => handleOpenModal(conv)} className={styles.editButton} title="Editar">
                                             <FontAwesomeIcon icon={faEdit} />
                                         </button>
-                                        <button onClick={() => handleOpenDeleteModal(conv)} className={styles.deleteButton} title="Eliminar">
+                                        <button onClick={() => { setConvocatoriaToDelete(conv); setIsDeleteModalOpen(true); }} className={styles.deleteButton} title="Eliminar">
                                             <FontAwesomeIcon icon={faTrash} />
                                         </button>
                                     </div>
@@ -358,15 +352,10 @@ function GestionConvocatorias() {
                         </div>
                         <form onSubmit={handleFormSubmit} className={styles.form}>
                             <div className={styles.formGrid}>
-                                <div className={styles.formGroup}>
+                                <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                                     <label htmlFor="nombre">Nombre</label>
                                     <input type="text" id="nombre" name="nombre" value={formState.nombre} onChange={handleFormChange} required />
                                 </div>
-                                <div className={styles.formGroup}>
-                                    <label htmlFor="capacidad_maxima">Capacidad Máxima</label>
-                                    <input type="number" id="capacidad_maxima" name="capacidad_maxima" value={formState.capacidad_maxima} onChange={handleFormChange} required min="0" />
-                                </div>
-
                                 <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                                     <label htmlFor="descripcion">Descripción</label>
                                     <textarea id="descripcion" name="descripcion" value={formState.descripcion} onChange={handleFormChange} rows="3" placeholder="Opcional"></textarea>
@@ -458,7 +447,19 @@ function GestionConvocatorias() {
                                                     universidadesEnConvocatoria.map((uni) => (
                                                         <div key={uni.id_universidad} className={`${styles.universityItem} ${styles.selectedUniversityItem}`}>
                                                             <div className={styles.universityInfo}>
-                                                                <span className={styles.universityName}>{uni.nombre}</span>
+                                                                <span className={styles.universityNameModal}>{uni.nombre}</span>
+                                                                <div className={styles.capacidadInputContainer}>
+                                                                    <label htmlFor={`capacidad-${uni.id_universidad}`}>Capacidad:</label>
+                                                                    <input
+                                                                        type="number"
+                                                                        id={`capacidad-${uni.id_universidad}`}
+                                                                        value={uni.capacidad_maxima || ''}
+                                                                        onChange={(e) => handleCapacidadChange(uni.id_universidad, e.target.value)}
+                                                                        className={styles.capacidadInput}
+                                                                        min="1"
+                                                                        required
+                                                                    />
+                                                                </div>
                                                             </div>
                                                             <button type="button" onClick={() => quitarUniversidad(uni)} className={styles.removeUniversityBtn} title="Quitar">
                                                                 <FontAwesomeIcon icon={faMinus} />
@@ -490,27 +491,6 @@ function GestionConvocatorias() {
                                 <button type="submit" className={styles.saveButton}>Guardar</button>
                             </div>
                         </form>
-                    </div>
-                </div>
-            )}
-
-            {isDeleteModalOpen && (
-                <div className={styles.modalBackdrop} onClick={handleCloseDeleteModal}>
-                    <div className={styles.deleteModal} onClick={(e) => e.stopPropagation()}>
-                        <div className={styles.deleteModalContent}>
-                            <div className={styles.deleteIcon}>
-                                <FontAwesomeIcon icon={faTrash} />
-                            </div>
-                            <h3>Confirmar Eliminación</h3>
-                            <p>
-                                ¿Estás seguro de que quieres eliminar la convocatoria{" "}
-                                <strong>{convocatoriaToDelete?.nombre}</strong>? Esta acción no se puede deshacer.
-                            </p>
-                        </div>
-                        <div className={styles.deleteActions}>
-                            <button onClick={handleCloseDeleteModal} className={styles.cancelButton}>Cancelar</button>
-                            <button onClick={handleConfirmDelete} className={styles.confirmDeleteButton}>Confirmar</button>
-                        </div>
                     </div>
                 </div>
             )}

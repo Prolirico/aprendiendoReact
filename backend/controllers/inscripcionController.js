@@ -165,50 +165,62 @@ const actualizarEstadoInscripcion = async (req, res) => {
     connection = await pool.getConnection();
     await connection.beginTransaction();
 
-    // 1. Obtener el estado actual y el id del curso de la inscripción
+    // 1. Obtener datos clave de la inscripción y el alumno
     const [inscripciones] = await connection.query(
-      "SELECT estatus_inscripcion, id_curso FROM inscripcion WHERE id_inscripcion = ?",
+      `SELECT 
+        i.estatus_inscripcion, 
+        c.id_convocatoria,
+        a.id_universidad
+       FROM inscripcion i
+       JOIN curso c ON i.id_curso = c.id_curso
+       JOIN alumno a ON i.id_alumno = a.id_alumno
+       WHERE i.id_inscripcion = ?`,
       [id]
     );
 
     if (inscripciones.length === 0) {
       await connection.rollback();
-      return res.status(404).json({ error: "Inscripción no encontrada." });
+      return res.status(404).json({ error: "Inscripción, curso o alumno no encontrado." });
     }
 
     const estadoActual = inscripciones[0].estatus_inscripcion;
-    const id_curso = inscripciones[0].id_curso; // Asumimos que id_curso es el id de la convocatoria
+    const { id_convocatoria, id_universidad } = inscripciones[0];
 
-    // 2. Actualizar la inscripción
+    // 2. Si se está APROBANDO (y no estaba ya aprobada), verificar capacidad
+    if (estado === "aprobada" && estadoActual !== "aprobada") {
+      // Obtener la capacidad para esa universidad en esa convocatoria
+      const [capacidadResult] = await connection.query(
+        `SELECT capacidad_maxima FROM convocatoria_universidades WHERE convocatoria_id = ? AND universidad_id = ?`,
+        [id_convocatoria, id_universidad]
+      );
+
+      if (capacidadResult.length === 0) {
+        await connection.rollback();
+        return res.status(400).json({ error: "La universidad de este alumno no participa en esta convocatoria." });
+      }
+      const capacidadMaximaUni = capacidadResult[0].capacidad_maxima;
+
+      // Contar los inscritos aprobados de la misma universidad en la misma convocatoria
+      const [cupoActualResult] = await connection.query(
+        `SELECT COUNT(*) as total FROM inscripcion i
+         JOIN curso c ON i.id_curso = c.id_curso
+         JOIN alumno a ON i.id_alumno = a.id_alumno
+         WHERE c.id_convocatoria = ? AND a.id_universidad = ? AND i.estatus_inscripcion = 'aprobada'`,
+        [id_convocatoria, id_universidad]
+      );
+      const cupoActualUni = cupoActualResult[0].total;
+
+      if (cupoActualUni >= capacidadMaximaUni) {
+        await connection.rollback();
+        return res.status(409).json({ error: "El cupo para esta universidad en esta convocatoria ya está lleno." });
+      }
+    }
+
+    // 3. Si todo está bien (o si se está rechazando), actualizar la inscripción
     await connection.query(
       "UPDATE inscripcion SET estatus_inscripcion = ?, motivo_rechazo = ? WHERE id_inscripcion = ?",
       [estado, estado === "rechazada" ? motivo_rechazo.trim() : null, id]
     );
-
-    // 3. Si la inscripción se está APROBANDO (y no estaba ya aprobada)
-    if (estado === "aprobada" && estadoActual !== "aprobada") {
-      // Incrementar el cupo_actual de la convocatoria
-      await connection.query(
-        "UPDATE convocatorias SET cupo_actual = cupo_actual + 1 WHERE id = ?",
-        [id_curso]
-      );
-
-      // Verificar si la convocatoria se ha llenado
-      const [convocatorias] = await connection.query(
-        "SELECT cupo_actual, capacidad_maxima FROM convocatorias WHERE id = ?",
-        [id_curso]
-      );
-
-      if (convocatorias.length > 0) {
-        const conv = convocatorias[0];
-        if (conv.capacidad_maxima !== null && conv.cupo_actual >= conv.capacidad_maxima) {
-          await connection.query(
-            "UPDATE convocatorias SET llena = 1 WHERE id = ?",
-            [id_curso]
-          );
-        }
-      }
-    }
 
     await connection.commit();
 
