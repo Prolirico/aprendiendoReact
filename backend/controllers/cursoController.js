@@ -74,6 +74,7 @@ const getAllCursos = async (req, res) => {
                    u.nombre as nombre_universidad,
                    f.nombre as nombre_facultad,
                    cat.nombre_categoria,
+                   cat.id_area,
                    cert.nombre as nombre_credencial,
                    cert.id_certificacion as id_credencial
             FROM curso c

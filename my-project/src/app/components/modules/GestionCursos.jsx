@@ -5,6 +5,7 @@ import styles from "./GestionCursos.module.css";
 
 const API_URL = "http://localhost:5000/api/cursos";
 const API_URL_UNIVERSIDADES = "http://localhost:5000/api/universidades";
+const API_URL_AREAS = "http://localhost:5000/api/areas-conocimiento";
 const API_URL_FACULTADES = "http://localhost:5000/api/facultades";
 const API_URL_CARRERAS = "http://localhost:5000/api/carreras";
 const API_URL_MAESTROS = "http://localhost:5000/api/maestros";
@@ -13,6 +14,7 @@ const API_URL_MAESTROS = "http://localhost:5000/api/maestros";
 const initialCourseState = {
   nombre_curso: "",
   descripcion: "",
+  id_area: "",
   id_categoria: "",
   id_maestro: "",
   horario: "",
@@ -37,6 +39,10 @@ function CourseManagement({ userId }) {
   const [selectedFacultad, setSelectedFacultad] = useState("");
   const [selectedCarrera, setSelectedCarrera] = useState("");
   const [isFacultadesLoading, setIsFacultadesLoading] = useState(false);
+  // Estados para Areas y Categorías
+  const [areas, setAreas] = useState([]);
+  const [selectedArea, setSelectedArea] = useState("");
+  const [isCategoriesLoading, setIsCategoriesLoading] = useState(false);
   const [isCarrerasLoading, setIsCarrerasLoading] = useState(false);
   const [isTeachersLoading, setIsTeachersLoading] = useState(false);
   const [courses, setCourses] = useState([]);
@@ -82,19 +88,40 @@ function CourseManagement({ userId }) {
     }
   }, [userId]);
 
-  // Función para obtener las categorías de cursos activas
-  const fetchCategories = useCallback(async () => {
+  // Obtener Áreas de Conocimiento
+  const fetchAreas = useCallback(async () => {
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/categorias/activas",
-      );
-      if (!response.ok) {
-        throw new Error("No se pudieron cargar las categorías");
-      }
+      const response = await fetch(API_URL_AREAS);
+      if (!response.ok) throw new Error("No se pudieron cargar las áreas");
+      const data = await response.json();
+      setAreas(data || []);
+    } catch (err) {
+      console.error("Error al cargar áreas de conocimiento:", err.message);
+    }
+  }, []);
+
+  // Obtener Categorías por Área
+  const fetchCategoriesByArea = useCallback(async (idArea) => {
+    if (!idArea) {
+      setCategories([]);
+      return;
+    }
+    setIsCategoriesLoading(true);
+    setCategories([]);
+    try {
+      const token = localStorage.getItem("token"); // Obtener el token
+      const response = await fetch(`http://localhost:5000/api/categorias/area/${idArea}`, {
+        headers: {
+          'Authorization': `Bearer ${token}` // Añadir el header de autorización
+        }
+      });
+      if (!response.ok) throw new Error("No se pudieron cargar las categorías para el área seleccionada");
       const data = await response.json();
       setCategories(data || []);
     } catch (err) {
-      console.error("Error al cargar categorías:", err.message);
+      console.error("Error al cargar categorías por área:", err.message);
+    } finally {
+      setIsCategoriesLoading(false);
     }
   }, []);
 
@@ -180,11 +207,11 @@ function CourseManagement({ userId }) {
   // Efecto para cargar datos iniciales
   useEffect(() => {
     fetchCourses();
-    fetchCategories();
+    fetchAreas(); // Cargamos las áreas en lugar de todas las categorías
     if (!userId) {
       fetchUniversidades();
     }
-  }, [fetchCourses, fetchCategories, fetchUniversidades, userId]);
+  }, [fetchCourses, fetchAreas, fetchUniversidades, userId]);
 
   // Función para mostrar notificaciones toast
   const showToast = (message, type = "success") => {
@@ -209,6 +236,11 @@ function CourseManagement({ userId }) {
       };
       setFormState(formattedCourse);
 
+      if (course.id_area) {
+        setSelectedArea(course.id_area);
+        fetchCategoriesByArea(course.id_area);
+      }
+
       if (course.id_universidad) {
         setSelectedUniversidad(course.id_universidad);
         fetchFacultades(course.id_universidad);
@@ -224,6 +256,8 @@ function CourseManagement({ userId }) {
     } else {
       setIsEditing(false);
       setFormState({ ...initialCourseState, id_maestro: userId || null });
+      setSelectedArea("");
+      setCategories([]);
       setSelectedUniversidad("");
       setSelectedFacultad("");
       setSelectedCarrera("");
@@ -239,6 +273,8 @@ function CourseManagement({ userId }) {
     setIsEditing(false);
     setFormState(initialCourseState);
     setSelectedUniversidad("");
+    setSelectedArea("");
+    setCategories([]);
     setSelectedFacultad("");
     setSelectedCarrera("");
     setFacultades([]);
@@ -256,6 +292,17 @@ function CourseManagement({ userId }) {
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormState((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleAreaChange = (e) => {
+    const areaId = e.target.value;
+    setSelectedArea(areaId);
+    setFormState((prev) => ({
+ ...prev,
+      id_area: areaId,
+      id_categoria: "", // Reseteamos la categoría al cambiar de área
+    }));
+    fetchCategoriesByArea(areaId);
   };
 
   const handleUniversidadChange = (e) => {
@@ -573,16 +620,31 @@ function CourseManagement({ userId }) {
                 {/* --- FIN DE LA SECCIÓN DE FILTROS --- */}
 
                 <div className={styles.formGroup}>
-                  <label htmlFor="nombre_curso">Nombre del Curso</label>
-                  <input
-                    type="text"
-                    id="nombre_curso"
-                    name="nombre_curso"
-                    value={formState.nombre_curso}
-                    onChange={handleFormChange}
+                  <label htmlFor="id_area">Área de Conocimiento</label>
+                  <select
+                    id="id_area"
+                    name="id_area"
+                    value={selectedArea}
+                    onChange={handleAreaChange}
                     required
-                  />
+                  >
+                    <option value="">Seleccione un área</option>
+                    {areas.map((area) => (
+                      <option key={area.id_area} value={area.id_area}>
+                        {area.nombre_area}
+                      </option>
+                    ))}
+                  </select>
                 </div>
+
+                {isCategoriesLoading ? (
+                  <div className={styles.formGroup}>
+                    <label>Categoría</label>
+                    <select disabled>
+                      <option>Cargando categorías...</option>
+                    </select>
+                  </div>
+                ) : (
                 <div className={styles.formGroup}>
                   <label htmlFor="id_categoria">Categoría</label>
                   <select
@@ -590,6 +652,7 @@ function CourseManagement({ userId }) {
                     name="id_categoria"
                     value={formState.id_categoria}
                     onChange={handleFormChange}
+                    disabled={!selectedArea || categories.length === 0}
                     required
                   >
                     <option value="">Seleccione una categoría</option>
@@ -599,6 +662,18 @@ function CourseManagement({ userId }) {
                       </option>
                     ))}
                   </select>
+                </div>
+                )}
+                <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                  <label htmlFor="nombre_curso">Nombre del Curso</label>
+                  <input
+                    type="text"
+                    id="nombre_curso"
+                    name="nombre_curso"
+                    value={formState.nombre_curso}
+                    onChange={handleFormChange}
+                    required
+                  />
                 </div>
                 <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                   <label htmlFor="descripcion">Descripción</label>
