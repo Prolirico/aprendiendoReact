@@ -3,7 +3,10 @@
     display: flex;
     flex-direction: column;
     background-color: #f9fafb;
-    font-family: system-ui, -apple-system, sans-serif;
+    font-family:
+        system-ui,
+        -apple-system,
+        sans-serif;
 }
 
 /* Header */
@@ -94,6 +97,74 @@
     }
 }
 
+/* Universidades Cell with Tooltips */
+.universidadesCell {
+    max-width: 250px;
+    position: relative;
+}
+
+.universidadItem {
+    display: inline;
+    position: relative;
+}
+
+.infoIcon {
+    display: inline-block;
+    margin-left: 2px;
+    color: #6b7280;
+    font-size: 0.75rem;
+    cursor: help;
+    font-style: italic;
+    position: relative;
+}
+
+.infoIcon:hover {
+    color: #4f46e5;
+}
+
+.tooltip {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    z-index: 1000;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #1f2937;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    box-shadow:
+        0 4px 6px -1px rgba(0, 0, 0, 0.1),
+        0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition:
+        opacity 0.2s ease-in-out,
+        visibility 0.2s ease-in-out;
+    pointer-events: none;
+}
+
+.tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #1f2937 transparent transparent transparent;
+}
+
+.tooltip div {
+    margin: 2px 0;
+}
+
+.infoIcon:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
 /* Empty State */
 .emptyState {
     text-align: center;
@@ -103,7 +174,8 @@
     background-color: white;
 }
 
-.emptyState i, .emptyState .icon {
+.emptyState i,
+.emptyState .icon {
     font-size: 2.5rem;
     color: #9ca3af;
     margin-bottom: 1rem;
@@ -157,7 +229,7 @@
 
 .table th,
 .table td {
-    padding: 0.7rem .5rem;
+    padding: 0.7rem 0.5rem;
     text-align: left;
     border-bottom: 1px solid #e5e7eb;
     vertical-align: top;
@@ -621,7 +693,8 @@
     color: #1f2937;
 }
 
-.addUniversityBtn, .removeUniversityBtn {
+.addUniversityBtn,
+.removeUniversityBtn {
     background: #10b981;
     color: white;
     border: none;

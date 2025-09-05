@@ -69,15 +69,31 @@ const getAllConvocatorias = async (req, res) => {
           c.*,
           COALESCE((SELECT SUM(cu.capacidad_maxima) FROM capacidad_universidad cu WHERE cu.convocatoria_id = c.id), 0) as capacidad_maxima,
           COALESCE((SELECT SUM(cu.cupo_actual) FROM capacidad_universidad cu WHERE cu.convocatoria_id = c.id), 0) as cupo_actual,
-          (SELECT GROUP_CONCAT(u.nombre SEPARATOR ', ') FROM universidad u JOIN convocatoria_universidades cu ON u.id_universidad = cu.universidad_id WHERE cu.convocatoria_id = c.id) as universidades_nombres,
           CASE
               WHEN COALESCE((SELECT SUM(cu2.cupo_actual) FROM capacidad_universidad cu2 WHERE cu2.convocatoria_id = c.id), 0) >= COALESCE((SELECT SUM(cu3.capacidad_maxima) FROM capacidad_universidad cu3 WHERE cu3.convocatoria_id = c.id), 1) THEN 1
               ELSE 0
           END as llena
       FROM convocatorias c
       ORDER BY c.fecha_ejecucion_inicio DESC;
+
     `;
     const [convocatorias] = await pool.query(getQuery);
+
+    // Para cada convocatoria, obtener los detalles de sus universidades
+    for (let convocatoria of convocatorias) {
+      const [universidades] = await pool.query(
+        `SELECT
+          u.nombre,
+          cu.capacidad_maxima,
+          cu.cupo_actual
+         FROM capacidad_universidad cu
+         JOIN universidad u ON cu.universidad_id = u.id_universidad
+         WHERE cu.convocatoria_id = ?`,
+        [convocatoria.id],
+      );
+      convocatoria.universidades = universidades;
+    }
+
     res.json(convocatorias);
   } catch (error) {
     console.error("Error al obtener las convocatorias:", error);
