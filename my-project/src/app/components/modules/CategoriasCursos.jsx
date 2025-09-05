@@ -6,10 +6,12 @@ import {
   faPlus,
   faEdit,
   faTrash,
+  faFolderOpen,
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 
 const API_URL = "http://localhost:5000/api/categorias";
+const AREAS_API_URL = "http://localhost:5000/api/areas-conocimiento";
 
 // Simula la obtención del token. En una aplicación real, esto vendría de un AuthContext o localStorage.
 const getAuthToken = () => {
@@ -18,58 +20,87 @@ const getAuthToken = () => {
   return localStorage.getItem("token");
 };
 
-const initialFormState = {
+const initialAreaState = {
+  id_area: null,
+  nombre_area: "",
+  descripcion: "",
+};
+
+const initialCategoryState = {
   id_categoria: null,
   nombre_categoria: "",
   descripcion: "",
   estatus: "activa",
+  orden_prioridad: "",
 };
 
 function CategoriasCursos() {
-  const [categories, setCategories] = useState([]);
+  // Data and loading state
+  const [areas, setAreas] = useState([]);
+  const [categoriesByArea, setCategoriesByArea] = useState({}); // { id_area: [categories] }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [formState, setFormState] = useState(initialFormState);
+  const [modalType, setModalType] = useState(null); // 'area' or 'category'
   const [isEditing, setIsEditing] = useState(false);
-  const [categoryToModify, setCategoryToModify] = useState(null);
+  const [formState, setFormState] = useState({});
+  const [currentAreaId, setCurrentAreaId] = useState(null); // For adding/editing categories
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null); // { type, id, name }
 
+  // Toast notification state
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
 
-  const fetchCategories = useCallback(async () => {
+  const fetchAreas = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const token = getAuthToken();
-      if (!token) {
-        throw new Error("No se encontró token de autenticación.");
-      }
+      if (!token) return; // No intentar si no hay token
 
-      const response = await fetch(API_URL, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await fetch(AREAS_API_URL, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-
       if (!response.ok) {
         const errData = await response.json();
-        throw new Error(errData.error || "Error al obtener las categorías.");
+        throw new Error(errData.error || "Error al cargar las áreas.");
       }
       const data = await response.json();
-      setCategories(data);
+      setAreas(data);
     } catch (err) {
+      // No establecer un error principal para no bloquear la vista de categorías
+      console.error(err.message);
       setError(err.message);
-      setCategories([]);
+      setAreas([]);
     } finally {
       setLoading(false);
     }
   }, []);
 
+  const fetchCategoriesForArea = useCallback(async (idArea) => {
+    if (!idArea) return;
+    try {
+      const token = getAuthToken();
+      const response = await fetch(`${API_URL}/area/${idArea}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error("Error al obtener las categorías.");
+      const data = await response.json();
+      setCategoriesByArea((prev) => ({
+        ...prev,
+        [idArea]: data || [],
+      }));
+    } catch (err) {
+      console.error(err);
+      showToast(`Error al cargar categorías: ${err.message}`, "error");
+    }
+  }, []);
+
   useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
+    fetchAreas();
+  }, [fetchAreas]);
 
   const showToast = (message, type = "success") => {
     setToast({ show: true, message, type });
@@ -77,30 +108,41 @@ function CategoriasCursos() {
   };
 
   const handleOpenModal = (category = null) => {
-    if (category) {
+    // This function is now more generic
+    const { type, item, areaId } = category;
+    setModalType(type);
+
+    if (item) {
       setIsEditing(true);
-      setCategoryToModify(category);
-      setFormState(category);
+      setFormState(item);
     } else {
       setIsEditing(false);
-      setFormState(initialFormState);
+      setFormState(
+        type === "area" ? initialAreaState : { ...initialCategoryState },
+      );
     }
+    setCurrentAreaId(areaId);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setCategoryToModify(null);
+    setFormState({});
+    setCurrentAreaId(null);
   };
 
-  const handleOpenDeleteModal = (category) => {
-    setCategoryToModify(category);
+  const handleOpenDeleteModal = (type, item) => {
+    setItemToDelete({
+      type,
+      id: type === "area" ? item.id_area : item.id_categoria,
+      name: type === "area" ? item.nombre_area : item.nombre_categoria,
+    });
     setIsDeleteModalOpen(true);
   };
 
   const handleCloseDeleteModal = () => {
     setIsDeleteModalOpen(false);
-    setCategoryToModify(null);
+    setItemToDelete(null);
   };
 
   const handleFormChange = (e) => {
@@ -108,13 +150,36 @@ function CategoriasCursos() {
     setFormState((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Combined form submit for both Areas and Categories
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     const token = getAuthToken();
-    const url = isEditing
-      ? `${API_URL}/${categoryToModify.id_categoria}`
-      : API_URL;
-    const method = isEditing ? "PUT" : "POST";
+    let url, method, body, successMessage;
+
+    if (modalType === "area") {
+      url = isEditing
+        ? `${AREAS_API_URL}/${formState.id_area}`
+        : AREAS_API_URL;
+      method = isEditing ? "PUT" : "POST";
+      body = {
+        nombre_area: formState.nombre_area,
+        descripcion: formState.descripcion,
+      };
+      successMessage = isEditing
+        ? "Área actualizada con éxito"
+        : "Área creada con éxito";
+    } else if (modalType === "category") {
+      url = isEditing
+        ? `${API_URL}/${formState.id_categoria}`
+        : API_URL;
+      method = isEditing ? "PUT" : "POST";
+      body = { ...formState, id_area: currentAreaId };
+      successMessage = isEditing
+        ? "Categoría actualizada con éxito"
+        : "Categoría creada con éxito";
+    } else {
+      return;
+    }
 
     try {
       const response = await fetch(url, {
@@ -123,7 +188,7 @@ function CategoriasCursos() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formState),
+        body: JSON.stringify(body),
       });
 
       const result = await response.json();
@@ -131,43 +196,63 @@ function CategoriasCursos() {
         throw new Error(result.error || "Ocurrió un error desconocido.");
       }
 
-      showToast(
-        isEditing
-          ? "Categoría actualizada con éxito"
-          : "Categoría creada con éxito",
-        "success",
-      );
+      showToast(successMessage, "success");
       handleCloseModal();
-      fetchCategories();
+
+      if (modalType === "area") {
+        fetchAreas();
+      } else {
+        fetchCategoriesForArea(currentAreaId);
+      }
     } catch (err) {
       showToast(`Error: ${err.message}`, "error");
     }
   };
 
   const handleConfirmDelete = async () => {
-    if (!categoryToModify) return;
+    if (!itemToDelete) return;
     const token = getAuthToken();
+    const { type, id } = itemToDelete;
+    const url = type === "area" ? `${AREAS_API_URL}/${id}` : `${API_URL}/${id}`;
+
     try {
-      const response = await fetch(
-        `${API_URL}/${categoryToModify.id_categoria}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
+      const response = await fetch(url, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       if (!response.ok) {
         const result = await response.json();
         throw new Error(result.error || "La eliminación falló.");
       }
 
-      showToast("Categoría eliminada con éxito", "success");
+      showToast("Elemento eliminado con éxito", "success");
       handleCloseDeleteModal();
-      fetchCategories();
+
+      if (type === "area") {
+        fetchAreas();
+      } else {
+        // To refresh the category list, we need to know which area it belonged to.
+        // This is a simplification. A more robust solution might need to store the areaId on delete.
+        // For now, we can refetch all visible categories.
+        Object.keys(categoriesByArea).forEach((areaId) =>
+          fetchCategoriesForArea(areaId),
+        );
+      }
     } catch (err) {
       showToast(`Error: ${err.message}`, "error");
+    }
+  };
+
+  const toggleCategories = (idArea) => {
+    if (categoriesByArea[idArea]) {
+      setCategoriesByArea((prev) => {
+        const newState = { ...prev };
+        delete newState[idArea];
+        return newState;
+      });
+    } else {
+      fetchCategoriesForArea(idArea);
     }
   };
 
@@ -184,18 +269,18 @@ function CategoriasCursos() {
       return (
         <div className={styles.emptyState}>
           <h3>Un error ha ocurrido</h3>
-          <p>{error}</p>
-          <button onClick={fetchCategories} className={styles.emptyStateButton}>
+          <p>{error || "No se pudieron cargar los datos."}</p>
+          <button onClick={fetchAreas} className={styles.emptyStateButton}>
             Intentar de Nuevo
           </button>
         </div>
       );
     }
-    if (categories.length === 0) {
+    if (areas.length === 0) {
       return (
         <div className={styles.emptyState}>
-          <FontAwesomeIcon icon={faTag} size="2x" />
-          <h3>No se encontraron categorías</h3>
+          <FontAwesomeIcon icon={faFolderOpen} size="2x" />
+          <h3>No hay áreas de conocimiento</h3>
           <p>
             Comienza agregando una nueva categoría para organizar los cursos.
           </p>
@@ -203,58 +288,104 @@ function CategoriasCursos() {
             onClick={() => handleOpenModal()}
             className={styles.emptyStateButton}
           >
-            <FontAwesomeIcon icon={faPlus} /> Agregar Categoría
+            <FontAwesomeIcon icon={faPlus} /> Agregar Área de Conocimiento
           </button>
         </div>
       );
     }
+
     return (
       <div className={styles.desktopView}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Número</th>
-              <th>Nombre</th>
-              <th>Estatus</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {categories.map((cat) => (
-              <tr key={cat.id_categoria}>
-                <td>{cat.orden_prioridad}</td>
-                <td>{cat.nombre_categoria}</td>
-                <td>
-                  <span
-                    className={
-                      cat.estatus === "activa"
-                        ? styles.statusActive
-                        : styles.statusInactive
-                    }
-                  >
-                    {cat.estatus}
-                  </span>
-                </td>
-                <td>
-                  <div className={styles.tableActions}>
-                    <button
-                      onClick={() => handleOpenModal(cat)}
-                      className={styles.editButton}
-                    >
-                      <FontAwesomeIcon icon={faEdit} />
-                    </button>
-                    <button
-                      onClick={() => handleOpenDeleteModal(cat)}
-                      className={styles.deleteButton}
-                    >
-                      <FontAwesomeIcon icon={faTrash} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {areas.map((area) => (
+          <div key={area.id_area} className={styles.areaSection}>
+            <div className={styles.areaHeader}>
+              <h3>{area.nombre_area}</h3>
+              <div className={styles.actions}>
+                <button
+                  onClick={() => handleOpenModal({ type: "area", item: area })}
+                  className={styles.editButton}
+                >
+                  <FontAwesomeIcon icon={faEdit} />
+                </button>
+                <button
+                  onClick={() => handleOpenDeleteModal("area", area)}
+                  className={styles.deleteButton}
+                >
+                  <FontAwesomeIcon icon={faTrash} />
+                </button>
+                <button
+                  onClick={() => toggleCategories(area.id_area)}
+                  className={styles.toggleButton}
+                >
+                  {categoriesByArea[area.id_area]
+                    ? "Ocultar Categorías"
+                    : "Mostrar Categorías"}
+                </button>
+                <button
+                  onClick={() =>
+                    handleOpenModal({ type: "category", areaId: area.id_area })
+                  }
+                  className={styles.addButton}
+                >
+                  <FontAwesomeIcon icon={faPlus} /> Agregar Categoría
+                </button>
+              </div>
+            </div>
+            {categoriesByArea[area.id_area] && (
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>Orden</th>
+                    <th>Nombre</th>
+                    <th>Estatus</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {categoriesByArea[area.id_area].map((cat) => (
+                    <tr key={cat.id_categoria}>
+                      <td>{cat.orden_prioridad}</td>
+                      <td>{cat.nombre_categoria}</td>
+                      <td>
+                        <span
+                          className={
+                            cat.estatus === "activa"
+                              ? styles.statusActive
+                              : styles.statusInactive
+                          }
+                        >
+                          {cat.estatus}
+                        </span>
+                      </td>
+                      <td>
+                        <div className={styles.tableActions}>
+                          <button
+                            onClick={() =>
+                              handleOpenModal({
+                                type: "category",
+                                item: cat,
+                                areaId: area.id_area,
+                              })
+                            }
+                            className={styles.editButton}
+                          >
+                            <FontAwesomeIcon icon={faEdit} />
+                          </button>
+                          <button
+                            onClick={() => handleOpenDeleteModal("category", cat)}
+                            className={styles.deleteButton}
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        ))}
       </div>
     );
   };
@@ -263,16 +394,16 @@ function CategoriasCursos() {
     <div className={styles.container}>
       <header className={styles.header}>
         <div className={styles.headerContent}>
-          <h1 className={styles.title}>Gestión de Categorías</h1>
+          <h1 className={styles.title}>Gestión de Áreas y Categorías</h1>
         </div>
       </header>
       <main className={styles.main}>
         <div className={styles.toolbar}>
           <button
-            onClick={() => handleOpenModal()}
+            onClick={() => handleOpenModal({ type: "area" })}
             className={styles.addButton}
           >
-            <FontAwesomeIcon icon={faPlus} /> Agregar Categoria
+            <FontAwesomeIcon icon={faPlus} /> Agregar Área
           </button>
         </div>
         {renderContent()}
@@ -288,27 +419,35 @@ function CategoriasCursos() {
           >
             <div className={styles.modalHeader}>
               <h3>
-                {isEditing ? "Editar Categoría" : "Agregar Nueva Categoría"}
+                {isEditing ? "Editar" : "Agregar"}{" "}
+                {modalType === "area" ? "Área de Conocimiento" : "Categoría"}
               </h3>
               <button onClick={handleCloseModal} className={styles.closeButton}>
                 <FontAwesomeIcon icon={faTimes} />
               </button>
             </div>
-            <form onSubmit={handleFormSubmit} className={styles.form}>
+            <form onSubmit={handleFormSubmit} className={styles.formGrid}>
               <div
                 className={styles.formGroup}
                 style={{ gridColumn: "1 / -1" }}
               >
-                <label htmlFor="nombre_categoria">Nombre</label>
+                <label htmlFor="nombre">Nombre</label>
                 <input
                   type="text"
-                  id="nombre_categoria"
-                  name="nombre_categoria"
-                  value={formState.nombre_categoria}
+                  id="nombre"
+                  name={
+                    modalType === "area" ? "nombre_area" : "nombre_categoria"
+                  }
+                  value={
+                    modalType === "area"
+                      ? formState.nombre_area
+                      : formState.nombre_categoria
+                  }
                   onChange={handleFormChange}
                   required
                 />
               </div>
+
               <div
                 className={styles.formGroup}
                 style={{ gridColumn: "1 / -1" }}
@@ -317,15 +456,17 @@ function CategoriasCursos() {
                 <textarea
                   id="descripcion"
                   name="descripcion"
-                  value={formState.descripcion}
+                  value={formState.descripcion || ""}
                   onChange={handleFormChange}
                   rows="3"
                 ></textarea>
               </div>
-              {isEditing && (
+
+              {/* Fields only for CATEGORY modal */}
+              {modalType === "category" && isEditing && (
                 <>
-                  <div className={styles.formGroup}>
-                    <label htmlFor="orden_prioridad">Orden (Prioridad)</label>
+                  <div className={styles.formGroup} style={{ gridColumn: "1 / 2" }}>
+                    <label htmlFor="orden_prioridad">Orden</label>
                     <input
                       type="number"
                       id="orden_prioridad"
@@ -335,7 +476,7 @@ function CategoriasCursos() {
                       min="1"
                     />
                   </div>
-                  <div className={styles.formGroup}>
+                  <div className={styles.formGroup} style={{ gridColumn: "2 / 3" }}>
                     <label htmlFor="estatus">Estatus</label>
                     <select
                       id="estatus"
@@ -361,7 +502,7 @@ function CategoriasCursos() {
                   Cancelar
                 </button>
                 <button type="submit" className={styles.saveButton}>
-                  Guardar
+                  {isEditing ? "Guardar Cambios" : "Crear"}
                 </button>
               </div>
             </form>
@@ -382,8 +523,8 @@ function CategoriasCursos() {
               </div>
               <h3>Confirmar Eliminación</h3>
               <p>
-                ¿Estás seguro de que quieres eliminar la categoría{" "}
-                <strong>{categoryToModify?.nombre_categoria}</strong>? Esta
+                ¿Estás seguro de que quieres eliminar el elemento{" "}
+                <strong>{itemToDelete?.name}</strong>? Esta
                 acción es permanente y no se puede deshacer.
               </p>
             </div>

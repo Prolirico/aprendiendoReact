@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const {
   getAllCategorias,
   getActiveCategorias,
+  getCategoriasByArea,
   createCategoria,
   updateCategoria,
   deleteCategoria,
@@ -65,6 +66,9 @@ const verifySEDEQAdmin = (req, res, next) => {
 // RUTA PÚBLICA (o para cualquier usuario autenticado)
 // Obtiene solo las categorías activas. Ideal para llenar los <select> en los formularios.
 router.get("/activas", getActiveCategorias);
+
+// NUEVA RUTA: Obtener categorías por ID de área
+router.get("/area/:id", verifySEDEQAdmin, getCategoriasByArea);
 
 // RUTAS PROTEGIDAS (solo para admin_sedeq)
 

@@ -103,6 +103,7 @@ const alumnoRoutes = require("./routes/alumnoRoutes");
 const inscripcionRoutes = require("./routes/inscripcionRoutes");
 const domainRoutes = require("./routes/domainRoutes");
 const convocatoriaRoutes = require("./routes/convocatoriaRoutes");
+const areaConocimientoRoutes = require("./routes/areaConocimientoRoutes");
 
 log(`✅ Rutas importadas correctamente`);
 
@@ -118,6 +119,7 @@ app.use("/api/alumnos", alumnoRoutes);
 app.use("/api/inscripciones", inscripcionRoutes);
 app.use("/api/dominios", domainRoutes);
 app.use("/api/convocatorias", convocatoriaRoutes);
+app.use("/api/areas-conocimiento", areaConocimientoRoutes);
 log(`🔌 Rutas configuradas en la aplicación`);
 
 log(`💾 Conectando a la base de datos...`);

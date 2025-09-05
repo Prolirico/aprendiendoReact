@@ -41,7 +41,7 @@ function SEDEQDashboard({ userId }) {
         </section>
       </div>
       <div className={styles.modulos}>
-        <h1>Gestión de Categorías</h1>
+        <h1>Areas de Concimiento</h1>
         <section>
           <CategoriasCursos />
         </section>
