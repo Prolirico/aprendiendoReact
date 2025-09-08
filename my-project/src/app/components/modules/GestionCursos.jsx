@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBook, faEdit, faTrash, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faBook, faEdit, faTrash, faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
 import styles from "./GestionCursos.module.css";
+import GestionHorarios from "./GestionHorarios"; // Importar el nuevo componente
+import GestionUnidades from "./GestionUnidades"; // Importar el nuevo componente
 
 const API_URL = "http://localhost:5000/api/cursos";
 const API_URL_UNIVERSIDADES = "http://localhost:5000/api/universidades";
@@ -17,17 +19,19 @@ const initialCourseState = {
   id_area: "",
   id_categoria: "",
   id_maestro: "",
-  horario: "",
   objetivos: "",
   prerequisitos: "",
   duracion_horas: "",
+  horas_teoria: "",
+  horas_practica: "",
   cupo_maximo: "",
   fecha_inicio: "",
   fecha_fin: "",
   nivel: "basico",
   modalidad: "virtual",
-  link_clase: "",
   codigo_curso: "",
+  tipo_costo: "gratuito",
+  costo: null,
 };
 
 function CourseManagement({ userId }) {
@@ -292,13 +296,21 @@ function CourseManagement({ userId }) {
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormState((prev) => ({ ...prev, [name]: value }));
+
+    // Si el tipo de costo cambia a gratuito, reseteamos el costo.
+    if (name === "tipo_costo" && value === "gratuito") {
+      setFormState((prev) => ({
+        ...prev,
+        costo: "",
+      }));
+    }
   };
 
   const handleAreaChange = (e) => {
     const areaId = e.target.value;
     setSelectedArea(areaId);
     setFormState((prev) => ({
- ...prev,
+      ...prev,
       id_area: areaId,
       id_categoria: "", // Reseteamos la categoría al cambiar de área
     }));
@@ -503,7 +515,7 @@ function CourseManagement({ userId }) {
                 <i className="fas fa-times"></i>
               </button>
             </div>
-            <form onSubmit={handleFormSubmit} className={styles.form}>
+            <div className={styles.modalBody}>
               <div className={styles.formGrid}>
                 {/* --- INICIO DE LA SECCIÓN DE FILTROS --- */}
                 {!userId && (
@@ -645,24 +657,24 @@ function CourseManagement({ userId }) {
                     </select>
                   </div>
                 ) : (
-                <div className={styles.formGroup}>
-                  <label htmlFor="id_categoria">Categoría</label>
-                  <select
-                    id="id_categoria"
-                    name="id_categoria"
-                    value={formState.id_categoria}
-                    onChange={handleFormChange}
-                    disabled={!selectedArea || categories.length === 0}
-                    required
-                  >
-                    <option value="">Seleccione una categoría</option>
-                    {categories.map((cat) => (
-                      <option key={cat.id_categoria} value={cat.id_categoria}>
-                        {cat.nombre_categoria}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="id_categoria">Categoría</label>
+                    <select
+                      id="id_categoria"
+                      name="id_categoria"
+                      value={formState.id_categoria}
+                      onChange={handleFormChange}
+                      disabled={!selectedArea || categories.length === 0}
+                      required
+                    >
+                      <option value="">Seleccione una categoría</option>
+                      {categories.map((cat) => (
+                        <option key={cat.id_categoria} value={cat.id_categoria}>
+                          {cat.nombre_categoria}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 )}
                 <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                   <label htmlFor="nombre_curso">Nombre del Curso</label>
@@ -718,6 +730,35 @@ function CourseManagement({ userId }) {
                     required
                   />
                 </div>
+                {/* Horas de Teoría y Práctica (condicional) */}
+                {formState.duracion_horas > 0 && (
+                  <>
+                    <div className={styles.formGroup}>
+                      <label htmlFor="horas_teoria">Horas de Teoría</label>
+                      <input
+                        type="number"
+                        id="horas_teoria"
+                        name="horas_teoria"
+                        value={formState.horas_teoria || ""}
+                        onChange={handleFormChange}
+                        min="0"
+                        placeholder="Ej. 20"
+                      />
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label htmlFor="horas_practica">Horas de Práctica</label>
+                      <input
+                        type="number"
+                        id="horas_practica"
+                        name="horas_practica"
+                        value={formState.horas_practica || ""}
+                        onChange={handleFormChange}
+                        min="0"
+                        placeholder="Ej. 10"
+                      />
+                    </div>
+                  </>
+                )}
                 {isEditing && (
                   <div className={styles.formGroup}>
                     <label htmlFor="estatus_curso">Estatus del Curso</label>
@@ -785,6 +826,36 @@ function CourseManagement({ userId }) {
                   </select>
                 </div>
                 <div className={styles.formGroup}>
+                  <label htmlFor="tipo_costo">Tipo de Costo</label>
+                  <select
+                    id="tipo_costo"
+                    name="tipo_costo"
+                    value={formState.tipo_costo}
+                    onChange={handleFormChange}
+                    required
+                  >
+                    <option value="gratuito">Gratuito</option>
+                    <option value="pago">Pago</option>
+                  </select>
+                </div>
+                {/* Este bloque aparecerá solo si se selecciona "De Pago" */}
+                {formState.tipo_costo === 'pago' && (
+                  <div className={styles.formGroup}>
+                    <label htmlFor="costo">Costo (MXN)</label>
+                    <input
+                      type="number"
+                      id="costo"
+                      name="costo"
+                      value={formState.costo || ''}
+                      onChange={handleFormChange}
+                      min="0"
+                      step="0.01"
+                      required
+                    />
+                  </div>
+                )}
+
+                <div className={styles.formGroup}>
                   <label htmlFor="modalidad">Modalidad</label>
                   <select
                     id="modalidad"
@@ -793,11 +864,22 @@ function CourseManagement({ userId }) {
                     onChange={handleFormChange}
                     required
                   >
-                    <option value="virtual">Virtual</option>
                     <option value="presencial">Presencial</option>
                     <option value="mixto">Semipresencial/Mixto</option>
+                    <option value="virtual">Virtual</option>
+                    <option value="virtual_autogestiva">Virtual Autogestiva</option>
+                    <option value="virtual_mixta">Virtual Mixta</option>
+                    <option value="virtual-presencial">Virtual</option>
                   </select>
                 </div>
+                {/* Sección para gestionar Unidades y Horarios (solo en modo edición) */}
+                {isEditing && formState.id_curso && (
+                  <div className={styles.subModulesSection}>
+                    <GestionUnidades cursoId={formState.id_curso} />
+                    <GestionHorarios cursoId={formState.id_curso} />
+                  </div>
+                )}
+
               </div>
               <div className={styles.formActions}>
                 <button
@@ -811,7 +893,7 @@ function CourseManagement({ userId }) {
                   <i className="fas fa-save"></i> Guardar
                 </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}

@@ -1,0 +1,149 @@
+.gestionContainer {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.gestionContainer h4 {
+    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.unidadesList {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1.5rem;
+}
+
+.unidadItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    border: 1px solid #eee;
+}
+
+.unidadInfo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.unidadOrden {
+    font-weight: bold;
+    color: #007bff;
+}
+
+.unidadNombre {
+    font-size: 0.95rem;
+}
+
+.unidadActions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.actionButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #555;
+    font-size: 1rem;
+    padding: 0.25rem;
+}
+
+.actionButton:hover {
+    color: #007bff;
+}
+
+.addButton {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+}
+
+.addButton:hover {
+    background-color: #218838;
+}
+
+.unidadForm {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.unidadForm h5 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+}
+
+.formGroup label {
+    margin-bottom: 0.3rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.formGroup input,
+.formGroup textarea {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    width: 100%;
+}
+
+.formActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.saveButton, .cancelButton {
+    padding: 0.6rem 1.2rem;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.saveButton {
+    background-color: #007bff;
+    color: white;
+}
+
+.cancelButton {
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ccc;
+}
+
+.emptyState {
+    text-align: center;
+    padding: 1rem;
+    color: #666;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+}
+
+.errorText {
+    color: #dc3545;
+}

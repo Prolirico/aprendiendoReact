@@ -104,6 +104,8 @@ const inscripcionRoutes = require("./routes/inscripcionRoutes");
 const domainRoutes = require("./routes/domainRoutes");
 const convocatoriaRoutes = require("./routes/convocatoriaRoutes");
 const areaConocimientoRoutes = require("./routes/areaConocimientoRoutes");
+const horarioRoutes = require("./routes/horarioRoutes"); // <-- 1. IMPORTAMOS LAS NUEVAS RUTAS
+const unidadesRoutes = require("./routes/unidadesRoutes");
 
 log(`✅ Rutas importadas correctamente`);
 
@@ -120,6 +122,8 @@ app.use("/api/inscripciones", inscripcionRoutes);
 app.use("/api/dominios", domainRoutes);
 app.use("/api/convocatorias", convocatoriaRoutes);
 app.use("/api/areas-conocimiento", areaConocimientoRoutes);
+app.use("/api/horarios", horarioRoutes); // <-- 2. REGISTRAMOS LAS NUEVAS RUTAS
+app.use("/api/unidades", unidadesRoutes);
 log(`🔌 Rutas configuradas en la aplicación`);
 
 log(`💾 Conectando a la base de datos...`);
