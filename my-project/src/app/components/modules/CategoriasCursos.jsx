@@ -553,10 +553,7 @@ function CategoriasCursos() {
       {/* Modal de Confirmación de Eliminación */}
       {isDeleteModalOpen && (
         <div className={styles.modalBackdrop} onClick={handleCloseDeleteModal}>
-          <div
-            className={styles.deleteModal}
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className={styles.deleteModal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.deleteModalContent}>
               <div className={styles.deleteIcon}>
                 <FontAwesomeIcon icon={faTrash} />
@@ -585,6 +582,7 @@ function CategoriasCursos() {
           </div>
         </div>
       )}
+
 
       {/* Toast Notification */}
       {toast.show && (
