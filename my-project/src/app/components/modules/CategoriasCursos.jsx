@@ -58,7 +58,7 @@ function CategoriasCursos() {
     setError(null);
     try {
       const token = getAuthToken();
-      if (!token) return; // No intentar si no hay token
+      if (!token) throw new Error("No se encontró el token de autenticación.");
 
       const response = await fetch(AREAS_API_URL, {
         headers: { Authorization: `Bearer ${token}` },
@@ -70,7 +70,6 @@ function CategoriasCursos() {
       const data = await response.json();
       setAreas(data);
     } catch (err) {
-      // No establecer un error principal para no bloquear la vista de categorías
       console.error(err.message);
       setError(err.message);
       setAreas([]);
@@ -109,7 +108,7 @@ function CategoriasCursos() {
 
   const handleOpenModal = (category = null) => {
     // This function is now more generic
-    const { type, item, areaId } = category;
+    const { type, item, areaId } = category || {};
     setModalType(type);
 
     if (item) {
@@ -136,6 +135,7 @@ function CategoriasCursos() {
       type,
       id: type === "area" ? item.id_area : item.id_categoria,
       name: type === "area" ? item.nombre_area : item.nombre_categoria,
+      areaId: type === "category" ? item.id_area : null, // Guardar id_area para categoría
     });
     setIsDeleteModalOpen(true);
   };
@@ -157,6 +157,11 @@ function CategoriasCursos() {
     let url, method, body, successMessage;
 
     if (modalType === "area") {
+      // Validación básica en frontend
+      if (!formState.nombre_area.trim()) {
+        showToast("El nombre del área es requerido.", "error");
+        return;
+      }
       url = isEditing
         ? `${AREAS_API_URL}/${formState.id_area}`
         : AREAS_API_URL;
@@ -169,6 +174,11 @@ function CategoriasCursos() {
         ? "Área actualizada con éxito"
         : "Área creada con éxito";
     } else if (modalType === "category") {
+      // Validación básica en frontend
+      if (!formState.nombre_categoria.trim()) {
+        showToast("El nombre de la categoría es requerido.", "error");
+        return;
+      }
       url = isEditing
         ? `${API_URL}/${formState.id_categoria}`
         : API_URL;
@@ -193,7 +203,23 @@ function CategoriasCursos() {
 
       const result = await response.json();
       if (!response.ok) {
-        throw new Error(result.error || "Ocurrió un error desconocido.");
+        // Mapear errores específicos
+        if (response.status === 400) {
+          if (result.error.includes("El orden debe estar entre")) {
+            showToast(result.error, "error");
+          } else {
+            showToast("Datos inválidos. Verifica los campos e intenta de nuevo.", "error");
+          }
+        } else if (response.status === 409) {
+          if (result.error.includes("ya existe")) {
+            showToast(result.error, "error");
+          } else {
+            showToast("Conflicto: El orden ya está en uso. Intenta de nuevo.", "error");
+          }
+        } else {
+          showToast(`Error: ${result.error || "Ocurrió un error desconocido."}`, "error");
+        }
+        return;
       }
 
       showToast(successMessage, "success");
@@ -205,14 +231,14 @@ function CategoriasCursos() {
         fetchCategoriesForArea(currentAreaId);
       }
     } catch (err) {
-      showToast(`Error: ${err.message}`, "error");
+      showToast(`Error de red: ${err.message}`, "error");
     }
   };
 
   const handleConfirmDelete = async () => {
     if (!itemToDelete) return;
     const token = getAuthToken();
-    const { type, id } = itemToDelete;
+    const { type, id, areaId } = itemToDelete;
     const url = type === "area" ? `${AREAS_API_URL}/${id}` : `${API_URL}/${id}`;
 
     try {
@@ -232,12 +258,8 @@ function CategoriasCursos() {
       if (type === "area") {
         fetchAreas();
       } else {
-        // To refresh the category list, we need to know which area it belonged to.
-        // This is a simplification. A more robust solution might need to store the areaId on delete.
-        // For now, we can refetch all visible categories.
-        Object.keys(categoriesByArea).forEach((areaId) =>
-          fetchCategoriesForArea(areaId),
-        );
+        // Refrescar solo el área afectada
+        fetchCategoriesForArea(areaId);
       }
     } catch (err) {
       showToast(`Error: ${err.message}`, "error");
@@ -438,11 +460,11 @@ function CategoriasCursos() {
                   name={
                     modalType === "area" ? "nombre_area" : "nombre_categoria"
                   }
-                  value={
+                  value={ (
                     modalType === "area"
                       ? formState.nombre_area
                       : formState.nombre_categoria
-                  }
+                  ) || "" }
                   onChange={handleFormChange}
                   required
                 />
@@ -463,31 +485,49 @@ function CategoriasCursos() {
               </div>
 
               {/* Fields only for CATEGORY modal */}
-              {modalType === "category" && isEditing && (
+              {modalType === "category" && (
                 <>
                   <div className={styles.formGroup} style={{ gridColumn: "1 / 2" }}>
                     <label htmlFor="orden_prioridad">Orden</label>
-                    <input
-                      type="number"
-                      id="orden_prioridad"
-                      name="orden_prioridad"
-                      value={formState.orden_prioridad || ""}
-                      onChange={handleFormChange}
-                      min="1"
-                    />
+                    {isEditing ? (
+                      <select
+                        id="orden_prioridad"
+                        name="orden_prioridad"
+                        value={formState.orden_prioridad || ""}
+                        onChange={handleFormChange}
+                        required
+                      >
+                        {categoriesByArea[currentAreaId] &&
+                          Array.from(
+                            { length: categoriesByArea[currentAreaId].length },
+                            (_, i) => i + 1
+                          ).map((orderNum) => (
+                            <option key={orderNum} value={orderNum}>
+                              {orderNum}
+                            </option>
+                          ))}
+                      </select>
+                    ) : (
+                      <>
+                        <input type="text" value="Automático" disabled />
+                        <small>El orden se asigna automáticamente.</small>
+                      </>
+                    )}
                   </div>
-                  <div className={styles.formGroup} style={{ gridColumn: "2 / 3" }}>
-                    <label htmlFor="estatus">Estatus</label>
-                    <select
-                      id="estatus"
-                      name="estatus"
-                      value={formState.estatus}
-                      onChange={handleFormChange}
-                    >
-                      <option value="activa">Activa</option>
-                      <option value="inactiva">Inactiva</option>
-                    </select>
-                  </div>
+                  {isEditing && (
+                    <div className={styles.formGroup} style={{ gridColumn: "2 / 3" }}>
+                      <label htmlFor="estatus">Estatus</label>
+                      <select
+                        id="estatus"
+                        name="estatus"
+                        value={formState.estatus}
+                        onChange={handleFormChange}
+                      >
+                        <option value="activa">Activa</option>
+                        <option value="inactiva">Inactiva</option>
+                      </select>
+                    </div>
+                  )}
                 </>
               )}
               <div
