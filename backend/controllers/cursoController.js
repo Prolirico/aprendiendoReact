@@ -133,6 +133,7 @@ const createCurso = async (req, res) => {
   const {
     id_maestro,
     id_categoria,
+    id_area, // <-- Añadir id_area para la creación
     id_universidad,
     id_facultad,
     id_carrera,
@@ -148,6 +149,9 @@ const createCurso = async (req, res) => {
     modalidad,
     tipo_costo,
     costo,
+    // Añadimos horas de teoría y práctica
+    horas_teoria,
+    horas_practica,
   } = req.body;
 
   if (
@@ -163,6 +167,27 @@ const createCurso = async (req, res) => {
       .json({ error: "Faltan campos obligatorios para crear el curso." });
   }
 
+   // --- INICIO DE VALIDACIÓN DE HORAS ---
+  const totalHoras = parseInt(duracion_horas, 10);
+  const teoriaHoras = parseInt(horas_teoria, 10) || 0;
+  const practicaHoras = parseInt(horas_practica, 10) || 0;
+
+  if (totalHoras > 0 && (teoriaHoras + practicaHoras !== totalHoras)) {
+    return res.status(400).json({
+      error:
+        "La suma de las horas de teoría y práctica debe ser igual a la duración total del curso.",
+    });
+  }
+
+  if (totalHoras > 0 && (teoriaHoras === 0 || practicaHoras === 0)) {
+    return res.status(400).json({
+      error:
+        "Un curso debe tener al menos 1 hora de teoría y 1 hora de práctica.",
+    });
+  }
+
+   // --- FIN DE VALIDACIÓN DE HORAS ---
+
   let connection;
   try {
     connection = await pool.getConnection();
@@ -170,10 +195,11 @@ const createCurso = async (req, res) => {
 
     // 1. Insertar el curso sin el código
     const [result] = await connection.query(
-      `INSERT INTO curso (id_maestro, id_categoria, id_universidad, id_facultad, id_carrera, nombre_curso, descripcion, objetivos, prerequisitos, duracion_horas, nivel, cupo_maximo, fecha_inicio, fecha_fin, modalidad, tipo_costo, costo)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO curso (id_maestro, id_area, id_categoria, id_universidad, id_facultad, id_carrera, nombre_curso, descripcion, objetivos, prerequisitos, duracion_horas, horas_teoria, horas_practica, nivel, cupo_maximo, fecha_inicio, fecha_fin, modalidad, tipo_costo, costo)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id_maestro,
+        id_area || null,
         id_categoria || null,
         id_universidad || null,
         id_facultad || null,
@@ -183,6 +209,8 @@ const createCurso = async (req, res) => {
         objetivos,
         prerequisitos,
         duracion_horas,
+        teoriaHoras,
+        practicaHoras,
         nivel,
         cupo_maximo || 30,
         fecha_inicio,
@@ -233,6 +261,7 @@ const updateCurso = async (req, res) => {
   const {
     id_maestro,
     id_categoria,
+    id_area, // <-- Añadir id_area
     id_universidad,
     id_facultad,
     id_carrera,
@@ -249,6 +278,9 @@ const updateCurso = async (req, res) => {
     modalidad,
     tipo_costo,
     costo,
+    // Añadimos horas de teoría y práctica
+    horas_teoria,
+    horas_practica,
   } = req.body;
 
   if (
@@ -264,17 +296,39 @@ const updateCurso = async (req, res) => {
       .json({ error: "Faltan campos obligatorios para actualizar el curso." });
   }
 
+   // --- INICIO DE VALIDACIÓN DE HORAS ---
+  const totalHoras = parseInt(duracion_horas, 10);
+  const teoriaHoras = parseInt(horas_teoria, 10) || 0;
+  const practicaHoras = parseInt(horas_practica, 10) || 0;
+
+  if (totalHoras > 0 && (teoriaHoras + practicaHoras !== totalHoras)) {
+    return res.status(400).json({
+      error:
+        "La suma de las horas de teoría y práctica debe ser igual a la duración total del curso.",
+    });
+  }
+
+  if (totalHoras > 0 && (teoriaHoras === 0 || practicaHoras === 0)) {
+    return res.status(400).json({
+      error:
+        "Un curso debe tener al menos 1 hora de teoría y 1 hora de práctica.",
+    });
+  }
+
+   // --- FIN DE VALIDACIÓN DE HORAS ---
+
   try {
     const [result] = await pool.query(
       `UPDATE curso SET
-                id_maestro = ?, id_categoria = ?, id_universidad = ?, id_facultad = ?, id_carrera = ?,
-                nombre_curso = ?, descripcion = ?, objetivos = ?, prerequisitos = ?, duracion_horas = ?, /* 10 */
-                nivel = ?, cupo_maximo = ?, fecha_inicio = ?, fecha_fin = ?, estatus_curso = ?, modalidad = ?, /* 16 */
+                id_maestro = ?, id_categoria = ?, id_area = ?, id_universidad = ?, id_facultad = ?, id_carrera = ?,
+                nombre_curso = ?, descripcion = ?, objetivos = ?, prerequisitos = ?, duracion_horas = ?, horas_teoria = ?, horas_practica = ?,
+                nivel = ?, cupo_maximo = ?, fecha_inicio = ?, fecha_fin = ?, estatus_curso = ?, modalidad = ?,
                 tipo_costo = ?, costo = ?
               WHERE id_curso = ?`,
       [
         id_maestro,
         id_categoria || null,
+        id_area || null,
         id_universidad || null,
         id_facultad || null,
         id_carrera || null,
@@ -283,6 +337,8 @@ const updateCurso = async (req, res) => {
         objetivos,
         prerequisitos,
         duracion_horas,
+        teoriaHoras,
+        practicaHoras,
         nivel,
         cupo_maximo,
         fecha_inicio,

@@ -238,7 +238,16 @@ function CourseManagement({ userId }) {
           ? new Date(course.fecha_fin).toISOString().split("T")[0]
           : "",
       };
-      setFormState(formattedCourse);
+      // Aseguramos que los valores nulos se conviertan a strings vacíos para los selects
+      const stateReadyCourse = {
+        ...formattedCourse,
+        id_area: formattedCourse.id_area || "",
+        id_categoria: formattedCourse.id_categoria || "",
+        id_universidad: formattedCourse.id_universidad || "",
+        id_facultad: formattedCourse.id_facultad || "",
+        id_carrera: formattedCourse.id_carrera || "",
+      };
+      setFormState(stateReadyCourse);
 
       if (course.id_area) {
         setSelectedArea(course.id_area);
@@ -295,8 +304,34 @@ function CourseManagement({ userId }) {
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
-    setFormState((prev) => ({ ...prev, [name]: value }));
-
+ 
+     if (name === "horas_teoria" || name === "horas_practica") {
+       const totalHoras = parseInt(formState.duracion_horas, 10) || 0;
+       const valorActual = parseInt(value, 10) || 0;
+ 
+       const otrasHoras =
+         name === "horas_teoria"
+           ? parseInt(formState.horas_practica, 10) || 0
+           : parseInt(formState.horas_teoria, 10) || 0;
+ 
+       // Si el valor actual excede el total, no hacemos nada (o mostramos un toast)
+       if (valorActual > totalHoras) {
+         showToast("Las horas no pueden exceder la duración total.", "error");
+         return;
+       }
+ 
+       // Si la suma excede el total, no actualizamos el estado
+       if (valorActual + otrasHoras > totalHoras) {
+         showToast("La suma de horas de teoría y práctica no puede exceder la duración total.", "error");
+         return;
+       }
+     }
+ 
+     setFormState((prev) => ({
+       ...prev,
+       [name]: value,
+     }));
+ 
     // Si el tipo de costo cambia a gratuito, reseteamos el costo.
     if (name === "tipo_costo" && value === "gratuito") {
       setFormState((prev) => ({
@@ -364,7 +399,28 @@ function CourseManagement({ userId }) {
       ? "Curso actualizado con éxito."
       : "Curso creado con éxito.";
 
-    const bodyToSend = { ...formState };
+    // --- VALIDACIÓN FINAL EN FRONTEND ---
+    const totalHoras = parseInt(formState.duracion_horas, 10) || 0;
+    const teoriaHoras = parseInt(formState.horas_teoria, 10) || 0;
+    const practicaHoras = parseInt(formState.horas_practica, 10) || 0;
+
+    if (totalHoras > 0 && (teoriaHoras === 0 || practicaHoras === 0)) {
+      showToast("Un curso debe tener al menos 1 hora de teoría y 1 de práctica.", "error");
+      return;
+    }
+    if (totalHoras > 0 && (teoriaHoras + practicaHoras !== totalHoras)) {
+      showToast("La suma de horas de teoría y práctica debe ser igual a la duración total.", "error");
+      return;
+    }
+
+    // Aseguramos que los IDs de la jerarquía de universidad se incluyan
+    const bodyToSend = {
+      ...formState,
+      id_universidad: selectedUniversidad || formState.id_universidad || null,
+      id_facultad: selectedFacultad || formState.id_facultad || null,
+      id_carrera: selectedCarrera || formState.id_carrera || null,
+    };
+
     if (!isEditing) {
       delete bodyToSend.codigo_curso;
     }
@@ -515,8 +571,8 @@ function CourseManagement({ userId }) {
                 <i className="fas fa-times"></i>
               </button>
             </div>
-            <div className={styles.modalBody}>
-              <div className={styles.formGrid}>
+            <form onSubmit={handleFormSubmit} className={styles.modalBody}>
+              <div className={styles.formGrid}> {/* Este div se mantiene para el layout */}
                 {/* --- INICIO DE LA SECCIÓN DE FILTROS --- */}
                 {!userId && (
                   <>
@@ -631,51 +687,6 @@ function CourseManagement({ userId }) {
                 )}
                 {/* --- FIN DE LA SECCIÓN DE FILTROS --- */}
 
-                <div className={styles.formGroup}>
-                  <label htmlFor="id_area">Área de Conocimiento</label>
-                  <select
-                    id="id_area"
-                    name="id_area"
-                    value={selectedArea}
-                    onChange={handleAreaChange}
-                    required
-                  >
-                    <option value="">Seleccione un área</option>
-                    {areas.map((area) => (
-                      <option key={area.id_area} value={area.id_area}>
-                        {area.nombre_area}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {isCategoriesLoading ? (
-                  <div className={styles.formGroup}>
-                    <label>Categoría</label>
-                    <select disabled>
-                      <option>Cargando categorías...</option>
-                    </select>
-                  </div>
-                ) : (
-                  <div className={styles.formGroup}>
-                    <label htmlFor="id_categoria">Categoría</label>
-                    <select
-                      id="id_categoria"
-                      name="id_categoria"
-                      value={formState.id_categoria}
-                      onChange={handleFormChange}
-                      disabled={!selectedArea || categories.length === 0}
-                      required
-                    >
-                      <option value="">Seleccione una categoría</option>
-                      {categories.map((cat) => (
-                        <option key={cat.id_categoria} value={cat.id_categoria}>
-                          {cat.nombre_categoria}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
                 <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                   <label htmlFor="nombre_curso">Nombre del Curso</label>
                   <input
@@ -726,6 +737,7 @@ function CourseManagement({ userId }) {
                     name="duracion_horas"
                     value={formState.duracion_horas}
                     onChange={handleFormChange}
+                    onWheel={(e) => e.target.blur()}
                     min="1"
                     required
                   />
@@ -741,6 +753,7 @@ function CourseManagement({ userId }) {
                         name="horas_teoria"
                         value={formState.horas_teoria || ""}
                         onChange={handleFormChange}
+                        onWheel={(e) => e.target.blur()}
                         min="0"
                         placeholder="Ej. 20"
                       />
@@ -753,9 +766,18 @@ function CourseManagement({ userId }) {
                         name="horas_practica"
                         value={formState.horas_practica || ""}
                         onChange={handleFormChange}
+                        onWheel={(e) => e.target.blur()}
                         min="0"
                         placeholder="Ej. 10"
                       />
+                       <small className={styles.formHint}>
+                         Asignadas: {
+                           (parseInt(formState.horas_teoria, 10) || 0) +
+                           (parseInt(formState.horas_practica, 10) || 0)
+                         } de {
+                           parseInt(formState.duracion_horas, 10) || 0
+                         } horas.
+                       </small>
                     </div>
                   </>
                 )}
@@ -811,6 +833,51 @@ function CourseManagement({ userId }) {
                     required
                   />
                 </div>
+                <div className={styles.formGroup}>
+                  <label htmlFor="id_area">Área de Conocimiento</label>
+                  <select
+                    id="id_area"
+                    name="id_area"
+                    value={selectedArea}
+                    onChange={handleAreaChange}
+                    required
+                  >
+                    <option value="">Seleccione un área</option>
+                    {areas.map((area) => (
+                      <option key={area.id_area} value={area.id_area}>
+                        {area.nombre_area}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {isCategoriesLoading ? (
+                  <div className={styles.formGroup}>
+                    <label>Categoría</label>
+                    <select disabled>
+                      <option>Cargando categorías...</option>
+                    </select>
+                  </div>
+                ) : (
+                  <div className={styles.formGroup}>
+                    <label htmlFor="id_categoria">Categoría</label>
+                    <select
+                      id="id_categoria"
+                      name="id_categoria"
+                      value={formState.id_categoria}
+                      onChange={handleFormChange}
+                      disabled={!selectedArea || categories.length === 0}
+                      required
+                    >
+                      <option value="">Seleccione una categoría</option>
+                      {categories.map((cat) => (
+                        <option key={cat.id_categoria} value={cat.id_categoria}>
+                          {cat.nombre_categoria}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
                 <div className={styles.formGroup}>
                   <label htmlFor="nivel">Nivel</label>
                   <select
@@ -880,7 +947,7 @@ function CourseManagement({ userId }) {
                   </div>
                 )}
 
-              </div>
+              </div> {/* Cierre de formGrid */}
               <div className={styles.formActions}>
                 <button
                   type="button"
@@ -893,7 +960,7 @@ function CourseManagement({ userId }) {
                   <i className="fas fa-save"></i> Guardar
                 </button>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       )}
