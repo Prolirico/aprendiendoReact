@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBook, faEdit, faTrash, faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
+import {
+  faBook,
+  faEdit,
+  faTrash,
+  faPlus,
+  faTimes,
+} from "@fortawesome/free-solid-svg-icons";
 import styles from "./GestionCursos.module.css";
 import GestionHorarios from "./GestionHorarios"; // Importar el nuevo componente
 import GestionUnidades from "./GestionUnidades"; // Importar el nuevo componente
@@ -114,12 +120,18 @@ function CourseManagement({ userId }) {
     setCategories([]);
     try {
       const token = localStorage.getItem("token"); // Obtener el token
-      const response = await fetch(`http://localhost:5000/api/categorias/area/${idArea}`, {
-        headers: {
-          'Authorization': `Bearer ${token}` // Añadir el header de autorización
-        }
-      });
-      if (!response.ok) throw new Error("No se pudieron cargar las categorías para el área seleccionada");
+      const response = await fetch(
+        `http://localhost:5000/api/categorias/area/${idArea}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Añadir el header de autorización
+          },
+        },
+      );
+      if (!response.ok)
+        throw new Error(
+          "No se pudieron cargar las categorías para el área seleccionada",
+        );
       const data = await response.json();
       setCategories(data || []);
     } catch (err) {
@@ -304,34 +316,37 @@ function CourseManagement({ userId }) {
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
- 
-     if (name === "horas_teoria" || name === "horas_practica") {
-       const totalHoras = parseInt(formState.duracion_horas, 10) || 0;
-       const valorActual = parseInt(value, 10) || 0;
- 
-       const otrasHoras =
-         name === "horas_teoria"
-           ? parseInt(formState.horas_practica, 10) || 0
-           : parseInt(formState.horas_teoria, 10) || 0;
- 
-       // Si el valor actual excede el total, no hacemos nada (o mostramos un toast)
-       if (valorActual > totalHoras) {
-         showToast("Las horas no pueden exceder la duración total.", "error");
-         return;
-       }
- 
-       // Si la suma excede el total, no actualizamos el estado
-       if (valorActual + otrasHoras > totalHoras) {
-         showToast("La suma de horas de teoría y práctica no puede exceder la duración total.", "error");
-         return;
-       }
-     }
- 
-     setFormState((prev) => ({
-       ...prev,
-       [name]: value,
-     }));
- 
+
+    if (name === "horas_teoria" || name === "horas_practica") {
+      const totalHoras = parseInt(formState.duracion_horas, 10) || 0;
+      const valorActual = parseInt(value, 10) || 0;
+
+      const otrasHoras =
+        name === "horas_teoria"
+          ? parseInt(formState.horas_practica, 10) || 0
+          : parseInt(formState.horas_teoria, 10) || 0;
+
+      // Si el valor actual excede el total, no hacemos nada (o mostramos un toast)
+      if (valorActual > totalHoras) {
+        showToast("Las horas no pueden exceder la duración total.", "error");
+        return;
+      }
+
+      // Si la suma excede el total, no actualizamos el estado
+      if (valorActual + otrasHoras > totalHoras) {
+        showToast(
+          "La suma de horas de teoría y práctica no puede exceder la duración total.",
+          "error",
+        );
+        return;
+      }
+    }
+
+    setFormState((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
     // Si el tipo de costo cambia a gratuito, reseteamos el costo.
     if (name === "tipo_costo" && value === "gratuito") {
       setFormState((prev) => ({
@@ -405,11 +420,17 @@ function CourseManagement({ userId }) {
     const practicaHoras = parseInt(formState.horas_practica, 10) || 0;
 
     if (totalHoras > 0 && (teoriaHoras === 0 || practicaHoras === 0)) {
-      showToast("Un curso debe tener al menos 1 hora de teoría y 1 de práctica.", "error");
+      showToast(
+        "Un curso debe tener al menos 1 hora de teoría y 1 de práctica.",
+        "error",
+      );
       return;
     }
-    if (totalHoras > 0 && (teoriaHoras + practicaHoras !== totalHoras)) {
-      showToast("La suma de horas de teoría y práctica debe ser igual a la duración total.", "error");
+    if (totalHoras > 0 && teoriaHoras + practicaHoras !== totalHoras) {
+      showToast(
+        "La suma de horas de teoría y práctica debe ser igual a la duración total.",
+        "error",
+      );
       return;
     }
 
@@ -571,8 +592,10 @@ function CourseManagement({ userId }) {
                 <i className="fas fa-times"></i>
               </button>
             </div>
-            <form onSubmit={handleFormSubmit} className={styles.modalBody}>
-              <div className={styles.formGrid}> {/* Este div se mantiene para el layout */}
+            <div className={styles.modalBody}>
+              <div className={styles.formGrid}>
+                {" "}
+                {/* Este div se mantiene para el layout */}
                 {/* --- INICIO DE LA SECCIÓN DE FILTROS --- */}
                 {!userId && (
                   <>
@@ -686,7 +709,6 @@ function CourseManagement({ userId }) {
                   </>
                 )}
                 {/* --- FIN DE LA SECCIÓN DE FILTROS --- */}
-
                 <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                   <label htmlFor="nombre_curso">Nombre del Curso</label>
                   <input
@@ -770,14 +792,12 @@ function CourseManagement({ userId }) {
                         min="0"
                         placeholder="Ej. 10"
                       />
-                       <small className={styles.formHint}>
-                         Asignadas: {
-                           (parseInt(formState.horas_teoria, 10) || 0) +
-                           (parseInt(formState.horas_practica, 10) || 0)
-                         } de {
-                           parseInt(formState.duracion_horas, 10) || 0
-                         } horas.
-                       </small>
+                      <small className={styles.formHint}>
+                        Asignadas:{" "}
+                        {(parseInt(formState.horas_teoria, 10) || 0) +
+                          (parseInt(formState.horas_practica, 10) || 0)}{" "}
+                        de {parseInt(formState.duracion_horas, 10) || 0} horas.
+                      </small>
                     </div>
                   </>
                 )}
@@ -850,7 +870,6 @@ function CourseManagement({ userId }) {
                     ))}
                   </select>
                 </div>
-
                 {isCategoriesLoading ? (
                   <div className={styles.formGroup}>
                     <label>Categoría</label>
@@ -906,14 +925,14 @@ function CourseManagement({ userId }) {
                   </select>
                 </div>
                 {/* Este bloque aparecerá solo si se selecciona "De Pago" */}
-                {formState.tipo_costo === 'pago' && (
+                {formState.tipo_costo === "pago" && (
                   <div className={styles.formGroup}>
                     <label htmlFor="costo">Costo (MXN)</label>
                     <input
                       type="number"
                       id="costo"
                       name="costo"
-                      value={formState.costo || ''}
+                      value={formState.costo || ""}
                       onChange={handleFormChange}
                       min="0"
                       step="0.01"
@@ -921,7 +940,6 @@ function CourseManagement({ userId }) {
                     />
                   </div>
                 )}
-
                 <div className={styles.formGroup}>
                   <label htmlFor="modalidad">Modalidad</label>
                   <select
@@ -934,33 +952,60 @@ function CourseManagement({ userId }) {
                     <option value="presencial">Presencial</option>
                     <option value="mixto">Semipresencial/Mixto</option>
                     <option value="virtual">Virtual</option>
-                    <option value="virtual_autogestiva">Virtual Autogestiva</option>
+                    <option value="virtual_autogestiva">
+                      Virtual Autogestiva
+                    </option>
                     <option value="virtual_mixta">Virtual Mixta</option>
                     <option value="virtual-presencial">Virtual</option>
                   </select>
                 </div>
-                {/* Sección para gestionar Unidades y Horarios (solo en modo edición) */}
-                {isEditing && formState.id_curso && (
-                  <div className={styles.subModulesSection}>
-                    <GestionUnidades cursoId={formState.id_curso} />
-                    <GestionHorarios cursoId={formState.id_curso} />
-                  </div>
-                )}
-
-              </div> {/* Cierre de formGrid */}
+              </div>{" "}
+              {/* Cierre de formGrid */}
               <div className={styles.formActions}>
                 <button
                   type="button"
-                  onClick={handleCloseModal}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCloseModal();
+                  }}
                   className={styles.cancelButton}
                 >
                   Cancelar
                 </button>
-                <button type="submit" className={styles.saveButton}>
+                {/* Cambiamos de type="submit" a type="button" y usamos onClick para tener control total */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleFormSubmit(e);
+                  }}
+                  className={styles.saveButton}
+                >
                   <i className="fas fa-save"></i> Guardar
                 </button>
               </div>
-            </form>
+            </div>
+
+            {isEditing && formState.id_curso && (
+              <div
+                className={`${styles.subModulesSection} ${styles.fullWidth}`}
+                onClick={(e) => e.stopPropagation()}
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+              >
+                <GestionUnidades
+                  key={`unidades-${formState.id_curso}`} // Key estable
+                  cursoId={formState.id_curso}
+                />
+                <GestionHorarios
+                  key={`horarios-${formState.id_curso}`} // Key estable
+                  cursoId={formState.id_curso}
+                />
+              </div>
+            )}
           </div>
         </div>
       )}

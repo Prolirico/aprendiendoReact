@@ -67,7 +67,8 @@ function GestionHorarios({ cursoId }) {
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+        e.stopPropagation(); // ¡Importante! Evita que el clic se propague.
+        e.preventDefault(); // Buena práctica, aunque el botón es type="button".
         const method = isEditing ? 'PUT' : 'POST';
         const url = isEditing ? `${API_URL}/${formState.id_horario}` : API_URL;
         
@@ -91,7 +92,8 @@ function GestionHorarios({ cursoId }) {
         }
     };
 
-    const handleDelete = async (id_horario) => {
+    const handleDelete = async (e, id_horario) => {
+        e.stopPropagation(); // ¡Importante! Evita que el clic se propague.
         if (window.confirm('¿Estás seguro de que quieres eliminar este horario?')) {
             try {
                 const response = await fetch(`${API_URL}/${id_horario}`, { method: 'DELETE' });
@@ -127,19 +129,19 @@ function GestionHorarios({ cursoId }) {
                             <strong>{h.tipo_sesion === 'clase' ? 'Clase' : 'Tutoría'}:</strong> {formatDay(h.dia_semana)} de {formatTime(h.hora_inicio)} a {formatTime(h.hora_fin)} ({h.modalidad_dia})
                         </div>
                         <div className={styles.horarioActions}>
-                            <button onClick={() => handleOpenForm(h)} className={styles.actionButton} title="Editar"><FontAwesomeIcon icon={faEdit} /></button>
-                            <button onClick={() => handleDelete(h.id_horario)} className={styles.actionButton} title="Eliminar"><FontAwesomeIcon icon={faTrash} /></button>
+                            <button onClick={(e) => { e.stopPropagation(); handleOpenForm(h); }} className={styles.actionButton} title="Editar"><FontAwesomeIcon icon={faEdit} /></button>
+                            <button onClick={(e) => handleDelete(e, h.id_horario)} className={styles.actionButton} title="Eliminar"><FontAwesomeIcon icon={faTrash} /></button>
                         </div>
                     </li>
                 ))}
             </ul>
 
             {!isFormVisible && (
-                <button onClick={() => handleOpenForm()} className={styles.addButton}><FontAwesomeIcon icon={faPlus} /> Agregar Horario</button>
+                <button onClick={(e) => { e.stopPropagation(); handleOpenForm(); }} className={styles.addButton}><FontAwesomeIcon icon={faPlus} /> Agregar Horario</button>
             )}
 
             {isFormVisible && (
-                <form onSubmit={handleSubmit} className={styles.horarioForm}>
+                <div className={styles.horarioForm}>
                     <h5>{isEditing ? 'Editar Horario' : 'Nuevo Horario'}</h5>
                     <div className={styles.formGrid}>
                         <div className={styles.formGroup}>
@@ -162,9 +164,9 @@ function GestionHorarios({ cursoId }) {
                     </div>
                     <div className={styles.formActions}>
                         <button type="button" onClick={handleCloseForm} className={styles.cancelButton}>Cancelar</button>
-                        <button type="submit" className={styles.saveButton}>Guardar Horario</button>
+                        <button type="button" onClick={(e) => handleSubmit(e)} className={styles.saveButton}>Guardar Horario</button>
                     </div>
-                </form>
+                </div>
             )}
         </div>
     );

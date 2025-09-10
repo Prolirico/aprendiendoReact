@@ -32,10 +32,10 @@ const createUnidad = async (req, res) => {
 
     // Obtener el orden máximo actual para este curso y sumarle 1
     const [maxOrderResult] = await connection.query(
-      "SELECT MAX(orden) as max_orden FROM unidades_curso WHERE id_curso = ?",
+      "SELECT COALESCE(MAX(orden), -1) as max_orden FROM unidades_curso WHERE id_curso = ?",
       [id_curso]
     );
-    const nuevoOrden = (maxOrderResult[0].max_orden || -1) + 1;
+    const nuevoOrden = maxOrderResult[0].max_orden + 1;
 
     const [result] = await connection.query(
       "INSERT INTO unidades_curso (id_curso, nombre_unidad, descripcion_unidad, orden) VALUES (?, ?, ?, ?)",

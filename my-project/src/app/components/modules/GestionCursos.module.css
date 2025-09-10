@@ -357,6 +357,14 @@
     grid-column: 1 / -1;
 }
 
+.subModulesSection {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
 .formActions {
     display: flex;
     justify-content: flex-end;
