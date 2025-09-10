@@ -80,61 +80,67 @@ function GestionUnidades({ cursoId }) {
     setFormState(initialUnidadState);
   };
 
-  const handleSubmit = async (e) => {
-    e.stopPropagation(); // ¡Importante! Evita que el formulario padre se envíe.
-    const method = isEditing ? "PUT" : "POST";
-    const url = isEditing ? `${API_URL}/${formState.id_unidad}` : API_URL;
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.stopPropagation(); // ¡Importante! Evita que el formulario padre se envíe.
+      const method = isEditing ? "PUT" : "POST";
+      const url = isEditing ? `${API_URL}/${formState.id_unidad}` : API_URL;
 
-    // El backend ahora se encarga de calcular el orden en la creación.
-    // Solo enviamos el orden cuando estamos actualizando.
-    const body = {
-      id_curso: cursoId,
-      nombre_unidad: formState.nombre_unidad,
-      descripcion_unidad: formState.descripcion_unidad,
-      ...(isEditing && { orden: formState.orden }),
-    };
+      // El backend ahora se encarga de calcular el orden en la creación.
+      // Solo enviamos el orden cuando estamos actualizando.
+      const body = {
+        id_curso: cursoId,
+        nombre_unidad: formState.nombre_unidad,
+        descripcion_unidad: formState.descripcion_unidad,
+        ...(isEditing && { orden: formState.orden }),
+      };
 
-    try {
-      const response = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (!response.ok) {
-        const result = await response.json();
-        throw new Error(result.error || "Ocurrió un error.");
-      }
-      showToast(
-        `Unidad ${isEditing ? "actualizada" : "creada"} con éxito.`,
-        "success",
-      );
-      fetchUnidades();
-      handleCloseForm();
-    } catch (err) {
-      console.error("Error al guardar la unidad:", err);
-      showToast(`Error: ${err.message}`, "error");
-    }
-  };
-
-  const handleDelete = async (e, id_unidad) => {
-    e.stopPropagation(); // Evita que el clic se propague al modal padre
-    if (window.confirm("¿Estás seguro de que quieres eliminar esta unidad?")) {
       try {
-        const response = await fetch(`${API_URL}/${id_unidad}`, {
-          method: "DELETE",
+        const response = await fetch(url, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
         });
         if (!response.ok) {
           const result = await response.json();
-          throw new Error(result.error || "Error al eliminar la unidad.");
+          throw new Error(result.error || "Ocurrió un error.");
         }
-        showToast("Unidad eliminada con éxito.", "success");
+        showToast(
+          `Unidad ${isEditing ? "actualizada" : "creada"} con éxito.`,
+          "success",
+        );
         fetchUnidades();
+        handleCloseForm();
       } catch (err) {
-        console.error("Error al eliminar la unidad:", err);
+        console.error("Error al guardar la unidad:", err);
         showToast(`Error: ${err.message}`, "error");
       }
-    }
-  };
+    },
+    [cursoId, formState, isEditing, fetchUnidades],
+  );
+
+  const handleDelete = useCallback(
+    async (e, id_unidad) => {
+      e.stopPropagation(); // Evita que el clic se propague al modal padre
+      if (window.confirm("¿Estás seguro de que quieres eliminar esta unidad?")) {
+        try {
+          const response = await fetch(`${API_URL}/${id_unidad}`, {
+            method: "DELETE",
+          });
+          if (!response.ok) {
+            const result = await response.json();
+            throw new Error(result.error || "Error al eliminar la unidad.");
+          }
+          showToast("Unidad eliminada con éxito.", "success");
+          fetchUnidades();
+        } catch (err) {
+          console.error("Error al eliminar la unidad:", err);
+          showToast(`Error: ${err.message}`, "error");
+        }
+      }
+    },
+    [fetchUnidades],
+  );
 
   return (
     <div className={styles.gestionContainer}>

@@ -66,7 +66,7 @@ function GestionHorarios({ cursoId }) {
         setFormState(initialHorarioState);
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = useCallback(async (e) => {
         e.stopPropagation(); // ¡Importante! Evita que el clic se propague.
         e.preventDefault(); // Buena práctica, aunque el botón es type="button".
         const method = isEditing ? 'PUT' : 'POST';
@@ -90,9 +90,9 @@ function GestionHorarios({ cursoId }) {
             console.error("Error al guardar el horario:", err);
             setError(err.message);
         }
-    };
+    }, [cursoId, formState, isEditing, fetchHorarios]);
 
-    const handleDelete = async (e, id_horario) => {
+    const handleDelete = useCallback(async (e, id_horario) => {
         e.stopPropagation(); // ¡Importante! Evita que el clic se propague.
         if (window.confirm('¿Estás seguro de que quieres eliminar este horario?')) {
             try {
@@ -107,7 +107,7 @@ function GestionHorarios({ cursoId }) {
                 setError(err.message);
             }
         }
-    };
+    }, [fetchHorarios]);
 
     const formatDay = (day) => day.charAt(0).toUpperCase() + day.slice(1);
     const formatTime = (time) => time ? time.substring(0, 5) : '';
