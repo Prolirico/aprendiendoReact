@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
@@ -6,6 +6,7 @@ import {
   faTrash,
   faCheckCircle,
   faExclamationCircle,
+  faExclamationTriangle,
 } from "@fortawesome/free-solid-svg-icons";
 import styles from "./GestionUnidades.module.css";
 
@@ -25,6 +26,11 @@ function GestionUnidades({ cursoId }) {
   const [isEditing, setIsEditing] = useState(false);
   const [formState, setFormState] = useState(initialUnidadState);
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Estados para el modal de confirmación personalizado
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [unidadToDelete, setUnidadToDelete] = useState(null);
 
   const fetchUnidades = useCallback(async () => {
     if (!cursoId) return;
@@ -45,12 +51,13 @@ function GestionUnidades({ cursoId }) {
     fetchUnidades();
   }, [fetchUnidades]);
 
-  const showToast = (message, type = "success") => {
+  // Estabilizamos showToast con useCallback para que no se recree en cada render
+  const showToast = useCallback((message, type = "success") => {
     setToast({ show: true, message, type });
     setTimeout(() => {
       setToast({ show: false, message: "", type: "" });
     }, 3000);
-  };
+  }, []); // Dependencia vacía porque solo usa un setter de estado
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
@@ -74,11 +81,12 @@ function GestionUnidades({ cursoId }) {
     setIsFormVisible(true);
   };
 
-  const handleCloseForm = () => {
+  // Se envuelve en useCallback para estabilizar la función y seguir buenas prácticas.
+  const handleCloseForm = useCallback(() => {
     setIsFormVisible(false);
     setIsEditing(false);
     setFormState(initialUnidadState);
-  };
+  }, []); // No tiene dependencias, solo usa setters y estado inicial.
 
   const handleSubmit = useCallback(
     async (e) => {
@@ -116,31 +124,83 @@ function GestionUnidades({ cursoId }) {
         showToast(`Error: ${err.message}`, "error");
       }
     },
-    [cursoId, formState, isEditing, fetchUnidades],
+    [cursoId, formState, isEditing, fetchUnidades, handleCloseForm, showToast],
   );
 
-  const handleDelete = useCallback(
-    async (e, id_unidad) => {
-      e.stopPropagation(); // Evita que el clic se propague al modal padre
-      if (window.confirm("¿Estás seguro de que quieres eliminar esta unidad?")) {
-        try {
-          const response = await fetch(`${API_URL}/${id_unidad}`, {
-            method: "DELETE",
-          });
-          if (!response.ok) {
-            const result = await response.json();
-            throw new Error(result.error || "Error al eliminar la unidad.");
-          }
-          showToast("Unidad eliminada con éxito.", "success");
-          fetchUnidades();
-        } catch (err) {
-          console.error("Error al eliminar la unidad:", err);
-          showToast(`Error: ${err.message}`, "error");
-        }
+  // Función para abrir el modal de confirmación personalizado
+  const handleDeleteClick = useCallback(
+    (e, unidad) => {
+      e.stopPropagation();
+      e.preventDefault();
+
+      // Prevenir eliminaciones simultáneas para evitar el bug de renderizado
+      if (isDeleting) {
+        showToast(
+          "Por favor espera a que termine la operación anterior.",
+          "warning",
+        );
+        return;
       }
+
+      setUnidadToDelete(unidad);
+      setShowConfirmModal(true);
     },
-    [fetchUnidades],
+    [isDeleting, showToast],
   );
+
+  // Función para confirmar la eliminación
+  const handleConfirmDelete = useCallback(async () => {
+    if (!unidadToDelete) return;
+
+    setIsDeleting(true);
+    setShowConfirmModal(false);
+
+    try {
+      const response = await fetch(`${API_URL}/${unidadToDelete.id_unidad}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result.error || "Error al eliminar la unidad.");
+      }
+
+      showToast("Unidad eliminada con éxito.", "success");
+
+      setUnidades((prevUnidades) =>
+        prevUnidades.filter((u) => u.id_unidad !== unidadToDelete.id_unidad),
+      );
+
+      // Forzar repintado para Brave en Linux
+      if (
+        navigator.userAgent.includes("Chrome") &&
+        navigator.platform.includes("Linux")
+      ) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            const forceRepaint = document.createElement("div");
+            forceRepaint.style.cssText =
+              "position:absolute;left:-1px;top:-1px;width:1px;height:1px;";
+            document.body.appendChild(forceRepaint);
+            document.body.removeChild(forceRepaint);
+          });
+        });
+      }
+    } catch (err) {
+      console.error("Error al eliminar la unidad:", err);
+      showToast(`Error: ${err.message}`, "error");
+    } finally {
+      setTimeout(() => {
+        setIsDeleting(false);
+        setUnidadToDelete(null);
+      }, 300);
+    }
+  }, [unidadToDelete, showToast]);
+
+  // Función para cancelar la eliminación
+  const handleCancelDelete = useCallback(() => {
+    setShowConfirmModal(false);
+    setUnidadToDelete(null);
+  }, []);
 
   return (
     <div className={styles.gestionContainer}>
@@ -173,9 +233,10 @@ function GestionUnidades({ cursoId }) {
                 <FontAwesomeIcon icon={faEdit} />
               </button>
               <button
-                onClick={(e) => handleDelete(e, u.id_unidad)}
+                onClick={(e) => handleDeleteClick(e, u)}
                 className={styles.actionButton}
                 title="Eliminar"
+                disabled={isDeleting}
               >
                 <FontAwesomeIcon icon={faTrash} />
               </button>
@@ -186,7 +247,10 @@ function GestionUnidades({ cursoId }) {
 
       {!isFormVisible && (
         <button
-          onClick={(e) => { e.stopPropagation(); handleOpenForm(); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleOpenForm();
+          }}
           className={styles.addButton}
         >
           <FontAwesomeIcon icon={faPlus} /> Agregar Unidad
@@ -230,6 +294,47 @@ function GestionUnidades({ cursoId }) {
             >
               Guardar Unidad
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de confirmación personalizado */}
+      {showConfirmModal && (
+        <div
+          className={styles.confirmModalBackdrop}
+          onClick={handleCancelDelete}
+        >
+          <div
+            className={styles.confirmModal}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={styles.confirmModalContent}>
+              <div className={styles.confirmIcon}>
+                <FontAwesomeIcon icon={faExclamationTriangle} />
+              </div>
+              <h3>Confirmar Eliminación</h3>
+              <p>
+                ¿Estás seguro de que quieres eliminar la unidad{" "}
+                <strong>"{unidadToDelete?.nombre_unidad}"</strong>?
+              </p>
+              <p className={styles.warningText}>Esta acción no se puede deshacer.</p>
+            </div>
+            <div className={styles.confirmActions}>
+              <button
+                onClick={handleCancelDelete}
+                className={styles.cancelButton}
+                disabled={isDeleting}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className={styles.deleteConfirmButton}
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Eliminando..." : "Eliminar"}
+              </button>
+            </div>
           </div>
         </div>
       )}

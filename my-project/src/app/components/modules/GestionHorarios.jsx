@@ -1,6 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import {
+  faPlus,
+  faEdit,
+  faTrash,
+  faExclamationTriangle,
+  faCheckCircle,
+  faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import styles from './GestionHorarios.module.css';
 
 const API_URL = 'http://localhost:5000/api/horarios';
@@ -22,6 +28,11 @@ function GestionHorarios({ cursoId }) {
     const [isFormVisible, setIsFormVisible] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [formState, setFormState] = useState(initialHorarioState);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    // Estados para el modal de confirmación personalizado
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [horarioToDelete, setHorarioToDelete] = useState(null);
 
     const fetchHorarios = useCallback(async () => {
         if (!cursoId) return;
@@ -92,22 +103,66 @@ function GestionHorarios({ cursoId }) {
         }
     }, [cursoId, formState, isEditing, fetchHorarios]);
 
-    const handleDelete = useCallback(async (e, id_horario) => {
-        e.stopPropagation(); // ¡Importante! Evita que el clic se propague.
-        if (window.confirm('¿Estás seguro de que quieres eliminar este horario?')) {
-            try {
-                const response = await fetch(`${API_URL}/${id_horario}`, { method: 'DELETE' });
-                if (!response.ok) {
-                    const result = await response.json();
-                    throw new Error(result.error || 'Ocurrió un error.');
-                }
-                fetchHorarios();
-            } catch (err) {
-                console.error("Error al eliminar el horario:", err);
-                setError(err.message);
-            }
+    // Función para abrir el modal de confirmación
+    const handleDeleteClick = useCallback((e, horario) => {
+        e.stopPropagation();
+        e.preventDefault();
+
+        if (isDeleting) {
+            console.warn("Operación de borrado ya en progreso.");
+            return;
         }
-    }, [fetchHorarios]);
+
+        setHorarioToDelete(horario);
+        setShowConfirmModal(true);
+    }, [isDeleting]);
+
+    // Función para confirmar la eliminación
+    const handleConfirmDelete = useCallback(async () => {
+        if (!horarioToDelete) return;
+
+        setIsDeleting(true);
+        setShowConfirmModal(false);
+
+        try {
+            const response = await fetch(`${API_URL}/${horarioToDelete.id_horario}`, { method: 'DELETE' });
+            if (!response.ok) {
+                const result = await response.json();
+                throw new Error(result.error || 'Ocurrió un error.');
+            }
+
+            setHorarios((prevHorarios) =>
+              prevHorarios.filter((h) => h.id_horario !== horarioToDelete.id_horario),
+            );
+
+            // Forzar repintado específicamente para navegadores problemáticos
+            if (navigator.userAgent.includes('Chrome') && navigator.platform.includes('Linux')) {
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        const forceRepaint = document.createElement('div');
+                        forceRepaint.style.cssText = 'position:absolute;left:-1px;top:-1px;width:1px;height:1px;';
+                        document.body.appendChild(forceRepaint);
+                        document.body.removeChild(forceRepaint);
+                    });
+                });
+            }
+
+        } catch (err) {
+            console.error("Error al eliminar el horario:", err);
+            setError(err.message);
+        } finally {
+            setTimeout(() => {
+                setIsDeleting(false);
+                setHorarioToDelete(null);
+            }, 300);
+        }
+    }, [horarioToDelete]);
+
+    // Función para cancelar la eliminación
+    const handleCancelDelete = useCallback(() => {
+        setShowConfirmModal(false);
+        setHorarioToDelete(null);
+    }, []);
 
     const formatDay = (day) => day.charAt(0).toUpperCase() + day.slice(1);
     const formatTime = (time) => time ? time.substring(0, 5) : '';
@@ -130,7 +185,7 @@ function GestionHorarios({ cursoId }) {
                         </div>
                         <div className={styles.horarioActions}>
                             <button onClick={(e) => { e.stopPropagation(); handleOpenForm(h); }} className={styles.actionButton} title="Editar"><FontAwesomeIcon icon={faEdit} /></button>
-                            <button onClick={(e) => handleDelete(e, h.id_horario)} className={styles.actionButton} title="Eliminar"><FontAwesomeIcon icon={faTrash} /></button>
+                            <button onClick={(e) => handleDeleteClick(e, h)} className={styles.actionButton} title="Eliminar" disabled={isDeleting}><FontAwesomeIcon icon={faTrash} /></button>
                         </div>
                     </li>
                 ))}
@@ -168,6 +223,48 @@ function GestionHorarios({ cursoId }) {
                     </div>
                 </div>
             )}
+
+            {/* Modal de confirmación personalizado */}
+            {showConfirmModal && (
+                <div
+                  className={styles.confirmModalBackdrop}
+                  onClick={handleCancelDelete}
+                >
+                  <div
+                    className={styles.confirmModal}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className={styles.confirmModalContent}>
+                      <div className={styles.confirmIcon}>
+                        <FontAwesomeIcon icon={faExclamationTriangle} />
+                      </div>
+                      <h3>Confirmar Eliminación</h3>
+                      <p>
+                        ¿Estás seguro de que quieres eliminar el horario de{" "}
+                        <strong>{horarioToDelete?.dia_semana} de {formatTime(horarioToDelete?.hora_inicio)} a {formatTime(horarioToDelete?.hora_fin)}</strong>?
+                      </p>
+                      <p className={styles.warningText}>Esta acción no se puede deshacer.</p>
+                    </div>
+                    <div className={styles.confirmActions}>
+                      <button
+                        onClick={handleCancelDelete}
+                        className={styles.cancelButton}
+                        disabled={isDeleting}
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        onClick={handleConfirmDelete}
+                        className={styles.deleteConfirmButton}
+                        disabled={isDeleting}
+                      >
+                        {isDeleting ? "Eliminando..." : "Eliminar"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+            )}
+
         </div>
     );
 }
