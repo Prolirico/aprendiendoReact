@@ -325,10 +325,150 @@ const deleteConvocatoria = async (req, res) => {
   }
 };
 
+// @desc    Obtener el estado general de las convocatorias para el alumno logueado
+// @route   GET /api/convocatorias/alumno/estado-general
+// @access  Private (Alumno)
+const getEstadoGeneralAlumno = async (req, res) => {
+  const id_usuario = req.user.id_usuario;
+
+  if (!id_usuario) {
+    return res.status(401).json({ error: "No autorizado, ID de alumno no encontrado." });
+  }
+
+  let connection;
+  try {
+    connection = await pool.getConnection();
+
+    // 1. Obtener los datos del alumno (id_alumno y id_universidad) usando el id_usuario del token
+    const [alumnoData] = await connection.query(
+      "SELECT id_alumno, id_universidad FROM alumno WHERE id_usuario = ?",
+      [id_usuario]
+    );
+    if (alumnoData.length === 0) {
+      return res.status(404).json({ error: "Datos del alumno no encontrados." });
+    }
+    const id_alumno = alumnoData[0].id_alumno; // Este es el ID correcto para la tabla 'alumno'
+    const id_universidad_alumno = alumnoData[0].id_universidad;
+
+    // 2. Buscar convocatorias en las que el alumno fue aceptado y están en ejecución
+    // Usamos el id_alumno correcto
+    const [convocatoriasEnEjecucion] = await connection.query(`
+      SELECT c.*
+      FROM convocatorias c
+      JOIN solicitudes_convocatorias sc ON c.id = sc.convocatoria_id
+      WHERE sc.alumno_id = ?
+        AND sc.estado = 'aceptada'
+        AND CURDATE() BETWEEN c.fecha_ejecucion_inicio AND c.fecha_ejecucion_fin
+    `, [id_alumno]);
+
+    let universidadesParticipantes = [];
+    if (convocatoriasEnEjecucion.length > 0) {
+      const idsConvocatoriasEnEjecucion = convocatoriasEnEjecucion.map(c => c.id);
+      // Obtener una lista única de universidades de todas las convocatorias en ejecución
+      const [universidades] = await connection.query(`
+        SELECT DISTINCT u.id_universidad, u.nombre
+        FROM universidad u
+        JOIN convocatoria_universidades cu ON u.id_universidad = cu.universidad_id
+        WHERE cu.convocatoria_id IN (?)
+        ORDER BY u.nombre;
+      `, [idsConvocatoriasEnEjecucion]);
+      universidadesParticipantes = universidades;
+    }
+
+    // 3. Buscar convocatorias disponibles para aplicar
+    // (En periodo de aviso, su universidad participa, y no ha aplicado aún)
+    // Usamos el id_alumno correcto
+    const [convocatoriasDisponibles] = await connection.query(`
+      SELECT c.*
+      FROM convocatorias c
+      JOIN convocatoria_universidades cu ON c.id = cu.convocatoria_id
+      WHERE cu.universidad_id = ?
+        AND CURDATE() BETWEEN c.fecha_aviso_inicio AND c.fecha_aviso_fin
+        AND c.id NOT IN (SELECT convocatoria_id FROM solicitudes_convocatorias WHERE alumno_id = ?)
+      ORDER BY c.fecha_aviso_fin ASC;
+    `, [id_universidad_alumno, id_alumno]);
+
+    // 4. Buscar solicitudes pendientes o rechazadas
+    // Usamos el id_alumno correcto
+    const [solicitudesPasadas] = await connection.query(`
+      SELECT c.id as convocatoria_id, c.nombre, sc.estado
+      FROM solicitudes_convocatorias sc
+      JOIN convocatorias c ON sc.convocatoria_id = c.id
+      WHERE sc.alumno_id = ? AND sc.estado IN ('solicitada', 'rechazada')
+    `, [id_alumno]);
+
+
+    res.json({
+      convocatoriasEnEjecucion,
+      universidadesParticipantes,
+      convocatoriasDisponibles,
+      solicitudesPasadas // Renombrado para mayor claridad
+    });
+
+  } catch (error) {
+    console.error("Error en getEstadoGeneralAlumno:", error);
+    res.status(500).json({ error: "Error interno del servidor." });
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+// @desc    Alumno solicita inscripción a una convocatoria
+// @route   POST /api/convocatorias/:id/solicitar
+// @access  Private (Alumno)
+const solicitarInscripcionConvocatoria = async (req, res) => {
+    const { id: convocatoria_id } = req.params;
+    const id_usuario = req.user.id_usuario;
+
+    if (!id_usuario) {
+        return res.status(401).json({ error: "No autorizado, ID de alumno no encontrado." });
+    }
+
+    // Primero, necesitamos obtener el id_alumno a partir del id_usuario
+    const [alumnoData] = await pool.query(
+      "SELECT id_alumno FROM alumno WHERE id_usuario = ?",
+      [id_usuario]
+    );
+
+    if (alumnoData.length === 0) {
+        return res.status(404).json({ error: "Perfil de alumno no encontrado." });
+    }
+    const id_alumno = alumnoData[0].id_alumno;
+
+    try {
+        // Verificar que la convocatoria existe y está en periodo de aviso
+        const [convocatorias] = await pool.query(
+            "SELECT * FROM convocatorias WHERE id = ? AND CURDATE() BETWEEN fecha_aviso_inicio AND fecha_aviso_fin",
+            [convocatoria_id]
+        );
+
+        if (convocatorias.length === 0) {
+            return res.status(404).json({ error: "Convocatoria no encontrada o fuera del periodo de solicitud." });
+        }
+
+        // Insertar la solicitud
+        const [result] = await pool.query(
+            "INSERT INTO solicitudes_convocatorias (convocatoria_id, alumno_id, estado) VALUES (?, ?, 'solicitada')",
+            [convocatoria_id, id_alumno]
+        );
+
+        res.status(201).json({ message: "Solicitud de inscripción a la convocatoria enviada con éxito.", solicitudId: result.insertId });
+
+    } catch (error) {
+        if (error.code === 'ER_DUP_ENTRY') {
+            return res.status(409).json({ error: "Ya has solicitado la inscripción a esta convocatoria." });
+        }
+        console.error("Error al solicitar inscripción a convocatoria:", error);
+        res.status(500).json({ error: "Error interno del servidor." });
+    }
+};
+
 module.exports = {
   getAllConvocatorias,
   getConvocatoriaById,
   createConvocatoria,
   updateConvocatoria,
   deleteConvocatoria,
+  getEstadoGeneralAlumno,
+  solicitarInscripcionConvocatoria,
 };

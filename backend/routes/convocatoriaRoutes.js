@@ -7,6 +7,8 @@ const {
     createConvocatoria,
     updateConvocatoria,
     deleteConvocatoria,
+    getEstadoGeneralAlumno,
+    solicitarInscripcionConvocatoria,
 } = require("../controllers/convocatoriaController");
 
 const JWT_SECRET =
@@ -50,15 +52,57 @@ const verifySEDEQAdmin = (req, res, next) => {
     }
 };
 
+// Middleware para verificar que el usuario es un alumno.
+const verifyAlumno = (req, res, next) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res
+            .status(401)
+            .json({
+                error: "Acceso denegado. Formato de token inválido o no proporcionado.",
+            });
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        req.user = decoded;
+
+        if (req.user.tipo_usuario !== "alumno") {
+            return res
+                .status(403)
+                .json({
+                    error:
+                        "Acceso prohibido. Solo los alumnos pueden realizar esta acción.",
+                });
+        }
+        next();
+    } catch (error) {
+        if (error.name === "TokenExpiredError") {
+            return res
+                .status(401)
+                .json({ error: "Token expirado. Por favor, inicia sesión de nuevo." });
+        }
+        res.status(401).json({ error: "Token no válido." });
+    }
+};
+
 // --- Definición de Rutas ---
 
 // Rutas públicas
 router.get("/", getAllConvocatorias);
 router.get("/:id", getConvocatoriaById);
-
 // Rutas protegidas (solo para admin_sedeq)
 router.post("/", verifySEDEQAdmin, createConvocatoria);
 router.put("/:id", verifySEDEQAdmin, updateConvocatoria);
 router.delete("/:id", verifySEDEQAdmin, deleteConvocatoria);
+
+module.exports = router;
+
+// --- Rutas para Alumnos ---
+router.get("/alumno/estado-general", verifyAlumno, getEstadoGeneralAlumno);
+router.post("/:id/solicitar", verifyAlumno, solicitarInscripcionConvocatoria);
 
 module.exports = router;

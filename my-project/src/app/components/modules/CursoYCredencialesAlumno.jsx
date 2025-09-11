@@ -9,7 +9,7 @@ import CursoModal from "../modals/CursoModal"
 import CredencialModal from "../modals/CredencialModal"
 import styles from "./CursoYCredencialesAlumno.module.css"
 
-const CursoYCredencialesAlumno = () => {
+const CursoYCredencialesAlumno = ({ enConvocatoria = false, universidadesConvocatoria = [] }) => {
     // Estados para pestañas
     const [activeTab, setActiveTab] = useState("cursos")
 
@@ -126,31 +126,51 @@ const CursoYCredencialesAlumno = () => {
         const fetchAllData = async () => {
             // Envolvemos todo en un try/finally para asegurar que el loading se desactive
             try {
+                setLoading(true); // Iniciar carga
                 const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+
+                let cursosUrl = "http://localhost:5000/api/cursos?exclude_assigned=false";
+                let credencialesUrl = "http://localhost:5000/api/credenciales";
+                let fetchUniversidadesPromise;
+
+                if (enConvocatoria && universidadesConvocatoria.length > 0) {
+                    const uniIds = universidadesConvocatoria.map(u => u.id_universidad).join(',');
+                    cursosUrl += `&universidades=${uniIds}`;
+                    credencialesUrl += `?universidades=${uniIds}`;
+                    // Si estamos en convocatoria, usamos las universidades de la prop y no las fetcheamos
+                    fetchUniversidadesPromise = Promise.resolve({ ok: true, json: () => Promise.resolve({ universities: universidadesConvocatoria }) });
+                } else {
+                    // En modo normal, fetcheamos todas las universidades (el backend debería filtrar por la del alumno si es necesario)
+                    fetchUniversidadesPromise = fetch("http://localhost:5000/api/universidades");
+                }
 
                 // 1. Peticiones de datos críticos (cursos, credenciales, etc.)
                 // Estas peticiones deben funcionar para que la página se muestre.
                 const [cursosRes, credencialesRes, universidadesRes, categoriasRes] = await Promise.all([
-                    fetch("http://localhost:5000/api/cursos?exclude_assigned=false"),
-                    fetch("http://localhost:5000/api/credenciales"), // Endpoint para credenciales del alumno
-                    fetch("http://localhost:5000/api/universidades"),
+                    fetch(cursosUrl),
+                    fetch(credencialesUrl),
+                    fetchUniversidadesPromise,
                     fetch("http://localhost:5000/api/categorias/activas"), // Usamos el endpoint de categorías activas
                 ]);
 
                 // Verificamos que todas las respuestas sean exitosas
                 if (!cursosRes.ok) throw new Error("Error al cargar cursos")
-                if (!credencialesRes.ok) throw new Error("Error al cargar credenciales")
                 if (!universidadesRes.ok) throw new Error("Error al cargar universidades")
                 if (!categoriasRes.ok) throw new Error("Error al cargar categorías")
 
                 const cursosData = await cursosRes.json()
-                const credencialesData = await credencialesRes.json()
                 const universidadesData = await universidadesRes.json()
                 const categoriasData = await categoriasRes.json()
 
                 // Actualizamos los estados críticos
                 setCursos(cursosData.cursos || [])
-                setCredenciales(credencialesData.credenciales || [])
+                if (credencialesRes.ok) {
+                    // Leemos el JSON de credenciales UNA SOLA VEZ aquí
+                    const credencialesData = await credencialesRes.json();
+                    setCredenciales(credencialesData.credenciales || credencialesData || []);
+                } else {
+                    setCredenciales([]); // Si falla, inicializamos como vacío
+                }
                 setUniversidades(universidadesData.universities || [])
                 setCategorias(categoriasData)
 
@@ -180,7 +200,7 @@ const CursoYCredencialesAlumno = () => {
 
         fetchAllData()
         // El array vacío [] significa que este efecto se ejecuta solo una vez
-    }, []); // La dependencia vacía es correcta aquí
+    }, [enConvocatoria, universidadesConvocatoria]); // Se ejecuta cuando cambia el modo convocatoria
 
     // Limpiar filtros de estatus cuando cambia la pestaña activa
     useEffect(() => {
@@ -457,13 +477,15 @@ const CursoYCredencialesAlumno = () => {
                 </div>
 
                 <div className={styles.filtersContainer}>
-                    <FilterSection
-                        title="Universidades"
-                        items={universidades}
-                        filterType="universidades"
-                        isExpanded={expandedSections.universidades}
-                        onToggle={toggleSection}
-                    />
+                    {enConvocatoria && (
+                        <FilterSection
+                            title="Universidades"
+                            items={universidades} // Ya poblado con las de la convocatoria
+                            filterType="universidades"
+                            isExpanded={expandedSections.universidades}
+                            onToggle={toggleSection}
+                        />
+                    )}
 
                     <FilterSection
                         title="Categorías"
