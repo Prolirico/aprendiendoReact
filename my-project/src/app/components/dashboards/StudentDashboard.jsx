@@ -109,8 +109,8 @@ function StudentDashboard({ userId }) {
 
   // **AQUÍ ESTÁ EL CAMBIO CLAVE**
   // Verificamos si el alumno está en una convocatoria aceptada O en una en ejecución.
-  const enConvocatoria = (estadoGeneral?.convocatoriasAceptadas?.length > 0) || 
-                         (estadoGeneral?.convocatoriasEnEjecucion?.length > 0);
+  const enConvocatoria = (estadoGeneral?.convocatoriasAceptadas?.length > 0) ||
+    (estadoGeneral?.convocatoriasEnEjecucion?.length > 0);
 
   return (
     <div className={styles.todo}>

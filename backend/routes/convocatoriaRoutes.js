@@ -92,19 +92,24 @@ const verifyAlumno = (req, res, next) => {
 };
 
 // --- Definición de Rutas ---
+// Rutas específicas PRIMERO (antes de /:id)
+router.get("/solicitudes/all", verifySEDEQAdmin, getAllSolicitudes);
+router.put("/solicitudes/:id", verifySEDEQAdmin, updateSolicitudStatus);
 
-// Rutas públicas
+// Rutas para alumnos (también específicas)
+router.get("/alumno/estado-general", verifyAlumno, getEstadoGeneralAlumno);
+
+// Rutas públicas generales
 router.get("/", getAllConvocatorias);
-router.get("/:id", getConvocatoriaById);
+router.get("/:id", getConvocatoriaById); // <-- ESTA debe ir AL FINAL
+
 // Rutas protegidas (solo para admin_sedeq)
 router.post("/", verifySEDEQAdmin, createConvocatoria);
 router.put("/:id", verifySEDEQAdmin, updateConvocatoria);
 router.delete("/:id", verifySEDEQAdmin, deleteConvocatoria);
-router.get("/solicitudes/all", verifySEDEQAdmin, getAllSolicitudes); // <-- Ruta añadida
-router.put("/solicitudes/:id", verifySEDEQAdmin, updateSolicitudStatus); // <-- 2. Añade esta nueva ruta
 
-// --- Rutas para Alumnos ---
-router.get("/alumno/estado-general", verifyAlumno, getEstadoGeneralAlumno);
+// Rutas para solicitar (específicas)
 router.post("/:id/solicitar", verifyAlumno, solicitarInscripcionConvocatoria);
+
 
 module.exports = router;

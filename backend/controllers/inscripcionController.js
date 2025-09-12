@@ -189,31 +189,29 @@ const actualizarEstadoInscripcion = async (req, res) => {
     // 2. Si se está APROBANDO (y no estaba ya aprobada), verificar capacidad
     if (estado === "aprobada" && estadoActual !== "aprobada") {
       // Obtener la capacidad para esa universidad en esa convocatoria
+      // APUNTAMOS A LA TABLA CORRECTA: capacidad_universidad
       const [capacidadResult] = await connection.query(
-        `SELECT capacidad_maxima FROM convocatoria_universidades WHERE convocatoria_id = ? AND universidad_id = ?`,
+        `SELECT cupo_actual, capacidad_maxima FROM capacidad_universidad WHERE convocatoria_id = ? AND universidad_id = ? FOR UPDATE`,
         [id_convocatoria, id_universidad]
       );
 
       if (capacidadResult.length === 0) {
         await connection.rollback();
-        return res.status(400).json({ error: "La universidad de este alumno no participa en esta convocatoria." });
+        return res.status(400).json({ error: "No se encontró registro de capacidad para la universidad del alumno en esta convocatoria." });
       }
       const capacidadMaximaUni = capacidadResult[0].capacidad_maxima;
-
-      // Contar los inscritos aprobados de la misma universidad en la misma convocatoria
-      const [cupoActualResult] = await connection.query(
-        `SELECT COUNT(*) as total FROM inscripcion i
-         JOIN curso c ON i.id_curso = c.id_curso
-         JOIN alumno a ON i.id_alumno = a.id_alumno
-         WHERE c.id_convocatoria = ? AND a.id_universidad = ? AND i.estatus_inscripcion = 'aprobada'`,
-        [id_convocatoria, id_universidad]
-      );
-      const cupoActualUni = cupoActualResult[0].total;
+      const cupoActualUni = capacidadResult[0].cupo_actual;
 
       if (cupoActualUni >= capacidadMaximaUni) {
         await connection.rollback();
         return res.status(409).json({ error: "El cupo para esta universidad en esta convocatoria ya está lleno." });
       }
+
+      // Si se aprueba, incrementamos el cupo en la tabla correcta
+      await connection.query(
+        "UPDATE capacidad_universidad SET cupo_actual = cupo_actual + 1 WHERE convocatoria_id = ? AND universidad_id = ?",
+        [id_convocatoria, id_universidad]
+      );
     }
 
     // 3. Si todo está bien (o si se está rechazando), actualizar la inscripción

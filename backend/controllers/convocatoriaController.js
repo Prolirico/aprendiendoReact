@@ -517,65 +517,100 @@ const updateSolicitudStatus = async (req, res) => {
   const { id } = req.params;
   const { estado } = req.body;
 
+  console.log('=== INICIO updateSolicitudStatus ===');
+  console.log('ID:', id);
+  console.log('Estado:', estado);
+  console.log('=================================');
+
   if (!estado || !['aceptada', 'rechazada'].includes(estado)) {
+    console.log('ERROR: Estado inválido');
     return res.status(400).json({ error: "El estado proporcionado no es válido. Debe ser 'aceptada' o 'rechazada'." });
   }
 
   let connection;
   try {
+    console.log('1. Obteniendo conexión...');
     connection = await pool.getConnection();
     await connection.beginTransaction();
+    console.log('2. Conexión obtenida y transacción iniciada');
 
     // 1. Obtener la solicitud y el cupo actual de la universidad
-    const [solicitudes] = await connection.query(
-      `SELECT sc.convocatoria_id, a.id_universidad
+    console.log('3. Ejecutando primera query...');
+    const query1 = `SELECT sc.convocatoria_id, a.id_universidad
        FROM solicitudes_convocatorias sc
        JOIN alumno a ON sc.alumno_id = a.id_alumno
-       WHERE sc.id = ? AND sc.estado = 'solicitada'`,
-      [id]
-    );
+       WHERE sc.id = ? AND sc.estado = 'solicitada'`;
+    console.log('Query 1:', query1);
+    console.log('Params 1:', [id]);
+    
+    const [solicitudes] = await connection.query(query1, [id]);
+    console.log('4. Resultado primera query:', solicitudes);
 
     if (solicitudes.length === 0) {
+      console.log('ERROR: Solicitud no encontrada');
       await connection.rollback();
       return res.status(404).json({ error: "Solicitud no encontrada o ya ha sido procesada." });
     }
 
     const { convocatoria_id, id_universidad } = solicitudes[0];
+    console.log('5. Datos extraídos:', { convocatoria_id, id_universidad });
 
     // 2. Si se acepta, verificar y actualizar el cupo
     if (estado === 'aceptada') {
-      const [capacidadData] = await connection.query(
-        `SELECT cupo_actual, capacidad_maxima FROM capacidad_universidad WHERE convocatoria_id = ? AND universidad_id = ? FOR UPDATE`,
-        [convocatoria_id, id_universidad]
-      );
+      console.log('6. Estado es aceptada, verificando capacidad...');
+      
+      const query2 = `SELECT cupo_actual, capacidad_maxima FROM capacidad_universidad WHERE convocatoria_id = ? AND universidad_id = ? FOR UPDATE`;
+      console.log('Query 2:', query2);
+      console.log('Params 2:', [convocatoria_id, id_universidad]);
+      
+      const [capacidadData] = await connection.query(query2, [convocatoria_id, id_universidad]);
+      console.log('7. Resultado segunda query:', capacidadData);
 
       if (capacidadData.length === 0 || capacidadData[0].cupo_actual >= capacidadData[0].capacidad_maxima) {
+        console.log('ERROR: No hay cupo disponible');
         await connection.rollback();
         return res.status(409).json({ error: "No hay cupo disponible en la universidad para esta convocatoria." });
       }
 
       // Incrementar el cupo
-      await connection.query(
-        `UPDATE capacidad_universidad SET cupo_actual = cupo_actual + 1 WHERE convocatoria_id = ? AND universidad_id = ?`,
-        [convocatoria_id, id_universidad]
-      );
+      console.log('8. Incrementando cupo...');
+      const query3 = `UPDATE capacidad_universidad SET cupo_actual = cupo_actual + 1 WHERE convocatoria_id = ? AND universidad_id = ?`;
+      console.log('Query 3:', query3);
+      console.log('Params 3:', [convocatoria_id, id_universidad]);
+      
+      await connection.query(query3, [convocatoria_id, id_universidad]);
+      console.log('9. Cupo incrementado exitosamente');
     }
 
     // 3. Actualizar el estado de la solicitud
-    await connection.query(
-      "UPDATE solicitudes_convocatorias SET estado = ? WHERE id = ?",
-      [estado, id]
-    );
+    console.log('10. Actualizando estado de solicitud...');
+    const query4 = "UPDATE solicitudes_convocatorias SET estado = ? WHERE id = ?";
+    console.log('Query 4:', query4);
+    console.log('Params 4:', [estado, id]);
+    
+    await connection.query(query4, [estado, id]);
+    console.log('11. Estado actualizado exitosamente');
 
     await connection.commit();
+    console.log('12. Transacción confirmada');
+    
     res.json({ message: `Solicitud ${estado} con éxito.` });
+    console.log('=== FIN updateSolicitudStatus EXITOSO ===');
 
   } catch (error) {
+    console.log('=== ERROR EN updateSolicitudStatus ===');
+    console.log('Error completo:', error);
+    console.log('Error message:', error.message);
+    console.log('Error code:', error.code);
+    console.log('Error sql:', error.sql);
+    console.log('====================================');
+    
     if (connection) await connection.rollback();
     console.error(`Error al actualizar estado de la solicitud ${id}:`, error);
     res.status(500).json({ error: "Error interno del servidor." });
   } finally {
     if (connection) connection.release();
+    console.log('Conexión liberada');
   }
 };
 
