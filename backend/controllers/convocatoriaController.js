@@ -463,6 +463,46 @@ const solicitarInscripcionConvocatoria = async (req, res) => {
     }
 };
 
+// @desc    Obtener todas las solicitudes de todas las convocatorias
+// @route   GET /api/convocatorias/solicitudes/all
+// @access  Private (SEDEQ)
+const getAllSolicitudes = async (req, res) => {
+  try {
+    const query = `
+      SELECT
+        sc.id,
+        sc.convocatoria_id,
+        sc.alumno_id,
+        sc.estado,
+        sc.fecha_solicitud,
+        c.nombre AS convocatoria_nombre,
+        u_alumno.id_universidad AS id_universidad_alumno,
+        u_alumno.nombre AS universidad_nombre,
+        a.nombre_completo AS alumno_nombre,
+        usr.email AS alumno_email
+      FROM solicitudes_convocatorias sc
+      JOIN convocatorias c ON sc.convocatoria_id = c.id
+      JOIN alumno a ON sc.alumno_id = a.id_alumno
+      JOIN usuario usr ON a.id_usuario = usr.id_usuario
+      JOIN universidad u_alumno ON a.id_universidad = u_alumno.id_universidad
+      ORDER BY sc.fecha_solicitud DESC;
+    `;
+
+    const [solicitudes] = await pool.query(query);
+
+    if (solicitudes.length === 0) {
+      return res.json({ solicitudes: [] });
+    }
+
+    res.json({ solicitudes });
+
+  } catch (error) {
+    console.error("Error al obtener todas las solicitudes:", error);
+    res.status(500).json({ error: "Error interno del servidor." });
+  }
+};
+
+
 module.exports = {
   getAllConvocatorias,
   getConvocatoriaById,
@@ -471,4 +511,5 @@ module.exports = {
   deleteConvocatoria,
   getEstadoGeneralAlumno,
   solicitarInscripcionConvocatoria,
+  getAllSolicitudes, // <-- Exporta la nueva función
 };

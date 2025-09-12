@@ -9,6 +9,7 @@ const {
     deleteConvocatoria,
     getEstadoGeneralAlumno,
     solicitarInscripcionConvocatoria,
+    getAllSolicitudes,
 } = require("../controllers/convocatoriaController");
 
 const JWT_SECRET =
@@ -98,8 +99,7 @@ router.get("/:id", getConvocatoriaById);
 router.post("/", verifySEDEQAdmin, createConvocatoria);
 router.put("/:id", verifySEDEQAdmin, updateConvocatoria);
 router.delete("/:id", verifySEDEQAdmin, deleteConvocatoria);
-
-module.exports = router;
+router.get("/solicitudes/all", verifySEDEQAdmin, getAllSolicitudes); // <-- Ruta añadida
 
 // --- Rutas para Alumnos ---
 router.get("/alumno/estado-general", verifyAlumno, getEstadoGeneralAlumno);

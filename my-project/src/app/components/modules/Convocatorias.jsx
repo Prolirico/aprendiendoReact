@@ -7,12 +7,18 @@ import {
   faPlus,
   faMinus,
   faUniversity,
+  faCheckCircle,
+  faTimesCircle,
+  faEye,
+  faFilter,
 } from "@fortawesome/free-solid-svg-icons";
 import styles from "./Convocatorias.module.css";
 
 const API_URL_CONVOCATORIAS = "http://localhost:5000/api/convocatorias";
 const API_URL_UNIVERSIDADES = "http://localhost:5000/api/universidades";
+const API_URL_SOLICITUDES = "http://localhost:5000/api/convocatorias/solicitudes/all";
 
+// Estado inicial para el formulario de creación/edición de convocatorias
 const initialFormState = {
   nombre: "",
   descripcion: "",
@@ -23,7 +29,7 @@ const initialFormState = {
   fecha_ejecucion_inicio: "",
   fecha_ejecucion_fin: "",
   estado: "planeada",
-  universidades: [], // Ahora será un array de objetos: { id_universidad, capacidad_maxima }
+  universidades: [],
 };
 
 // Helper para obtener el token (asumiendo que lo guardas en localStorage)
@@ -46,6 +52,9 @@ const getEstadoBadge = (estado, llena) => {
     finalizada: "Finalizada",
     cancelada: "Cancelada",
     llena: "Llena",
+    solicitada: "Solicitada",
+    aceptada: "Aceptada",
+    rechazada: "Rechazada",
   };
   const estadoClasses = {
     planeada: styles.estadoPlaneada,
@@ -55,6 +64,9 @@ const getEstadoBadge = (estado, llena) => {
     finalizada: styles.estadoFinalizada,
     cancelada: styles.estadoCancelada,
     llena: styles.estadoLlena,
+    solicitada: styles.estadoSolicitada,
+    aceptada: styles.estadoAceptada,
+    rechazada: styles.estadoRechazada,
   };
 
   return (
@@ -68,19 +80,35 @@ const getEstadoBadge = (estado, llena) => {
 };
 
 function GestionConvocatorias() {
+  // Estado para la pestaña activa
+  const [activeTab, setActiveTab] = useState("convocatorias");
+
+  // Estados para los datos
   const [convocatorias, setConvocatorias] = useState([]);
+  const [solicitudes, setSolicitudes] = useState([]);
   const [allUniversidades, setAllUniversidades] = useState([]);
   const [universidadesDisponibles, setUniversidadesDisponibles] = useState([]);
   const [universidadesEnConvocatoria, setUniversidadesEnConvocatoria] =
     useState([]);
+
+  // Estados de carga y error
   const [loading, setLoading] = useState(true);
+  const [loadingSolicitudes, setLoadingSolicitudes] = useState(false);
   const [error, setError] = useState(null);
+
+  // Estados para modales y UI
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formState, setFormState] = useState(initialFormState);
   const [isEditing, setIsEditing] = useState(false);
   const [convocatoriaToDelete, setConvocatoriaToDelete] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
+
+  // Estado para los filtros
+  const [filters, setFilters] = useState({
+    convocatoria: "",
+    universidad: "",
+  });
 
   const showToast = (message, type = "success") => {
     setToast({ show: true, message, type });
@@ -113,10 +141,35 @@ function GestionConvocatorias() {
     }
   }, []);
 
+  const fetchSolicitudes = useCallback(async () => {
+    setLoadingSolicitudes(true);
+    try {
+      const token = getAuthToken();
+      if (!token) throw new Error("No estás autenticado.");
+
+      const response = await fetch(API_URL_SOLICITUDES, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error("Error al cargar las solicitudes.");
+      const data = await response.json();
+      setSolicitudes(data.solicitudes || []);
+    } catch (err) {
+      showToast(err.message, "error");
+    } finally {
+      setLoadingSolicitudes(false);
+    }
+  }, []); // Dependencia vacía para que se ejecute una vez
+
   useEffect(() => {
     fetchConvocatorias();
     fetchUniversidades();
   }, [fetchConvocatorias, fetchUniversidades]);
+
+  useEffect(() => {
+    if (activeTab === "solicitudes") {
+      fetchSolicitudes();
+    }
+  }, [activeTab, fetchSolicitudes]);
 
   const handleOpenModal = async (convocatoria = null) => {
     if (convocatoria) {
@@ -194,14 +247,6 @@ function GestionConvocatorias() {
           : uni,
       ),
     );
-    setFormState((prev) => ({
-      ...prev,
-      universidades: prev.universidades.map((uni) =>
-        uni.id_universidad === id_universidad
-          ? { ...uni, capacidad_maxima: nuevaCapacidad }
-          : uni,
-      ),
-    }));
   };
 
   const agregarUniversidad = (universidad) => {
@@ -213,13 +258,6 @@ function GestionConvocatorias() {
     setUniversidadesDisponibles((prev) =>
       prev.filter((u) => u.id_universidad !== universidad.id_universidad),
     );
-    setFormState((prev) => ({
-      ...prev,
-      universidades: [
-        ...prev.universidades,
-        { id_universidad: universidad.id_universidad, capacidad_maxima: 30 },
-      ],
-    }));
   };
 
   const quitarUniversidad = (universidad) => {
@@ -227,6 +265,38 @@ function GestionConvocatorias() {
     setUniversidadesEnConvocatoria((prev) =>
       prev.filter((u) => u.id_universidad !== universidad.id_universidad),
     );
+  };
+
+  const handleStatusChange = async (solicitudId, nuevoEstado) => {
+    try {
+      // Implementación con datos de prueba
+      setSolicitudes((prev) =>
+        prev.map((sol) =>
+          sol.id === solicitudId ? { ...sol, estado: nuevoEstado } : sol,
+        ),
+      );
+      showToast(`Estado cambiado a ${nuevoEstado}`, "success");
+
+      // La implementación real sería:
+      // const token = getAuthToken();
+      // const response = await fetch(`${API_URL_SOLICITUDES}/${solicitudId}`, {
+      //   method: "PUT",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     Authorization: `Bearer ${token}`,
+      //   },
+      //   body: JSON.stringify({ estado: nuevoEstado }),
+      // });
+      // if (!response.ok) throw new Error("Error al actualizar el estado.");
+      // fetchSolicitudes();
+    } catch (err) {
+      showToast(err.message, "error");
+    }
+  };
+
+  // Manejador para los cambios en los filtros
+  const handleFilterChange = (filterType, value) => {
+    setFilters((prev) => ({ ...prev, [filterType]: value }));
   };
 
   const handleFormSubmit = async (e) => {
@@ -282,7 +352,22 @@ function GestionConvocatorias() {
     }
   };
 
-  const renderContent = () => {
+  // Lógica de filtrado
+  const filteredConvocatorias = convocatorias.filter(conv => {
+    const matchesNombre = filters.convocatoria
+      ? conv.id.toString() === filters.convocatoria
+      : true;
+    const matchesUniversidad = filters.universidad
+      ? conv.universidades?.some(
+          (uni) => uni.universidad_id?.toString() === filters.universidad,
+        ) || conv.universidades?.some(
+          (uni) => uni.id_universidad?.toString() === filters.universidad)
+      : true;
+    return matchesNombre && matchesUniversidad;
+  });
+
+  // Renderizado de la tabla de convocatorias
+  const renderConvocatoriasContent = () => {
     if (loading) {
       return (
         <div className={styles.loadingState}>
@@ -306,7 +391,7 @@ function GestionConvocatorias() {
         </div>
       );
     }
-    if (convocatorias.length === 0) {
+    if (filteredConvocatorias.length === 0) {
       return (
         <div className={styles.emptyState}>
           <FontAwesomeIcon
@@ -314,7 +399,11 @@ function GestionConvocatorias() {
             size="3x"
             className={styles.icon}
           />
-          <h3>No hay convocatorias</h3>
+          <h3>
+            {convocatorias.length > 0
+              ? "No hay convocatorias que coincidan con tu búsqueda"
+              : "No hay convocatorias"}
+          </h3>
           <p>Crea una nueva convocatoria para empezar a gestionarlas.</p>
           <button
             onClick={() => handleOpenModal()}
@@ -340,7 +429,7 @@ function GestionConvocatorias() {
             </tr>
           </thead>
           <tbody>
-            {convocatorias.map((conv) => (
+            {filteredConvocatorias.map((conv) => (
               <tr key={conv.id}>
                 <td className={styles.nombreCell}>{conv.nombre}</td>
                 <td>{getEstadoBadge(conv.estado, conv.llena)}</td>
@@ -407,6 +496,144 @@ function GestionConvocatorias() {
     );
   };
 
+  // Lógica de filtrado para solicitudes
+  const filteredSolicitudes = solicitudes.filter(solicitud => {
+    const matchesConvocatoria = filters.convocatoria
+      ? solicitud.convocatoria_id?.toString() === filters.convocatoria
+      : true;
+    const matchesUniversidad = filters.universidad
+      ? solicitud.id_universidad_alumno?.toString() === filters.universidad
+      : true;
+    return matchesConvocatoria && matchesUniversidad;
+  });
+
+  // Renderizado de la tabla de solicitudes
+  const renderSolicitudesContent = () => {
+    if (loadingSolicitudes) {
+      return (
+        <div className={styles.loadingState}>
+          <div className={styles.spinner}></div>
+          <p>Cargando solicitudes...</p>
+        </div>
+      );
+    }
+    if (filteredSolicitudes.length === 0) {
+      return (
+        <div className={styles.emptyState}>
+          <FontAwesomeIcon
+            icon={faCalendarAlt}
+            size="3x"
+            className={styles.icon}
+          />
+          <h3>No hay solicitudes</h3>
+          <p>
+            {solicitudes.length > 0
+              ? "No se encontraron solicitudes que coincidan con los filtros."
+              : "Aún no hay solicitudes de estudiantes."}
+          </p>
+        </div>
+      );
+    }
+    return (
+      <div className={styles.tableContainer}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>Estudiante</th>
+              <th>Email</th>
+              <th>Convocatoria</th>
+              <th>Universidad</th>
+              <th>Fecha Solicitud</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredSolicitudes.map((solicitud) => (
+              <tr key={solicitud.id}>
+                <td className={styles.nombreCell}>{solicitud.alumno_nombre}</td>
+                <td>{solicitud.alumno_email}</td>
+                <td>{solicitud.convocatoria_nombre}</td>
+                <td>{solicitud.universidad_nombre}</td>
+                <td>
+                  {new Date(solicitud.fecha_solicitud).toLocaleDateString()}
+                </td>
+                <td>{getEstadoBadge(solicitud.estado)}</td>
+                <td>
+                  <div className={styles.tableActions}>
+                    {solicitud.estado === "solicitada" && (
+                      <>
+                        <button
+                          onClick={() =>
+                            handleStatusChange(solicitud.id, "aceptada")
+                          }
+                          className={styles.approveButton}
+                          title="Aceptar"
+                        >
+                          <FontAwesomeIcon icon={faCheckCircle} />
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleStatusChange(solicitud.id, "rechazada")
+                          }
+                          className={styles.rejectButton}
+                          title="Rechazar"
+                        >
+                          <FontAwesomeIcon icon={faTimesCircle} />
+                        </button>
+                      </>
+                    )}
+                    <button className={styles.viewButton} title="Ver detalles">
+                      <FontAwesomeIcon icon={faEye} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
+  // Renderizado de los filtros
+  const renderFilters = () => (
+    <div className={styles.filtersContainer}>
+      <div className={styles.filterGroup}>
+        <FontAwesomeIcon icon={faCalendarAlt} className={styles.filterIcon} />
+        <select
+          value={filters.convocatoria}
+          onChange={(e) => handleFilterChange("convocatoria", e.target.value)}
+          className={styles.filterSelect}
+        >
+          <option value="">Todas las convocatorias</option>
+          {convocatorias.map((conv) => (
+            <option key={conv.id} value={conv.id}>
+              {conv.nombre}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className={styles.filterGroup}>
+        <FontAwesomeIcon icon={faUniversity} className={styles.filterIcon} />
+        <select
+          value={filters.universidad}
+          onChange={(e) => handleFilterChange("universidad", e.target.value)}
+          className={styles.filterSelect}
+        >
+          <option value="">Todas las universidades</option>
+          {allUniversidades
+            .sort((a, b) => a.nombre.localeCompare(b.nombre))
+            .map((uni) => (
+              <option key={uni.id_universidad} value={uni.id_universidad}>
+                {uni.nombre}
+              </option>
+            ))}
+        </select>
+      </div>
+    </div>
+  );
+
   return (
     <div className={styles.container}>
       <header className={styles.header}>
@@ -415,15 +642,38 @@ function GestionConvocatorias() {
         </div>
       </header>
       <main className={styles.main}>
-        <div className={styles.toolbar}>
+        <div className={styles.tabs}>
           <button
-            onClick={() => handleOpenModal()}
-            className={styles.addButton}
+            className={`${styles.tab} ${activeTab === "convocatorias" ? styles.activeTab : ""}`}
+            onClick={() => setActiveTab("convocatorias")}
           >
-            <FontAwesomeIcon icon={faPlus} /> Agregar Convocatoria
+            Convocatorias
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === "solicitudes" ? styles.activeTab : ""}`}
+            onClick={() => setActiveTab("solicitudes")}
+          >
+            Aprobación de Estudiantes
           </button>
         </div>
-        {renderContent()}
+
+        <div className={styles.toolbar}>
+          {activeTab === "convocatorias" ? (
+            <button
+              onClick={() => handleOpenModal()}
+              className={styles.addButton}
+            >
+              <FontAwesomeIcon icon={faPlus} /> Agregar Convocatoria
+            </button>
+          ) : (
+            <div /> // Placeholder para mantener el layout con space-between
+          )}
+          {renderFilters()}
+        </div>
+
+        {activeTab === "convocatorias"
+          ? renderConvocatoriasContent()
+          : renderSolicitudesContent()}
       </main>
 
       {isModalOpen && (
