@@ -79,12 +79,16 @@ function StudentDashboard({ userId }) {
   };
 
   const renderConvocatoriaBanner = () => {
-    if (!estadoGeneral || estadoGeneral.convocatoriasEnEjecucion.length === 0) {
+    // Usaremos una lista combinada o la que tenga datos.
+    // Priorizamos 'convocatoriasAceptadas' si existe, si no, 'convocatoriasEnEjecucion'.
+    const convocatoriasActivas = estadoGeneral?.convocatoriasAceptadas || estadoGeneral?.convocatoriasEnEjecucion || [];
+
+    if (convocatoriasActivas.length === 0) {
       return null;
     }
 
-    const nombres = estadoGeneral.convocatoriasEnEjecucion.map(c => `'${c.nombre}'`).join(' y ');
-    const texto = estadoGeneral.convocatoriasEnEjecucion.length > 1
+    const nombres = convocatoriasActivas.map(c => `'${c.nombre}'`).join(' y ');
+    const texto = convocatoriasActivas.length > 1
       ? `Estás viendo los cursos de las convocatorias: ${nombres}`
       : `Estás viendo los cursos de la convocatoria: ${nombres}`;
 
@@ -103,7 +107,10 @@ function StudentDashboard({ userId }) {
     return <div className={styles.centeredMessage} style={{ color: 'red' }}>Error: {error}</div>;
   }
 
-  const enConvocatoria = estadoGeneral?.convocatoriasEnEjecucion?.length > 0;
+  // **AQUÍ ESTÁ EL CAMBIO CLAVE**
+  // Verificamos si el alumno está en una convocatoria aceptada O en una en ejecución.
+  const enConvocatoria = (estadoGeneral?.convocatoriasAceptadas?.length > 0) || 
+                         (estadoGeneral?.convocatoriasEnEjecucion?.length > 0);
 
   return (
     <div className={styles.todo}>

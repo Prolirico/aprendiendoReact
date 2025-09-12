@@ -268,27 +268,25 @@ function GestionConvocatorias() {
   };
 
   const handleStatusChange = async (solicitudId, nuevoEstado) => {
+    const API_URL_UPDATE_SOLICITUD = `http://localhost:5000/api/convocatorias/solicitudes/${solicitudId}`;
     try {
-      // Implementación con datos de prueba
-      setSolicitudes((prev) =>
-        prev.map((sol) =>
-          sol.id === solicitudId ? { ...sol, estado: nuevoEstado } : sol,
-        ),
-      );
-      showToast(`Estado cambiado a ${nuevoEstado}`, "success");
+      const token = getAuthToken();
+      if (!token) throw new Error("No estás autenticado.");
 
-      // La implementación real sería:
-      // const token = getAuthToken();
-      // const response = await fetch(`${API_URL_SOLICITUDES}/${solicitudId}`, {
-      //   method: "PUT",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //     Authorization: `Bearer ${token}`,
-      //   },
-      //   body: JSON.stringify({ estado: nuevoEstado }),
-      // });
-      // if (!response.ok) throw new Error("Error al actualizar el estado.");
-      // fetchSolicitudes();
+      const response = await fetch(API_URL_UPDATE_SOLICITUD, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ estado: nuevoEstado }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Error al actualizar el estado.");
+
+      showToast(`Solicitud ${nuevoEstado} con éxito.`, "success");
+      fetchSolicitudes(); // Recargamos la lista para reflejar el cambio
     } catch (err) {
       showToast(err.message, "error");
     }
@@ -583,9 +581,6 @@ function GestionConvocatorias() {
                         </button>
                       </>
                     )}
-                    <button className={styles.viewButton} title="Ver detalles">
-                      <FontAwesomeIcon icon={faEye} />
-                    </button>
                   </div>
                 </td>
               </tr>

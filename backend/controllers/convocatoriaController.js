@@ -502,6 +502,74 @@ const getAllSolicitudes = async (req, res) => {
   }
 };
 
+// @desc    Actualizar el estado de una solicitud de convocatoria
+// @route   PUT /api/convocatorias/solicitudes/:id
+// @access  Private (SEDEQ)
+const updateSolicitudStatus = async (req, res) => {
+  const { id } = req.params;
+  const { estado } = req.body;
+
+  if (!estado || !['aceptada', 'rechazada'].includes(estado)) {
+    return res.status(400).json({ error: "El estado proporcionado no es válido. Debe ser 'aceptada' o 'rechazada'." });
+  }
+
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    // 1. Obtener la solicitud y el cupo actual de la universidad
+    const [solicitudes] = await connection.query(
+      `SELECT sc.convocatoria_id, a.id_universidad
+       FROM solicitudes_convocatorias sc
+       JOIN alumno a ON sc.alumno_id = a.id_alumno
+       WHERE sc.id = ? AND sc.estado = 'solicitada'`,
+      [id]
+    );
+
+    if (solicitudes.length === 0) {
+      await connection.rollback();
+      return res.status(404).json({ error: "Solicitud no encontrada o ya ha sido procesada." });
+    }
+
+    const { convocatoria_id, id_universidad } = solicitudes[0];
+
+    // 2. Si se acepta, verificar y actualizar el cupo
+    if (estado === 'aceptada') {
+      const [capacidadData] = await connection.query(
+        `SELECT cupo_actual, capacidad_maxima FROM capacidad_universidad WHERE convocatoria_id = ? AND universidad_id = ? FOR UPDATE`,
+        [convocatoria_id, id_universidad]
+      );
+
+      if (capacidadData.length === 0 || capacidadData[0].cupo_actual >= capacidadData[0].capacidad_maxima) {
+        await connection.rollback();
+        return res.status(409).json({ error: "No hay cupo disponible en la universidad para esta convocatoria." });
+      }
+
+      // Incrementar el cupo
+      await connection.query(
+        `UPDATE capacidad_universidad SET cupo_actual = cupo_actual + 1 WHERE convocatoria_id = ? AND universidad_id = ?`,
+        [convocatoria_id, id_universidad]
+      );
+    }
+
+    // 3. Actualizar el estado de la solicitud
+    await connection.query(
+      "UPDATE solicitudes_convocatorias SET estado = ? WHERE id = ?",
+      [estado, id]
+    );
+
+    await connection.commit();
+    res.json({ message: `Solicitud ${estado} con éxito.` });
+
+  } catch (error) {
+    if (connection) await connection.rollback();
+    console.error(`Error al actualizar estado de la solicitud ${id}:`, error);
+    res.status(500).json({ error: "Error interno del servidor." });
+  } finally {
+    if (connection) connection.release();
+  }
+};
 
 module.exports = {
   getAllConvocatorias,
@@ -511,5 +579,6 @@ module.exports = {
   deleteConvocatoria,
   getEstadoGeneralAlumno,
   solicitarInscripcionConvocatoria,
-  getAllSolicitudes, // <-- Exporta la nueva función
+  getAllSolicitudes,
+  updateSolicitudStatus, // <-- ¡Añade esta línea!
 };
