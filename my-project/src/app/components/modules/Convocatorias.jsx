@@ -292,6 +292,37 @@ function GestionConvocatorias() {
     }
   };
 
+  const handleDeleteConfirm = async () => {
+    if (!convocatoriaToDelete) return;
+
+    const token = getAuthToken();
+    if (!token) {
+      showToast("No estás autenticado.", "error");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${API_URL_CONVOCATORIAS}/${convocatoriaToDelete.id}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result.error || "No se pudo eliminar la convocatoria.");
+      }
+
+      showToast("Convocatoria eliminada con éxito.");
+      handleCloseDeleteModal();
+      fetchConvocatorias();
+    } catch (err) {
+      showToast(`Error: ${err.message}`, "error");
+    }
+  };
+
   // Manejador para los cambios en los filtros
   const handleFilterChange = (filterType, value) => {
     setFilters((prev) => ({ ...prev, [filterType]: value }));
@@ -955,6 +986,38 @@ function GestionConvocatorias() {
             className={`${styles.toastContent} ${styles[toast.type] || styles.success}`}
           >
             <p>{toast.message}</p>
+          </div>
+        </div>
+      )}
+
+      {isDeleteModalOpen && (
+        <div className={styles.modalBackdrop} onClick={handleCloseDeleteModal}>
+          <div className={styles.deleteModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.deleteModalContent}>
+              <div className={styles.deleteIcon}>
+                <FontAwesomeIcon icon={faTrash} />
+              </div>
+              <h3>Confirmar Eliminación</h3>
+              <p>
+                ¿Estás seguro de que quieres eliminar la convocatoria{" "}
+                <strong>"{convocatoriaToDelete?.nombre}"</strong>? Esta acción no
+                se puede deshacer.
+              </p>
+            </div>
+            <div className={styles.deleteActions}>
+              <button
+                onClick={handleCloseDeleteModal}
+                className={styles.cancelButton}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                className={styles.confirmDeleteButton}
+              >
+                Confirmar
+              </button>
+            </div>
           </div>
         </div>
       )}
