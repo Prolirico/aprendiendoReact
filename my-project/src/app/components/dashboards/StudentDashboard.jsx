@@ -134,6 +134,7 @@ function StudentDashboard({ userId }) {
           <CursosYCredencialesAlumno
             enConvocatoria={enConvocatoria}
             universidadesConvocatoria={estadoGeneral?.universidadesParticipantes || []}
+            universidadAlumno={estadoGeneral?.universidadDelAlumno}
           />
         </section>
 

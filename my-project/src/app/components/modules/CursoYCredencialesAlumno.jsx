@@ -9,7 +9,7 @@ import CursoModal from "../modals/CursoModal"
 import CredencialModal from "../modals/CredencialModal"
 import styles from "./CursoYCredencialesAlumno.module.css"
 
-const CursoYCredencialesAlumno = ({ enConvocatoria = false, universidadesConvocatoria = [] }) => {
+const CursoYCredencialesAlumno = ({ enConvocatoria = false, universidadesConvocatoria = [], universidadAlumno = null }) => {
     // Estados para pestañas
     const [activeTab, setActiveTab] = useState("cursos")
 
@@ -138,7 +138,13 @@ const CursoYCredencialesAlumno = ({ enConvocatoria = false, universidadesConvoca
                     cursosUrl += `&universidades=${uniIds}`;
                     credencialesUrl += `?universidades=${uniIds}`;
                     // Si estamos en convocatoria, usamos las universidades de la prop y no las fetcheamos
-                    fetchUniversidadesPromise = Promise.resolve({ ok: true, json: () => Promise.resolve({ universities: universidadesConvocatoria }) });
+                    setUniversidades(universidadesConvocatoria); // Seteamos directamente las universidades
+                    fetchUniversidadesPromise = Promise.resolve({ ok: true, json: () => Promise.resolve({ universities: [] }) }); // Evitamos el fetch
+                } else if (universidadAlumno) {
+                    // Si NO estamos en convocatoria, filtramos por la universidad del alumno.
+                    cursosUrl += `&universidades=${universidadAlumno.id_universidad}`;
+                    credencialesUrl += `?universidades=${universidadAlumno.id_universidad}`;
+                    fetchUniversidadesPromise = fetch("http://localhost:5000/api/universidades");
                 } else {
                     // En modo normal, fetcheamos todas las universidades (el backend debería filtrar por la del alumno si es necesario)
                     fetchUniversidadesPromise = fetch("http://localhost:5000/api/universidades");
@@ -171,7 +177,10 @@ const CursoYCredencialesAlumno = ({ enConvocatoria = false, universidadesConvoca
                 } else {
                     setCredenciales([]); // Si falla, inicializamos como vacío
                 }
-                setUniversidades(universidadesData.universities || [])
+                // Solo seteamos universidades si no estamos en modo convocatoria (ya se setearon antes)
+                if (!enConvocatoria) {
+                    setUniversidades(universidadesData.universities || []);
+                }
                 setCategorias(categoriasData)
 
                 // 2. Petición de datos no críticos (inscripciones)
@@ -200,7 +209,7 @@ const CursoYCredencialesAlumno = ({ enConvocatoria = false, universidadesConvoca
 
         fetchAllData()
         // El array vacío [] significa que este efecto se ejecuta solo una vez
-    }, [enConvocatoria, universidadesConvocatoria]); // Se ejecuta cuando cambia el modo convocatoria
+    }, [enConvocatoria, universidadesConvocatoria, universidadAlumno]); // Se ejecuta cuando cambia el modo convocatoria o el alumno
 
     // Limpiar filtros de estatus cuando cambia la pestaña activa
     useEffect(() => {
@@ -477,7 +486,8 @@ const CursoYCredencialesAlumno = ({ enConvocatoria = false, universidadesConvoca
                 </div>
 
                 <div className={styles.filtersContainer}>
-                    {enConvocatoria && (
+                    {/* El filtro de universidades solo aparece si estamos en convocatoria y hay más de una */}
+                    {enConvocatoria && universidades.length > 1 && (
                         <FilterSection
                             title="Universidades"
                             items={universidades} // Ya poblado con las de la convocatoria

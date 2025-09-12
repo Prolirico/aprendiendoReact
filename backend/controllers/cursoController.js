@@ -8,10 +8,10 @@ const getAllCursos = async (req, res) => {
     limit = 10,
     searchTerm = "",
     id_maestro,
-    id_universidad,
     id_facultad,
     exclude_assigned = "true",
     editing_credential_id,
+    universidades, // Añadimos el nuevo parámetro
   } = req.query;
   const offset = (page - 1) * limit;
 
@@ -30,13 +30,16 @@ const getAllCursos = async (req, res) => {
       queryParams.push(id_maestro);
     }
 
-    // Add filter for id_universidad
-    if (id_universidad && id_universidad !== "undefined") {
-      whereClauses.push("c.id_universidad = ?");
-      queryParams.push(id_universidad);
+    // **AQUÍ ESTÁ EL CAMBIO CLAVE**
+    // Si se pasa el filtro de universidades, lo añadimos a la consulta
+    if (universidades) {
+      const uniIds = universidades.split(',').map(id => parseInt(id.trim(), 10));
+      if (uniIds.length > 0) {
+        whereClauses.push(`c.id_universidad IN (?)`);
+        queryParams.push(uniIds);
+      }
     }
 
-    // Add filter for id_facultad
     if (id_facultad && id_facultad !== "undefined") {
       whereClauses.push("c.id_facultad = ?");
       queryParams.push(id_facultad);

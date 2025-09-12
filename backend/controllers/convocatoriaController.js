@@ -341,17 +341,24 @@ const getEstadoGeneralAlumno = async (req, res) => {
 
     // 1. Obtener los datos del alumno (id_alumno y id_universidad) usando el id_usuario del token
     const [alumnoData] = await connection.query(
-      "SELECT id_alumno, id_universidad FROM alumno WHERE id_usuario = ?",
+      `SELECT
+         a.id_alumno,
+         a.id_universidad,
+         u.nombre as nombre_universidad
+       FROM alumno a
+       JOIN universidad u ON a.id_universidad = u.id_universidad
+       WHERE a.id_usuario = ?`,
       [id_usuario]
     );
     if (alumnoData.length === 0) {
       return res.status(404).json({ error: "Datos del alumno no encontrados." });
     }
-    const id_alumno = alumnoData[0].id_alumno; // Este es el ID correcto para la tabla 'alumno'
-    const id_universidad_alumno = alumnoData[0].id_universidad;
+    const { id_alumno, id_universidad, nombre_universidad } = alumnoData[0];
+    const universidadDelAlumno = { id_universidad, nombre: nombre_universidad };
 
     // 2. Buscar convocatorias en las que el alumno fue aceptado y están en ejecución
     // Usamos el id_alumno correcto
+    // NOTA: He añadido la comprobación de estado 'aceptada' que faltaba en la consulta anterior.
     const [convocatoriasEnEjecucion] = await connection.query(`
       SELECT c.*
       FROM convocatorias c
@@ -386,7 +393,7 @@ const getEstadoGeneralAlumno = async (req, res) => {
         AND CURDATE() BETWEEN c.fecha_aviso_inicio AND c.fecha_aviso_fin
         AND c.id NOT IN (SELECT convocatoria_id FROM solicitudes_convocatorias WHERE alumno_id = ?)
       ORDER BY c.fecha_aviso_fin ASC;
-    `, [id_universidad_alumno, id_alumno]);
+    `, [id_universidad, id_alumno]);
 
     // 4. Buscar solicitudes pendientes o rechazadas
     // Usamos el id_alumno correcto
@@ -399,6 +406,7 @@ const getEstadoGeneralAlumno = async (req, res) => {
 
 
     res.json({
+      universidadDelAlumno, // <-- AÑADIDO: Devolvemos la universidad del alumno
       convocatoriasEnEjecucion,
       universidadesParticipantes,
       convocatoriasDisponibles,
