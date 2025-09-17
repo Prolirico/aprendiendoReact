@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons"
+import { faMagnifyingGlass, faCalendarAlt, faUniversity, faCheckCircle, faTimesCircle, faClock, faGraduationCap } from "@fortawesome/free-solid-svg-icons"
 import CursoCard from "../controls/CursoCard"
 import CredencialCard from "../controls/CredencialCard"
 import CursoModal from "../modals/CursoModal"
@@ -10,7 +10,7 @@ import CredencialModal from "../modals/CredencialModal"
 import styles from "./CursoYCredencialesAlumno.module.css"
 
 const CursoYCredencialesAlumno = ({ enConvocatoria = false, universidadesConvocatoria = [], universidadAlumno = null }) => {
-    // Estados para pestañas
+    // Estados para pestañas - agregamos "seguimiento"
     const [activeTab, setActiveTab] = useState("cursos")
 
     // Estados para filtros
@@ -38,10 +38,12 @@ const CursoYCredencialesAlumno = ({ enConvocatoria = false, universidadesConvoca
     const [universidades, setUniversidades] = useState([])
     const [categorias, setCategorias] = useState([])
     const [inscripciones, setInscripciones] = useState([]); // Estado para las inscripciones del alumno
+    const [convocatoriasAlumno, setConvocatoriasAlumno] = useState([]); // Nuevo estado para convocatorias del alumno
 
     // --- ESTADOS DE UI (CARGA Y ERRORES) ---
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
+    const [loadingSeguimiento, setLoadingSeguimiento] = useState(false)
 
     // --- ESTADO PARA EL MODAL ---
     const [selectedCurso, setSelectedCurso] = useState(null)
@@ -73,6 +75,67 @@ const CursoYCredencialesAlumno = ({ enConvocatoria = false, universidadesConvoca
         if (!status) return '';
         // Reemplaza guiones bajos y capitaliza la primera letra de cada palabra
         return status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    };
+
+    // Función para obtener badge de estado
+    const getEstadoBadge = (estado, llena) => {
+        const estadoFinal = llena ? "llena" : estado;
+        const estadoText = {
+            planeada: "Planeada",
+            aviso: "Aviso", 
+            revision: "Revisión",
+            activa: "Activa",
+            finalizada: "Finalizada",
+            cancelada: "Cancelada",
+            llena: "Llena",
+            solicitada: "Solicitada",
+            aceptada: "Aceptada",
+            rechazada: "Rechazada",
+            aprobada: "Aprobada",
+            completada: "Completada",
+            abandonada: "Abandonada",
+            "lista de espera": "Lista de Espera"
+        };
+        
+        const estadoClasses = {
+            planeada: styles.estadoPlaneada,
+            aviso: styles.estadoAviso,
+            revision: styles.estadoRevision,
+            activa: styles.estadoActiva,
+            finalizada: styles.estadoFinalizada,
+            cancelada: styles.estadoCancelada,
+            llena: styles.estadoLlena,
+            solicitada: styles.estadoSolicitada,
+            aceptada: styles.estadoAceptada,
+            aprobada: styles.estadoAceptada,
+            rechazada: styles.estadoRechazada,
+            completada: styles.estadoCompletada,
+            abandonada: styles.estadoAbandonada,
+            "lista de espera": styles.estadoListaEspera
+        };
+
+        return (
+            <span className={`${styles.estadoBadge} ${estadoClasses[estadoFinal] || ""}`}>
+                {estadoText[estadoFinal] || estadoFinal.charAt(0).toUpperCase() + estadoFinal.slice(1)}
+            </span>
+        );
+    };
+
+    // Función para formatear fechas
+    const formatDate = (dateString) => {
+        if (!dateString) return "No especificada"
+        const date = new Date(dateString.split("T")[0] + "T00:00:00");
+        return date.toLocaleDateString("es-ES", { timeZone: "UTC" });
+    };
+
+    // Función para verificar si una fecha está próxima (dentro de 7 días)
+    const isDateUpcoming = (dateString) => {
+        if (!dateString) return false;
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffTime = date.getTime() - now.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays >= 0 && diffDays <= 7;
     };
 
     const activeCredentialIdsByInscription = useMemo(() => {
@@ -116,6 +179,24 @@ const CursoYCredencialesAlumno = ({ enConvocatoria = false, universidadesConvoca
 
         return credentialIds;
     }, [filters.modalidad, cursos]);
+
+    // Función para cargar convocatorias del alumno
+    const fetchConvocatoriasAlumno = useCallback(async () => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        try {
+            const response = await fetch('http://localhost:5000/api/convocatorias/solicitudes/alumno', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setConvocatoriasAlumno(data.solicitudes || []);
+            }
+        } catch (error) {
+            console.error("Error al cargar convocatorias del alumno:", error);
+        }
+    }, []);
     
     // --- VINCULACIÓN CON API ---
     // Usamos useEffect para cargar todos los datos iniciales cuando el componente se monta.
@@ -210,6 +291,13 @@ const CursoYCredencialesAlumno = ({ enConvocatoria = false, universidadesConvoca
         fetchAllData()
         // El array vacío [] significa que este efecto se ejecuta solo una vez
     }, [enConvocatoria, universidadesConvocatoria, universidadAlumno]); // Se ejecuta cuando cambia el modo convocatoria o el alumno
+
+    // Cargar convocatorias cuando se cambia a la pestaña de seguimiento
+    useEffect(() => {
+        if (activeTab === "seguimiento") {
+            fetchConvocatoriasAlumno();
+        }
+    }, [activeTab, fetchConvocatoriasAlumno]);
 
     // Limpiar filtros de estatus cuando cambia la pestaña activa
     useEffect(() => {
@@ -467,72 +555,333 @@ const CursoYCredencialesAlumno = ({ enConvocatoria = false, universidadesConvoca
         );
     }
 
-    // Función auxiliar para formatear fechas
-    const formatDate = (dateString) => {
-        if (!dateString) return "No especificada"
-        const options = { year: 'numeric', month: 'long', day: 'numeric' }
-        return new Date(dateString).toLocaleDateString('es-ES', options)
-    }
+    // Componente para renderizar contenido de seguimiento
+    const renderSeguimientoContent = () => {
+        if (loadingSeguimiento) {
+            return (
+                <div className={styles.loadingState}>
+                    <div className={styles.spinner}></div>
+                    <p>Cargando información de seguimiento...</p>
+                </div>
+            );
+        }
+
+        // Obtener cursos inscritos con información detallada
+        const cursosInscritos = inscripciones.map(inscripcion => {
+            const curso = cursos.find(c => c.id_curso === inscripcion.id_curso);
+            return {
+                ...inscripcion,
+                ...curso
+            };
+        }).filter(item => item.nombre_curso); // Solo los que tienen información de curso
+
+        // Obtener credenciales relacionadas a los cursos inscritos
+        const credencialesRelacionadas = [...new Set(
+            cursosInscritos
+                .filter(curso => curso.id_credencial)
+                .map(curso => curso.id_credencial)
+        )].map(idCredencial => {
+            const credencial = credenciales.find(c => c.id_credencial === idCredencial || c.id_certificacion === idCredencial);
+            if (!credencial) return null;
+            
+            // Calcular progreso de la credencial
+            const cursosCredencial = cursosInscritos.filter(c => c.id_credencial === idCredencial);
+            const cursosCompletados = cursosCredencial.filter(c => c.estatus_inscripcion === 'completada').length;
+            const totalCursos = credencial.cursos ? credencial.cursos.length : cursosCredencial.length;
+            const progreso = totalCursos > 0 ? Math.round((cursosCompletados / totalCursos) * 100) : 0;
+            
+            return {
+                ...credencial,
+                progreso,
+                cursosCompletados,
+                totalCursos
+            };
+        }).filter(Boolean);
+
+        return (
+            <div className={styles.seguimientoContainer}>
+                {/* Resumen rápido */}
+                <div className={styles.resumenCards}>
+                    <div className={styles.resumenCard}>
+                        <FontAwesomeIcon icon={faGraduationCap} className={styles.resumenIcon} />
+                        <div>
+                            <h3>{cursosInscritos.length}</h3>
+                            <p>Cursos Inscritos</p>
+                        </div>
+                    </div>
+                    <div className={styles.resumenCard}>
+                        <FontAwesomeIcon icon={faCheckCircle} className={styles.resumenIcon} />
+                        <div>
+                            <h3>{cursosInscritos.filter(c => c.estatus_inscripcion === 'completada').length}</h3>
+                            <p>Cursos Completados</p>
+                        </div>
+                    </div>
+                    <div className={styles.resumenCard}>
+                        <FontAwesomeIcon icon={faClock} className={styles.resumenIcon} />
+                        <div>
+                            <h3>{cursosInscritos.filter(c => c.estatus_inscripcion === 'aprobada' || c.estatus_inscripcion === 'en_curso').length}</h3>
+                            <p>En Progreso</p>
+                        </div>
+                    </div>
+                    <div className={styles.resumenCard}>
+                        <FontAwesomeIcon icon={faCalendarAlt} className={styles.resumenIcon} />
+                        <div>
+                            <h3>{convocatoriasAlumno.length}</h3>
+                            <p>Convocatorias</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Secciones de seguimiento */}
+                <div className={styles.seguimientoSections}>
+                    {/* Cursos Inscritos */}
+                    <section className={styles.seguimientoSection}>
+                        <h3>Mis Cursos</h3>
+                        {cursosInscritos.length > 0 ? (
+                            <div className={styles.cursosTable}>
+                                <div className={styles.tableHeader}>
+                                    <span>Curso</span>
+                                    <span>Universidad</span>
+                                    <span>Estado Inscripción</span>
+                                    <span>Estado Curso</span>
+                                    <span>Fecha Fin</span>
+                                    <span>Acciones</span>
+                                </div>
+                                {cursosInscritos.map(curso => (
+                                    <div key={`${curso.id_curso}-${curso.id_inscripcion}`} className={styles.tableRow}>
+                                        <div className={styles.cursoInfo}>
+                                            <span className={styles.cursoNombre}>{curso.nombre_curso}</span>
+                                            <span className={styles.cursoModalidad}>{formatModalidadLabel(curso.modalidad)}</span>
+                                        </div>
+                                        <span>{curso.nombre_universidad}</span>
+                                        <div>{getEstadoBadge(curso.estatus_inscripcion)}</div>
+                                        <div>{getEstadoBadge(curso.estatus_curso)}</div>
+                                        <div className={isDateUpcoming(curso.fecha_fin) ? styles.fechaProxima : ""}>
+                                            {formatDate(curso.fecha_fin)}
+                                            {isDateUpcoming(curso.fecha_fin) && (
+                                                <FontAwesomeIcon icon={faClock} className={styles.warningIcon} />
+                                            )}
+                                        </div>
+                                        <button 
+                                            onClick={() => handleVerMas(curso)} 
+                                            className={styles.verMasBtn}
+                                        >
+                                            Ver más
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className={styles.emptyState}>
+                                <p>No tienes cursos inscritos aún.</p>
+                            </div>
+                        )}
+                    </section>
+
+                    {/* Credenciales en Progreso */}
+                    <section className={styles.seguimientoSection}>
+                        <h3>Progreso de Credenciales</h3>
+                        {credencialesRelacionadas.length > 0 ? (
+                            <div className={styles.credencialesProgreso}>
+                                {credencialesRelacionadas.map(credencial => (
+                                    <div key={credencial.id_credencial || credencial.id_certificacion} className={styles.credencialProgresoCard}>
+                                        <div className={styles.credencialHeader}>
+                                            <h4>{credencial.nombre_certificacion || credencial.nombre_credencial}</h4>
+                                            <span className={styles.progresoPorcentaje}>{credencial.progreso}%</span>
+                                        </div>
+                                        <div className={styles.progresoBar}>
+                                            <div 
+                                                className={styles.progresoFill} 
+                                                style={{ width: `${credencial.progreso}%` }}
+                                            ></div>
+                                        </div>
+                                        <div className={styles.progresoInfo}>
+                                            <span>{credencial.cursosCompletados} de {credencial.totalCursos} cursos completados</span>
+                                            <button 
+                                                onClick={() => handleVerMasCredencial(credencial)}
+                                                className={styles.verCredencialBtn}
+                                            >
+                                                Ver credencial
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className={styles.emptyState}>
+                                <p>No tienes credenciales en progreso.</p>
+                            </div>
+                        )}
+                    </section>
+
+                    {/* Convocatorias */}
+                    <section className={styles.seguimientoSection}>
+                        <h3>Mis Convocatorias</h3>
+                        {convocatoriasAlumno.length > 0 ? (
+                            <div className={styles.convocatoriasTable}>
+                                <div className={styles.tableHeader}>
+                                    <span>Convocatoria</span>
+                                    <span>Universidad</span>
+                                    <span>Estado</span>
+                                    <span>Periodo Ejecución</span>
+                                    <span>Fecha Solicitud</span>
+                                </div>
+                                {convocatoriasAlumno.map(convocatoria => (
+                                    <div key={convocatoria.id} className={styles.tableRow}>
+                                        <span className={styles.convocatoriaNombre}>{convocatoria.convocatoria_nombre}</span>
+                                        <span>{convocatoria.universidad_nombre}</span>
+                                        <div>{getEstadoBadge(convocatoria.estado)}</div>
+                                        <div className={styles.fechaRango}>
+                                            <div>{formatDate(convocatoria.fecha_ejecucion_inicio)}</div>
+                                            <div>{formatDate(convocatoria.fecha_ejecucion_fin)}</div>
+                                            {(isDateUpcoming(convocatoria.fecha_ejecucion_inicio) || isDateUpcoming(convocatoria.fecha_ejecucion_fin)) && (
+                                                <FontAwesomeIcon icon={faClock} className={styles.warningIcon} />
+                                            )}
+                                        </div>
+                                        <span>{formatDate(convocatoria.fecha_solicitud)}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className={styles.emptyState}>
+                                <p>No has solicitado ninguna convocatoria aún.</p>
+                            </div>
+                        )}
+                    </section>
+
+                    {/* Próximos Vencimientos */}
+                    <section className={styles.seguimientoSection}>
+                        <h3>
+                            <FontAwesomeIcon icon={faClock} className={styles.sectionIcon} />
+                            Próximos Vencimientos
+                        </h3>
+                        {(() => {
+                            const proximosVencimientos = [];
+                            
+                            // Cursos próximos a vencer
+                            cursosInscritos.forEach(curso => {
+                                if (isDateUpcoming(curso.fecha_fin) && 
+                                    (curso.estatus_inscripcion === 'aprobada' || curso.estatus_inscripcion === 'en_curso')) {
+                                    proximosVencimientos.push({
+                                        tipo: 'curso',
+                                        nombre: curso.nombre_curso,
+                                        fecha: curso.fecha_fin,
+                                        universidad: curso.nombre_universidad
+                                    });
+                                }
+                            });
+
+                            // Convocatorias próximas a vencer
+                            convocatoriasAlumno.forEach(conv => {
+                                if (isDateUpcoming(conv.fecha_ejecucion_fin) && conv.estado === 'aceptada') {
+                                    proximosVencimientos.push({
+                                        tipo: 'convocatoria',
+                                        nombre: conv.convocatoria_nombre,
+                                        fecha: conv.fecha_ejecucion_fin,
+                                        universidad: conv.universidad_nombre
+                                    });
+                                }
+                            });
+
+                            // Ordenar por fecha
+                            proximosVencimientos.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+
+                            return proximosVencimientos.length > 0 ? (
+                                <div className={styles.vencimientosList}>
+                                    {proximosVencimientos.map((item, index) => (
+                                        <div key={index} className={styles.vencimientoItem}>
+                                            <FontAwesomeIcon 
+                                                icon={item.tipo === 'curso' ? faGraduationCap : faCalendarAlt} 
+                                                className={styles.vencimientoIcon} 
+                                            />
+                                            <div className={styles.vencimientoInfo}>
+                                                <span className={styles.vencimientoNombre}>{item.nombre}</span>
+                                                <span className={styles.vencimientoUniversidad}>{item.universidad}</span>
+                                                <span className={styles.vencimientoTipo}>
+                                                    {item.tipo === 'curso' ? 'Curso' : 'Convocatoria'}
+                                                </span>
+                                            </div>
+                                            <div className={styles.vencimientoFecha}>
+                                                <FontAwesomeIcon icon={faClock} />
+                                                <span>{formatDate(item.fecha)}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className={styles.emptyState}>
+                                    <FontAwesomeIcon icon={faCheckCircle} className={styles.checkIcon} />
+                                    <p>No tienes vencimientos próximos. ¡Todo al día!</p>
+                                </div>
+                            );
+                        })()}
+                    </section>
+                </div>
+            </div>
+        );
+    };
 
     return (
         <div className={styles.container}>
-            {/* Panel de filtros lateral */}
-            <div className={styles.sidebar}>
-                <div className={styles.sidebarHeader}>
-                    <h2>Filtros</h2>
-                    <button onClick={clearFilters} className={styles.clearButton}>
-                        Limpiar filtros
-                    </button>
-                </div>
+            {/* Panel de filtros lateral - solo para cursos y credenciales */}
+            {activeTab !== "seguimiento" && (
+                <div className={styles.sidebar}>
+                    <div className={styles.sidebarHeader}>
+                        <h2>Filtros</h2>
+                        <button onClick={clearFilters} className={styles.clearButton}>
+                            Limpiar filtros
+                        </button>
+                    </div>
 
-                <div className={styles.filtersContainer}>
-                    {/* El filtro de universidades solo aparece si estamos en convocatoria y hay más de una */}
-                    {enConvocatoria && universidades.length > 1 && (
+                    <div className={styles.filtersContainer}>
+                        {/* El filtro de universidades solo aparece si estamos en convocatoria y hay más de una */}
+                        {enConvocatoria && universidades.length > 1 && (
+                            <FilterSection
+                                title="Universidades"
+                                items={universidades} // Ya poblado con las de la convocatoria
+                                filterType="universidades"
+                                isExpanded={expandedSections.universidades}
+                                onToggle={toggleSection}
+                            />
+                        )}
+
                         <FilterSection
-                            title="Universidades"
-                            items={universidades} // Ya poblado con las de la convocatoria
-                            filterType="universidades"
-                            isExpanded={expandedSections.universidades}
+                            title="Categorías"
+                            items={categorias}
+                            filterType="categorias"
+                            isExpanded={expandedSections.categorias}
                             onToggle={toggleSection}
                         />
-                    )}
 
-                    <FilterSection
-                        title="Categorías"
-                        items={categorias}
-                        filterType="categorias"
-                        isExpanded={expandedSections.categorias}
-                        onToggle={toggleSection}
-                    />
+                        <FilterSection
+                            title="Estado"
+                            items={activeTab === "cursos" ? cursoStatusOptions : credencialStatusOptions}
+                            filterType="estatus"
+                            isExpanded={expandedSections.estatus}
+                            onToggle={toggleSection}
+                        />
 
-                    <FilterSection
-                        title="Estado"
-                        items={activeTab === "cursos" ? cursoStatusOptions : credencialStatusOptions}
-                        filterType="estatus"
-                        isExpanded={expandedSections.estatus}
-                        onToggle={toggleSection}
-                    />
-
-                    <FilterSection
-                        title="Estatus Inscripción"
-                        items={inscripcionStatusOptions}
-                        filterType="estatusInscripcion"
-                        isExpanded={expandedSections.estatusInscripcion}
-                        onToggle={toggleSection}
-                    />
-                    <FilterSection
-                        title="Modalidad"
-                        items={modalidadOptions}
-                        filterType="modalidad"
-                        isExpanded={expandedSections.modalidad}
-                        onToggle={toggleSection}
-                        formatLabel={formatModalidadLabel}
-                    />
+                        <FilterSection
+                            title="Estatus Inscripción"
+                            items={inscripcionStatusOptions}
+                            filterType="estatusInscripcion"
+                            isExpanded={expandedSections.estatusInscripcion}
+                            onToggle={toggleSection}
+                        />
+                        <FilterSection
+                            title="Modalidad"
+                            items={modalidadOptions}
+                            filterType="modalidad"
+                            isExpanded={expandedSections.modalidad}
+                            onToggle={toggleSection}
+                            formatLabel={formatModalidadLabel}
+                        />
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Contenido principal */}
-            <div className={styles.mainContent}>
+            <div className={`${styles.mainContent} ${activeTab === "seguimiento" ? styles.mainContentFull : ""}`}>
                 {/* Pestañas */}
                 <div className={styles.tabsContainer}>
                     <div className={styles.tabButtons}>
@@ -548,24 +897,33 @@ const CursoYCredencialesAlumno = ({ enConvocatoria = false, universidadesConvoca
                         >
                             Credenciales ({filteredCredenciales.length})
                         </button>
+                        <button
+                            className={`${styles.tab} ${activeTab === "seguimiento" ? styles.activeTab : ""}`}
+                            onClick={() => setActiveTab("seguimiento")}
+                        >
+                            <FontAwesomeIcon icon={faClock} className={styles.tabIcon} />
+                            Mi Seguimiento
+                        </button>
                     </div>
-                    <div className={styles.searchBarContainer}>
-                        <FontAwesomeIcon icon={faMagnifyingGlass} className={styles.searchIcon} />
-                        <input
-                            type="text"
-                            placeholder="Buscar por nombre..."
-                            className={styles.searchInput}
-                            value={filters.searchTerm}
-                            onChange={handleSearchChange}
-                        />
-                    </div>
+                    {activeTab !== "seguimiento" && (
+                        <div className={styles.searchBarContainer}>
+                            <FontAwesomeIcon icon={faMagnifyingGlass} className={styles.searchIcon} />
+                            <input
+                                type="text"
+                                placeholder="Buscar por nombre..."
+                                className={styles.searchInput}
+                                value={filters.searchTerm}
+                                onChange={handleSearchChange}
+                            />
+                        </div>
+                    )}
                 </div>
 
                 {/* Contenido de las pestañas */}
                 <div className={styles.tabContent}>
                     {/* --- PASO 0: MANEJO DE ESTADOS DE CARGA Y ERROR --- */}
-                    {loading && <div className={styles.loadingState}>Cargando...</div>}
-                    {error && <div className={styles.errorState}>Error: {error}</div>}
+                    {loading && activeTab !== "seguimiento" && <div className={styles.loadingState}>Cargando...</div>}
+                    {error && activeTab !== "seguimiento" && <div className={styles.errorState}>Error: {error}</div>}
 
                     {activeTab === "cursos" && (
                         <div className={styles.cardsGrid}>
@@ -602,6 +960,8 @@ const CursoYCredencialesAlumno = ({ enConvocatoria = false, universidadesConvoca
                             ) : null}
                         </div>
                     )}
+
+                    {activeTab === "seguimiento" && renderSeguimientoContent()}
                 </div>
 
                 {/* Renderizamos el modal si hay un curso seleccionado */}

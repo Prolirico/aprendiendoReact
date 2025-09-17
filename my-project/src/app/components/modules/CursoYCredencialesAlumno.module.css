@@ -401,3 +401,276 @@
         padding: 0 15px 15px 15px;
     }
 }
+
+/* --- Estilos para la Pestaña "Mi Seguimiento" --- */
+
+/* Contenedor principal de la pestaña */
+.seguimientoContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem; /* Espacio entre las tarjetas de resumen y las secciones */
+}
+
+/* Tarjetas de resumen rápido */
+.resumenCards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.5rem;
+}
+
+.resumenCard {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background-color: #fff;
+    padding: 1.25rem;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.resumenCard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.resumenIcon {
+    font-size: 1.8rem;
+    color: #007bff;
+}
+
+.resumenCard h3 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.75rem;
+    color: #333;
+}
+
+.resumenCard p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Contenedor para las secciones de contenido */
+.seguimientoSections {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Estilo base para cada sección (Mis Cursos, Credenciales, etc.) */
+.seguimientoSection {
+    background-color: #fff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.seguimientoSection h3 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 1.4rem;
+    color: #333;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Estilos para las tablas (Cursos y Convocatorias) */
+.cursosTable, .convocatoriasTable {
+    overflow-x: auto; /* Para responsividad en tablas */
+}
+
+.tableHeader {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr; /* Ajusta según tus columnas */
+    padding: 0.75rem 1rem;
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #e0e0e0;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.convocatoriasTable .tableHeader {
+    grid-template-columns: 2fr 1.5fr 1fr 1.5fr 1fr; /* Columnas para convocatorias */
+}
+
+.tableRow {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr; /* Debe coincidir con el header */
+    padding: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.tableRow:last-child {
+    border-bottom: none;
+}
+
+.tableRow:hover {
+    background-color: #f8f9fa;
+}
+
+.convocatoriasTable .tableRow {
+    grid-template-columns: 2fr 1.5fr 1fr 1.5fr 1fr; /* Columnas para convocatorias */
+}
+
+.cursoInfo .cursoNombre, .convocatoriaNombre {
+    font-weight: 600;
+    color: #333;
+}
+
+.cursoInfo .cursoModalidad {
+    display: block;
+    font-size: 0.8rem;
+    color: #777;
+    margin-top: 4px;
+}
+
+.verMasBtn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.verMasBtn:hover {
+    background-color: #0056b3;
+}
+
+/* Estado de la inscripción (Badges) */
+.estadoBadge {
+    padding: 5px 12px;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-align: center;
+    display: inline-block;
+    border: 1px solid transparent;
+}
+
+/* Colores para los badges (ejemplos) */
+.estadoSolicitada, .estadoAviso, .estadoRevision { background-color: #e9ecef; color: #495057; border-color: #ced4da; }
+.estadoAceptada, .estadoActiva, .estadoAprobada { background-color: #d1ecf1; color: #0c5460; border-color: #bee5eb; }
+.estadoCompletada { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+.estadoRechazada, .estadoCancelada, .estadoAbandonada { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+.estadoListaEspera { background-color: #fff3cd; color: #856404; border-color: #ffeeba; }
+.estadoLlena { background-color: #f5c6cb; color: #721c24; }
+.estadoPlaneada, .estadoFinalizada { background-color: #e2e3e5; color: #383d41; border-color: #d6d8db; }
+
+/* Fechas próximas a vencer */
+.fechaProxima {
+    color: #dc3545;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.warningIcon {
+    color: #dc3545;
+}
+
+/* Progreso de Credenciales */
+.credencialesProgreso {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+.credencialProgresoCard {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.credencialHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.credencialHeader h4 { margin: 0; font-size: 1.1rem; color: #333; }
+.progresoPorcentaje { font-weight: 600; font-size: 1.1rem; color: #007bff; }
+
+.progresoBar {
+    width: 100%;
+    height: 8px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+}
+
+.progresoFill {
+    height: 100%;
+    background-color: #007bff;
+    border-radius: 4px;
+    transition: width 0.5s ease-in-out;
+}
+
+.progresoInfo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.verCredencialBtn {
+    background: none;
+    border: 1px solid #007bff;
+    color: #007bff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.verCredencialBtn:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Próximos Vencimientos */
+.vencimientosList { display: flex; flex-direction: column; gap: 1rem; }
+.vencimientoItem {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: #fff3cd;
+    border-left: 5px solid #ffc107;
+    border-radius: 0 8px 8px 0;
+}
+.vencimientoIcon { font-size: 1.5rem; color: #856404; }
+.vencimientoInfo { flex-grow: 1; }
+.vencimientoNombre { font-weight: 600; display: block; }
+.vencimientoUniversidad, .vencimientoTipo { font-size: 0.85rem; color: #665120; }
+.vencimientoFecha { display: flex; align-items: center; gap: 0.5rem; font-weight: 500; }
+
+/* Estado vacío */
+.emptyState {
+    text-align: center;
+    padding: 3rem 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    color: #6c757d;
+}
+.emptyState .checkIcon {
+    font-size: 2rem;
+    color: #28a745;
+    margin-bottom: 0.5rem;
+}
