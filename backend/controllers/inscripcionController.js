@@ -168,9 +168,11 @@ const actualizarEstadoInscripcion = async (req, res) => {
     // 1. Obtener datos clave de la inscripción y el alumno
     const [inscripciones] = await connection.query(
       `SELECT 
-        i.estatus_inscripcion, 
-        c.id_convocatoria,
-        a.id_universidad
+        i.estatus_inscripcion,
+        c.id_universidad,
+        (SELECT conv.id FROM convocatorias conv
+         JOIN capacidad_universidad cap ON conv.id = cap.convocatoria_id
+         WHERE cap.universidad_id = c.id_universidad AND conv.estado = 'activa' LIMIT 1) as id_convocatoria
        FROM inscripcion i
        JOIN curso c ON i.id_curso = c.id_curso
        JOIN alumno a ON i.id_alumno = a.id_alumno

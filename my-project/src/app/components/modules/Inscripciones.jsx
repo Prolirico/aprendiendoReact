@@ -204,10 +204,10 @@ function Inscripciones() {
         throw new Error("No se pudieron cargar los detalles de la credencial.");
       }
       const detailedCred = await response.json();
-      
-      setCredentials(prevCreds => 
-        prevCreds.map(cred => 
-          cred.id_credencial === credentialId 
+
+      setCredentials(prevCreds =>
+        prevCreds.map(cred =>
+          cred.id_credencial === credentialId
             ? { ...cred, cursos: detailedCred.cursos || [], cursos_loaded: true }
             : cred
         )
@@ -235,7 +235,7 @@ function Inscripciones() {
 
     const body = { estado: newStatus };
     if (newStatus === 'rechazada' && reason) {
-        body.motivo_rechazo = reason;
+      body.motivo_rechazo = reason;
     }
 
     const token = getToken();
@@ -246,30 +246,30 @@ function Inscripciones() {
     }
 
     try {
-        const response = await fetch(`http://localhost:5000/api/inscripciones/${selectedApplication.id_inscripcion}/estado`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify(body)
-        });
+      const response = await fetch(`http://localhost:5000/api/inscripciones/${selectedApplication.id_inscripcion}/estado`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(body)
+      });
 
-        const result = await response.json();
-        if (!response.ok) {
-            throw new Error(result.error || 'Error al actualizar el estado.');
-        }
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || 'Error al actualizar el estado.');
+      }
 
-        showToast('Estado de la solicitud actualizado con éxito.', 'success');
-        
-        setShowModal(false);
-        if (showRejectModal) setShowRejectModal(false);
-        
-        fetchApplications();
+      showToast('Estado de la solicitud actualizado con éxito.', 'success');
+
+      setShowModal(false);
+      if (showRejectModal) setShowRejectModal(false);
+
+      fetchApplications();
 
     } catch (err) {
-        showToast(`Error: ${err.message}`, 'error');
+      showToast(`Error: ${err.message}`, 'error');
     } finally {
-        setIsUpdating(false);
-        setSelectedApplication(null);
-        if (reason) setRejectReason('');
+      setIsUpdating(false);
+      setSelectedApplication(null);
+      if (reason) setRejectReason('');
     }
   };
 
@@ -284,8 +284,8 @@ function Inscripciones() {
 
   const confirmReject = () => {
     if (!rejectReason.trim()) {
-        showToast('Por favor, ingrese un motivo de rechazo.', 'error');
-        return;
+      showToast('Por favor, ingrese un motivo de rechazo.', 'error');
+      return;
     }
     handleUpdateStatus('rechazada', rejectReason);
   };
@@ -293,7 +293,7 @@ function Inscripciones() {
   // --- RENDER FUNCTIONS ---
 
   const renderContent = () => {
-    switch(activeTab) {
+    switch (activeTab) {
       case 'credenciales':
         return (
           <div className={styles.tabContent}>
@@ -326,12 +326,12 @@ function Inscripciones() {
                           <h3>{cred.nombre_credencial}</h3>
                           <span>{cred.nombre_universidad}</span>
                         </div>
-                        <FontAwesomeIcon 
-                          icon={faChevronRight} 
-                          className={`${styles.chevronIcon} ${expandedCredentialId === cred.id_credencial ? styles.expanded : ''}`} 
+                        <FontAwesomeIcon
+                          icon={faChevronRight}
+                          className={`${styles.chevronIcon} ${expandedCredentialId === cred.id_credencial ? styles.expanded : ''}`}
                         />
                       </div>
-                      
+
                       {expandedCredentialId === cred.id_credencial && (
                         <div className={styles.courseListContainer}>
                           {isDetailLoading && !cred.cursos_loaded ? (
@@ -344,11 +344,11 @@ function Inscripciones() {
                                 cred.cursos
                                   .filter(curso => curso)
                                   .map(curso => (
-                                  <li key={curso.id_curso} onClick={() => handleCourseClick(curso)} className={styles.courseItem}>
-                                    <span>{curso.nombre_curso}</span>
-                                    <FontAwesomeIcon icon={faChevronRight} />
-                                  </li>
-                                ))
+                                    <li key={curso.id_curso} onClick={() => handleCourseClick(curso)} className={styles.courseItem}>
+                                      <span>{curso.nombre_curso}</span>
+                                      <FontAwesomeIcon icon={faChevronRight} />
+                                    </li>
+                                  ))
                               ) : (
                                 <li className={`${styles.courseItem} ${styles.noCourses}`}>No hay cursos en esta credencial.</li>
                               )}
@@ -415,7 +415,7 @@ function Inscripciones() {
             <div className={styles.filters}>
               <div className={styles.filterGroup}>
                 <label>Filtrar por Credencial</label>
-                <select 
+                <select
                   value={selectedFilter.credencial}
                   onChange={(e) => handleFilterChange('credencial', e.target.value)}
                 >
@@ -427,7 +427,7 @@ function Inscripciones() {
               </div>
               <div className={styles.filterGroup}>
                 <label>Filtrar por Curso</label>
-                <select 
+                <select
                   value={selectedFilter.curso}
                   onChange={(e) => handleFilterChange('curso', e.target.value)}
                 >
@@ -439,7 +439,7 @@ function Inscripciones() {
               </div>
               <div className={styles.filterGroup}>
                 <label>Filtrar por Estado</label>
-                <select 
+                <select
                   value={selectedFilter.estado}
                   onChange={(e) => handleFilterChange('estado', e.target.value)}
                 >
@@ -460,7 +460,7 @@ function Inscripciones() {
                   <FontAwesomeIcon icon={faSyncAlt} className={applicationsLoading ? styles.spinning : ''} /> Actualizar
                 </button>
               </div>
-              
+
               <div className={styles.tableContainer}>
                 <table className={styles.table}>
                   <thead>
@@ -478,7 +478,7 @@ function Inscripciones() {
                         <td colSpan="5" className={styles.loading}>Cargando inscripciones...</td>
                       </tr>
                     ) : applicationsError ? (
-                       <tr>
+                      <tr>
                         <td colSpan="5" className={styles.emptyState}>
                           <div className={styles.emptyStateContent}>
                             <h4>Error al cargar</h4>
@@ -503,7 +503,7 @@ function Inscripciones() {
                           <td>{new Date(app.fecha_solicitud).toLocaleDateString()}</td>
                           <td><span className={`${styles.status} ${styles[app.estado]}`}>{app.estado}</span></td>
                           <td>
-                            <button 
+                            <button
                               className={styles.actionButton}
                               onClick={() => handleShowDetails(app)}
                             >
@@ -549,7 +549,7 @@ function Inscripciones() {
       <main className={styles.main}>
         <div className={styles.layout}>
           <nav className={styles.sidebar}>
-            <button 
+            <button
               className={`${styles.sidebarButton} ${activeTab === 'credenciales' ? styles.active : ''}`}
               onClick={() => handleTabChange('credenciales')}
               title="Credenciales"
@@ -557,8 +557,8 @@ function Inscripciones() {
               <FontAwesomeIcon icon={faAddressCard} />
               <span className={styles.sidebarLabel}>Credenciales</span>
             </button>
-            
-            <button 
+
+            <button
               className={`${styles.sidebarButton} ${activeTab === 'cursos' ? styles.active : ''}`}
               onClick={() => handleTabChange('cursos')}
               title="Cursos sin Credencial"
@@ -566,8 +566,8 @@ function Inscripciones() {
               <FontAwesomeIcon icon={faBook} />
               <span className={styles.sidebarLabel}>Cursos sin Credencial</span>
             </button>
-            
-            <button 
+
+            <button
               className={`${styles.sidebarButton} ${activeTab === 'inscripciones' ? styles.active : ''}`}
               onClick={() => handleTabChange('inscripciones')}
               title="Panel de Inscripciones"
@@ -575,8 +575,8 @@ function Inscripciones() {
               <FontAwesomeIcon icon={faClipboardList} />
               <span className={styles.sidebarLabel}>Panel de Inscripciones</span>
             </button>
-            
-            <button 
+
+            <button
               className={`${styles.sidebarButton} ${activeTab === 'analisis' ? styles.active : ''}`}
               onClick={() => handleTabChange('analisis')}
               title="Análisis"
@@ -597,14 +597,14 @@ function Inscripciones() {
           <div className={styles.modal}>
             <div className={styles.modalHeader}>
               <h3>Detalles de la Solicitud</h3>
-              <button 
+              <button
                 className={styles.closeButton}
                 onClick={() => setShowModal(false)}
               >
                 <FontAwesomeIcon icon={faTimes} />
               </button>
             </div>
-            
+
             <div className={styles.modalContent}>
               <div className={styles.detailsGrid}>
                 <div className={styles.detailSection}>
@@ -612,7 +612,7 @@ function Inscripciones() {
                   <p><strong>Nombre:</strong> {selectedApplication.nombre_alumno}</p>
                   <p><strong>Email:</strong> {selectedApplication.email_alumno}</p>
                 </div>
-                
+
                 <div className={styles.detailSection}>
                   <h4>Información del Curso</h4>
                   <p><strong>Curso:</strong> {selectedApplication.nombre_curso}</p>
@@ -628,15 +628,15 @@ function Inscripciones() {
 
               <div className={styles.modalActions}>
                 <h4>Actualizar Estado</h4>
-                <div className={styles.actionButtons}>
-                  <button 
+                <div className={`${styles.actionButtons} ${styles.centeredActions}`} >
+                  <button
                     className={styles.approveButton}
                     onClick={handleApprove}
                     disabled={isUpdating}
                   >
                     {isUpdating ? <FontAwesomeIcon icon={faSpinner} spin /> : <FontAwesomeIcon icon={faCheck} />} Aprobar
                   </button>
-                  <button 
+                  <button
                     className={styles.rejectButton}
                     onClick={handleReject}
                     disabled={isUpdating}
@@ -656,7 +656,7 @@ function Inscripciones() {
             <div className={styles.modalHeader}>
               <h3>Motivo del rechazo</h3>
             </div>
-            
+
             <div className={styles.modalContent}>
               <textarea
                 value={rejectReason}
@@ -667,7 +667,7 @@ function Inscripciones() {
             </div>
 
             <div className={styles.modalFooter}>
-              <button 
+              <button
                 className={styles.cancelButton}
                 onClick={() => {
                   setShowModal(true);
@@ -678,7 +678,7 @@ function Inscripciones() {
               >
                 Cancelar
               </button>
-              <button 
+              <button
                 className={styles.confirmButton}
                 onClick={confirmReject}
                 disabled={isUpdating}
