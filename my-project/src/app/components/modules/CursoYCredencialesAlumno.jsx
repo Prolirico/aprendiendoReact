@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, useMemo } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faMagnifyingGlass, faCalendarAlt, faUniversity, faCheckCircle, faTimesCircle, faClock, faGraduationCap } from "@fortawesome/free-solid-svg-icons"
 import CursoCard from "../controls/CursoCard"
@@ -8,8 +8,12 @@ import CredencialCard from "../controls/CredencialCard"
 import CursoModal from "../modals/CursoModal"
 import CredencialModal from "../modals/CredencialModal"
 import styles from "./CursoYCredencialesAlumno.module.css"
-
-const CursoYCredencialesAlumno = ({ enConvocatoria = false, universidadesConvocatoria = [], universidadAlumno = null }) => {
+const CursoYCredencialesAlumno = ({ 
+    enConvocatoria = false, 
+    universidadesConvocatoria = [], 
+    universidadAlumno = null, 
+    solicitudesDelAlumno = [] // <-- RECIBIMOS LA NUEVA PROP
+ }) => {
     // Estados para pestañas - agregamos "seguimiento"
     const [activeTab, setActiveTab] = useState("cursos")
 
@@ -38,7 +42,6 @@ const CursoYCredencialesAlumno = ({ enConvocatoria = false, universidadesConvoca
     const [universidades, setUniversidades] = useState([])
     const [categorias, setCategorias] = useState([])
     const [inscripciones, setInscripciones] = useState([]); // Estado para las inscripciones del alumno
-    const [convocatoriasAlumno, setConvocatoriasAlumno] = useState([]); // Nuevo estado para convocatorias del alumno
 
     // --- ESTADOS DE UI (CARGA Y ERRORES) ---
     const [loading, setLoading] = useState(true)
@@ -180,24 +183,6 @@ const CursoYCredencialesAlumno = ({ enConvocatoria = false, universidadesConvoca
         return credentialIds;
     }, [filters.modalidad, cursos]);
 
-    // Función para cargar convocatorias del alumno
-    const fetchConvocatoriasAlumno = useCallback(async () => {
-        const token = localStorage.getItem('token');
-        if (!token) return;
-
-        try {
-            const response = await fetch('http://localhost:5000/api/convocatorias/solicitudes/alumno', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (response.ok) {
-                const data = await response.json();
-                setConvocatoriasAlumno(data.solicitudes || []);
-            }
-        } catch (error) {
-            console.error("Error al cargar convocatorias del alumno:", error);
-        }
-    }, []);
-    
     // --- VINCULACIÓN CON API ---
     // Usamos useEffect para cargar todos los datos iniciales cuando el componente se monta.
     useEffect(() => {
@@ -291,14 +276,6 @@ const CursoYCredencialesAlumno = ({ enConvocatoria = false, universidadesConvoca
         fetchAllData()
         // El array vacío [] significa que este efecto se ejecuta solo una vez
     }, [enConvocatoria, universidadesConvocatoria, universidadAlumno]); // Se ejecuta cuando cambia el modo convocatoria o el alumno
-
-    // Cargar convocatorias cuando se cambia a la pestaña de seguimiento
-    useEffect(() => {
-        if (activeTab === "seguimiento") {
-            fetchConvocatoriasAlumno();
-        }
-    }, [activeTab, fetchConvocatoriasAlumno]);
-
     // Limpiar filtros de estatus cuando cambia la pestaña activa
     useEffect(() => {
         setFilters(prev => ({
@@ -626,7 +603,7 @@ const CursoYCredencialesAlumno = ({ enConvocatoria = false, universidadesConvoca
                     <div className={styles.resumenCard}>
                         <FontAwesomeIcon icon={faCalendarAlt} className={styles.resumenIcon} />
                         <div>
-                            <h3>{convocatoriasAlumno.length}</h3>
+                            <h3>{solicitudesDelAlumno.length}</h3>
                             <p>Convocatorias</p>
                         </div>
                     </div>
@@ -641,7 +618,7 @@ const CursoYCredencialesAlumno = ({ enConvocatoria = false, universidadesConvoca
                             <div className={styles.cursosTable}>
                                 <div className={styles.tableHeader}>
                                     <span>Curso</span>
-                                    <span>Universidad</span>
+                                    <span>Universidades</span>
                                     <span>Estado Inscripción</span>
                                     <span>Estado Curso</span>
                                     <span>Fecha Fin</span>
@@ -717,28 +694,22 @@ const CursoYCredencialesAlumno = ({ enConvocatoria = false, universidadesConvoca
                     {/* Convocatorias */}
                     <section className={styles.seguimientoSection}>
                         <h3>Mis Convocatorias</h3>
-                        {convocatoriasAlumno.length > 0 ? (
+                                {solicitudesDelAlumno.length > 0 ? (
                             <div className={styles.convocatoriasTable}>
                                 <div className={styles.tableHeader}>
                                     <span>Convocatoria</span>
-                                    <span>Universidad</span>
+                                    <span>Universidades</span>
                                     <span>Estado</span>
-                                    <span>Periodo Ejecución</span>
                                     <span>Fecha Solicitud</span>
                                 </div>
-                                {convocatoriasAlumno.map(convocatoria => (
-                                    <div key={convocatoria.id} className={styles.tableRow}>
-                                        <span className={styles.convocatoriaNombre}>{convocatoria.convocatoria_nombre}</span>
-                                        <span>{convocatoria.universidad_nombre}</span>
-                                        <div>{getEstadoBadge(convocatoria.estado)}</div>
-                                        <div className={styles.fechaRango}>
-                                            <div>{formatDate(convocatoria.fecha_ejecucion_inicio)}</div>
-                                            <div>{formatDate(convocatoria.fecha_ejecucion_fin)}</div>
-                                            {(isDateUpcoming(convocatoria.fecha_ejecucion_inicio) || isDateUpcoming(convocatoria.fecha_ejecucion_fin)) && (
-                                                <FontAwesomeIcon icon={faClock} className={styles.warningIcon} />
-                                            )}
-                                        </div>
-                                        <span>{formatDate(convocatoria.fecha_solicitud)}</span>
+                                {solicitudesDelAlumno.map(solicitud => (
+                                    <div key={solicitud.id} className={`${styles.tableRow} ${styles.convocatoriaRow}`}>
+                                        <span className={styles.convocatoriaNombre}>{solicitud.convocatoria_nombre}</span>
+                                        <td>
+                                            {(solicitud.universidades_participantes || []).join(', ')}
+                                        </td>
+                                        <div>{getEstadoBadge(solicitud.estado)}</div>
+                                        <span>{formatDate(solicitud.fecha_solicitud)}</span>
                                     </div>
                                 ))}
                             </div>
@@ -760,8 +731,11 @@ const CursoYCredencialesAlumno = ({ enConvocatoria = false, universidadesConvoca
                             
                             // Cursos próximos a vencer
                             cursosInscritos.forEach(curso => {
+                                const estadosExcluidos = ['rechazada', 'abandonada', 'completada'];
                                 if (isDateUpcoming(curso.fecha_fin) && 
-                                    (curso.estatus_inscripcion === 'aprobada' || curso.estatus_inscripcion === 'en_curso')) {
+                                    curso.estatus_inscripcion && // Asegurarse de que hay un estado
+                                    !estadosExcluidos.includes(curso.estatus_inscripcion)
+                                ) {
                                     proximosVencimientos.push({
                                         tipo: 'curso',
                                         nombre: curso.nombre_curso,
@@ -772,13 +746,16 @@ const CursoYCredencialesAlumno = ({ enConvocatoria = false, universidadesConvoca
                             });
 
                             // Convocatorias próximas a vencer
-                            convocatoriasAlumno.forEach(conv => {
-                                if (isDateUpcoming(conv.fecha_ejecucion_fin) && conv.estado === 'aceptada') {
+                            solicitudesDelAlumno.forEach(solicitud => {
+                                const estadosExcluidos = ['rechazada', 'cancelada', 'finalizada'];
+                                if (isDateUpcoming(solicitud.fecha_ejecucion_fin) &&
+                                    solicitud.estado &&
+                                    !estadosExcluidos.includes(solicitud.estado)) {
                                     proximosVencimientos.push({
                                         tipo: 'convocatoria',
-                                        nombre: conv.convocatoria_nombre,
-                                        fecha: conv.fecha_ejecucion_fin,
-                                        universidad: conv.universidad_nombre
+                                        nombre: solicitud.convocatoria_nombre, // <-- Usamos el nombre correcto
+                                        fecha: solicitud.fecha_ejecucion_fin,
+                                        universidad: solicitud.universidad_nombre,
                                     });
                                 }
                             });

@@ -135,6 +135,7 @@ function StudentDashboard({ userId }) {
             enConvocatoria={enConvocatoria}
             universidadesConvocatoria={estadoGeneral?.universidadesParticipantes || []}
             universidadAlumno={estadoGeneral?.universidadDelAlumno}
+            solicitudesDelAlumno={estadoGeneral?.solicitudesDelAlumno || []} // <-- ¡NUEVA PROP!
           />
         </section>
 

@@ -404,13 +404,39 @@ const getEstadoGeneralAlumno = async (req, res) => {
       WHERE sc.alumno_id = ? AND sc.estado IN ('solicitada', 'rechazada')
     `, [id_alumno]);
 
+    // 5. Obtener TODAS las solicitudes del alumno para la tabla "Mis Convocatorias"
+    const [solicitudesDelAlumno] = await connection.query(`
+      SELECT
+        sc.id, c.id as convocatoria_id,
+        c.nombre AS convocatoria_nombre,
+        sc.estado,
+        sc.fecha_solicitud,
+        c.fecha_ejecucion_fin
+      FROM solicitudes_convocatorias sc
+      JOIN convocatorias c ON sc.convocatoria_id = c.id
+      WHERE sc.alumno_id = ?
+      ORDER BY sc.fecha_solicitud DESC
+    `, [id_alumno]);
+
+    // 6. Para cada solicitud, obtener las universidades participantes
+    for (let solicitud of solicitudesDelAlumno) {
+        const [universidadesParticipantes] = await connection.query(`
+            SELECT u.nombre
+            FROM convocatoria_universidades cu
+            JOIN universidad u ON cu.universidad_id = u.id_universidad
+            WHERE cu.convocatoria_id = ?
+        `, [solicitud.convocatoria_id]);
+        
+        // Asignamos la lista de nombres de universidades a la solicitud
+        solicitud.universidades_participantes = universidadesParticipantes.map(u => u.nombre);
+    }
 
     res.json({
       universidadDelAlumno, // <-- AÑADIDO: Devolvemos la universidad del alumno
       convocatoriasEnEjecucion,
       universidadesParticipantes,
       convocatoriasDisponibles,
-      solicitudesPasadas // Renombrado para mayor claridad
+      solicitudesDelAlumno // Devolvemos la lista completa y unificada
     });
 
   } catch (error) {
