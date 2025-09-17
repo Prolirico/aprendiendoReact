@@ -611,6 +611,80 @@ const CursoYCredencialesAlumno = ({
 
                 {/* Secciones de seguimiento */}
                 <div className={styles.seguimientoSections}>
+                    {/* Próximos Vencimientos */}
+                    <section className={styles.seguimientoSection}>
+                        <h3>
+                            <FontAwesomeIcon icon={faClock} className={styles.sectionIcon} />
+                            Próximos Vencimientos
+                        </h3>
+                        {(() => {
+                            const proximosVencimientos = [];
+                            
+                            // Cursos próximos a vencer
+                            cursosInscritos.forEach(curso => {
+                                const estadosExcluidos = ['rechazada', 'abandonada', 'completada'];
+                                if (isDateUpcoming(curso.fecha_fin) && 
+                                    curso.estatus_inscripcion && // Asegurarse de que hay un estado
+                                    !estadosExcluidos.includes(curso.estatus_inscripcion)
+                                ) {
+                                    proximosVencimientos.push({
+                                        tipo: 'curso',
+                                        nombre: curso.nombre_curso,
+                                        fecha: curso.fecha_fin,
+                                        universidad: curso.nombre_universidad
+                                    });
+                                }
+                            });
+
+                            // Convocatorias próximas a vencer
+                            solicitudesDelAlumno.forEach(solicitud => {
+                                const estadosExcluidos = ['rechazada', 'cancelada', 'finalizada'];
+                                if (isDateUpcoming(solicitud.fecha_ejecucion_fin) &&
+                                    solicitud.estado &&
+                                    !estadosExcluidos.includes(solicitud.estado)) {
+                                    proximosVencimientos.push({
+                                        tipo: 'convocatoria',
+                                        nombre: solicitud.convocatoria_nombre, // <-- Usamos el nombre correcto
+                                        fecha: solicitud.fecha_ejecucion_fin,
+                                        universidad: solicitud.universidad_nombre,
+                                    });
+                                }
+                            });
+
+                            // Ordenar por fecha
+                            proximosVencimientos.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+
+                            return proximosVencimientos.length > 0 ? (
+                                <div className={styles.vencimientosList}>
+                                    {proximosVencimientos.map((item, index) => (
+                                        <div key={index} className={styles.vencimientoItem}>
+                                            <FontAwesomeIcon 
+                                                icon={item.tipo === 'curso' ? faGraduationCap : faCalendarAlt} 
+                                                className={styles.vencimientoIcon} 
+                                            />
+                                            <div className={styles.vencimientoInfo}>
+                                                <span className={styles.vencimientoNombre}>{item.nombre}</span>
+                                                <span className={styles.vencimientoUniversidad}>{item.universidad}</span>
+                                                <span className={styles.vencimientoTipo}>
+                                                    {item.tipo === 'curso' ? 'Curso' : 'Convocatoria'}
+                                                </span>
+                                            </div>
+                                            <div className={styles.vencimientoFecha}>
+                                                <FontAwesomeIcon icon={faClock} />
+                                                <span>{formatDate(item.fecha)}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className={styles.emptyState}>
+                                    <FontAwesomeIcon icon={faCheckCircle} className={styles.checkIcon} />
+                                    <p>No tienes vencimientos próximos. ¡Todo al día!</p>
+                                </div>
+                            );
+                        })()}
+                    </section>
+
                     {/* Cursos Inscritos */}
                     <section className={styles.seguimientoSection}>
                         <h3>Mis Cursos</h3>
@@ -705,9 +779,9 @@ const CursoYCredencialesAlumno = ({
                                 {solicitudesDelAlumno.map(solicitud => (
                                     <div key={solicitud.id} className={`${styles.tableRow} ${styles.convocatoriaRow}`}>
                                         <span className={styles.convocatoriaNombre}>{solicitud.convocatoria_nombre}</span>
-                                        <td>
+                                        <span>
                                             {(solicitud.universidades_participantes || []).join(', ')}
-                                        </td>
+                                        </span>
                                         <div>{getEstadoBadge(solicitud.estado)}</div>
                                         <span>{formatDate(solicitud.fecha_solicitud)}</span>
                                     </div>
@@ -718,80 +792,6 @@ const CursoYCredencialesAlumno = ({
                                 <p>No has solicitado ninguna convocatoria aún.</p>
                             </div>
                         )}
-                    </section>
-
-                    {/* Próximos Vencimientos */}
-                    <section className={styles.seguimientoSection}>
-                        <h3>
-                            <FontAwesomeIcon icon={faClock} className={styles.sectionIcon} />
-                            Próximos Vencimientos
-                        </h3>
-                        {(() => {
-                            const proximosVencimientos = [];
-                            
-                            // Cursos próximos a vencer
-                            cursosInscritos.forEach(curso => {
-                                const estadosExcluidos = ['rechazada', 'abandonada', 'completada'];
-                                if (isDateUpcoming(curso.fecha_fin) && 
-                                    curso.estatus_inscripcion && // Asegurarse de que hay un estado
-                                    !estadosExcluidos.includes(curso.estatus_inscripcion)
-                                ) {
-                                    proximosVencimientos.push({
-                                        tipo: 'curso',
-                                        nombre: curso.nombre_curso,
-                                        fecha: curso.fecha_fin,
-                                        universidad: curso.nombre_universidad
-                                    });
-                                }
-                            });
-
-                            // Convocatorias próximas a vencer
-                            solicitudesDelAlumno.forEach(solicitud => {
-                                const estadosExcluidos = ['rechazada', 'cancelada', 'finalizada'];
-                                if (isDateUpcoming(solicitud.fecha_ejecucion_fin) &&
-                                    solicitud.estado &&
-                                    !estadosExcluidos.includes(solicitud.estado)) {
-                                    proximosVencimientos.push({
-                                        tipo: 'convocatoria',
-                                        nombre: solicitud.convocatoria_nombre, // <-- Usamos el nombre correcto
-                                        fecha: solicitud.fecha_ejecucion_fin,
-                                        universidad: solicitud.universidad_nombre,
-                                    });
-                                }
-                            });
-
-                            // Ordenar por fecha
-                            proximosVencimientos.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
-
-                            return proximosVencimientos.length > 0 ? (
-                                <div className={styles.vencimientosList}>
-                                    {proximosVencimientos.map((item, index) => (
-                                        <div key={index} className={styles.vencimientoItem}>
-                                            <FontAwesomeIcon 
-                                                icon={item.tipo === 'curso' ? faGraduationCap : faCalendarAlt} 
-                                                className={styles.vencimientoIcon} 
-                                            />
-                                            <div className={styles.vencimientoInfo}>
-                                                <span className={styles.vencimientoNombre}>{item.nombre}</span>
-                                                <span className={styles.vencimientoUniversidad}>{item.universidad}</span>
-                                                <span className={styles.vencimientoTipo}>
-                                                    {item.tipo === 'curso' ? 'Curso' : 'Convocatoria'}
-                                                </span>
-                                            </div>
-                                            <div className={styles.vencimientoFecha}>
-                                                <FontAwesomeIcon icon={faClock} />
-                                                <span>{formatDate(item.fecha)}</span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className={styles.emptyState}>
-                                    <FontAwesomeIcon icon={faCheckCircle} className={styles.checkIcon} />
-                                    <p>No tienes vencimientos próximos. ¡Todo al día!</p>
-                                </div>
-                            );
-                        })()}
                     </section>
                 </div>
             </div>
