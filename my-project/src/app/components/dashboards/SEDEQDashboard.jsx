@@ -9,6 +9,7 @@ import CredencialesCursos from "../modules/CredencialesCursos";
 import Inscripciones from "../modules/Inscripciones";
 import Dominios from "../modules/Dominios";
 import Convocatorias from "../modules/Convocatorias";
+import CalificacionCurso from "../modules/CalificacionCurso";
 
 function SEDEQDashboard({ userId }) {
   const [data, setData] = useState({
@@ -80,6 +81,12 @@ function SEDEQDashboard({ userId }) {
           <Dominios />
         </section>
       </div>
+      <div className={styles.modulos}>
+        <h1>Gestión de Calificaciones de Cursos</h1>
+        <section>
+          <CalificacionCurso rol="sedeq" />
+        </section>
+      </div>      
     </div>
   );
 }

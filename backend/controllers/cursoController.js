@@ -11,7 +11,10 @@ const getAllCursos = async (req, res) => {
     id_facultad,
     exclude_assigned = "true",
     editing_credential_id,
-    universidades, // Añadimos el nuevo parámetro
+    universidades,
+    groupByCourse, // <-- Nuestro nuevo parámetro
+    universidadId, // <-- Añadir estos parámetros que envía el frontend
+    facultadId,
   } = req.query;
   const offset = (page - 1) * limit;
 
@@ -30,31 +33,35 @@ const getAllCursos = async (req, res) => {
       queryParams.push(id_maestro);
     }
 
-    // **AQUÍ ESTÁ EL CAMBIO CLAVE**
-    // Si se pasa el filtro de universidades, lo añadimos a la consulta
+    // **FILTRO POR UNIVERSIDADES** (puede venir como 'universidades' o 'universidadId')
     if (universidades) {
       const uniIds = universidades.split(',').map(id => parseInt(id.trim(), 10));
       if (uniIds.length > 0) {
         whereClauses.push(`c.id_universidad IN (?)`);
         queryParams.push(uniIds);
       }
+    } else if (universidadId && universidadId !== "undefined" && universidadId !== "") {
+      whereClauses.push("c.id_universidad = ?");
+      queryParams.push(universidadId);
     }
 
+    // **FILTRO POR FACULTAD** (puede venir como 'id_facultad' o 'facultadId')
     if (id_facultad && id_facultad !== "undefined") {
       whereClauses.push("c.id_facultad = ?");
       queryParams.push(id_facultad);
+    } else if (facultadId && facultadId !== "undefined" && facultadId !== "") {
+      whereClauses.push("c.id_facultad = ?");
+      queryParams.push(facultadId);
     }
 
     // Exclude courses already assigned to credentials
     if (exclude_assigned === "true") {
       if (editing_credential_id && editing_credential_id !== "undefined") {
-        // When editing, exclude courses assigned to OTHER credentials (not the one being edited)
         whereClauses.push(
           "c.id_curso NOT IN (SELECT rc.id_curso FROM requisitos_certificado rc WHERE rc.id_certificacion != ?)",
         );
         queryParams.push(editing_credential_id);
       } else {
-        // When creating new, exclude ALL assigned courses
         whereClauses.push(
           "c.id_curso NOT IN (SELECT rc.id_curso FROM requisitos_certificado rc)",
         );
@@ -64,30 +71,75 @@ const getAllCursos = async (req, res) => {
     const whereString =
       whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : "";
 
-    // Conteo total para paginación
-    const countQuery = `SELECT COUNT(*) as total FROM curso c ${whereString}`;
+    // **CONTEO CORREGIDO PARA CONSIDERAR GROUP BY**
+    let countQuery, totalCursos;
+    
+    if (groupByCourse === 'true') {
+      // Para consultas agrupadas, necesitamos contar grupos únicos
+      countQuery = `
+        SELECT COUNT(DISTINCT c.id_curso) as total 
+        FROM curso c 
+        LEFT JOIN maestro m ON c.id_maestro = m.id_maestro
+        LEFT JOIN universidad u ON c.id_universidad = u.id_universidad
+        LEFT JOIN facultades f ON c.id_facultad = f.id_facultad
+        LEFT JOIN carreras car ON c.id_carrera = car.id_carrera
+        LEFT JOIN calificaciones_curso cc ON c.id_curso = cc.id_curso
+        LEFT JOIN categoria_curso cat ON c.id_categoria = cat.id_categoria
+        LEFT JOIN requisitos_certificado rc ON c.id_curso = rc.id_curso
+        LEFT JOIN certificacion cert ON rc.id_certificacion = cert.id_certificacion
+        ${whereString}
+      `;
+    } else {
+      // Para consultas normales, conteo estándar
+      countQuery = `SELECT COUNT(*) as total FROM curso c ${whereString}`;
+    }
+    
     const [countResult] = await pool.query(countQuery, queryParams);
-    const totalCursos = countResult[0].total;
+    totalCursos = countResult[0].total;
     const totalPages = Math.ceil(totalCursos / limit);
+    
+    // Construcción dinámica de la consulta principal
+    let selectFields, joins, groupByClause = "";
 
-    // Obtener los cursos de la página actual con información de credencial
-    const dataQuery = `
-            SELECT c.*,
-                   m.nombre_completo as nombre_maestro,
-                   u.nombre as nombre_universidad,
-                   f.nombre as nombre_facultad,
-                   cat.nombre_categoria,
-                   cat.id_area,
-                   cert.nombre as nombre_credencial,
-                   cert.id_certificacion as id_credencial
-            FROM curso c
+    if (groupByCourse === 'true') {
+        selectFields = `
+            c.*,
+            m.nombre_completo as nombre_maestro,
+            u.nombre as nombre_universidad,
+            f.nombre as nombre_facultad,
+            car.nombre as nombre_carrera,
+            cat.nombre_categoria,
+            cc.umbral_aprobatorio,
+            GROUP_CONCAT(DISTINCT cert.nombre SEPARATOR ', ') as nombre_credencial
+        `;
+        joins = `
+            LEFT JOIN maestro m ON c.id_maestro = m.id_maestro
+            LEFT JOIN universidad u ON c.id_universidad = u.id_universidad
+            LEFT JOIN facultades f ON c.id_facultad = f.id_facultad
+            LEFT JOIN carreras car ON c.id_carrera = car.id_carrera
+            LEFT JOIN calificaciones_curso cc ON c.id_curso = cc.id_curso
+            LEFT JOIN categoria_curso cat ON c.id_categoria = cat.id_categoria
+            LEFT JOIN requisitos_certificado rc ON c.id_curso = rc.id_curso
+            LEFT JOIN certificacion cert ON rc.id_certificacion = cert.id_certificacion
+        `;
+        groupByClause = "GROUP BY c.id_curso";
+    } else {
+        selectFields = `c.*, m.nombre_completo as nombre_maestro, u.nombre as nombre_universidad, f.nombre as nombre_facultad, cat.nombre_categoria, cat.id_area, cert.nombre as nombre_credencial, cert.id_certificacion as id_credencial`;
+        joins = `
             LEFT JOIN maestro m ON c.id_maestro = m.id_maestro
             LEFT JOIN universidad u ON c.id_universidad = u.id_universidad
             LEFT JOIN facultades f ON c.id_facultad = f.id_facultad
             LEFT JOIN categoria_curso cat ON c.id_categoria = cat.id_categoria
             LEFT JOIN requisitos_certificado rc ON c.id_curso = rc.id_curso
             LEFT JOIN certificacion cert ON rc.id_certificacion = cert.id_certificacion
+        `;
+    }
+
+    const dataQuery = `
+            SELECT ${selectFields}
+            FROM curso c ${joins}
             ${whereString}
+            ${groupByClause}
             ORDER BY c.nombre_curso ASC
             LIMIT ? OFFSET ?
         `;
@@ -111,8 +163,7 @@ const getAllCursos = async (req, res) => {
   }
 };
 
-// @desc    Obtener un curso por su ID
-// @route   GET /api/cursos/:id
+// ... resto de funciones sin cambios
 const getCursoById = async (req, res) => {
   const { id } = req.params;
   try {
@@ -130,13 +181,11 @@ const getCursoById = async (req, res) => {
   }
 };
 
-// @desc    Crear un nuevo curso
-// @route   POST /api/cursos
 const createCurso = async (req, res) => {
   const {
     id_maestro,
     id_categoria,
-    id_area, // <-- Añadir id_area para la creación
+    id_area,
     id_universidad,
     id_facultad,
     id_carrera,
@@ -152,7 +201,6 @@ const createCurso = async (req, res) => {
     modalidad,
     tipo_costo,
     costo,
-    // Añadimos horas de teoría y práctica
     horas_teoria,
     horas_practica,
   } = req.body;
@@ -170,7 +218,6 @@ const createCurso = async (req, res) => {
       .json({ error: "Faltan campos obligatorios para crear el curso." });
   }
 
-   // --- INICIO DE VALIDACIÓN DE HORAS ---
   const totalHoras = parseInt(duracion_horas, 10);
   const teoriaHoras = parseInt(horas_teoria, 10) || 0;
   const practicaHoras = parseInt(horas_practica, 10) || 0;
@@ -189,14 +236,11 @@ const createCurso = async (req, res) => {
     });
   }
 
-   // --- FIN DE VALIDACIÓN DE HORAS ---
-
   let connection;
   try {
     connection = await pool.getConnection();
     await connection.beginTransaction();
 
-    // 1. Insertar el curso sin el código
     const [result] = await connection.query(
       `INSERT INTO curso (id_maestro, id_area, id_categoria, id_universidad, id_facultad, id_carrera, nombre_curso, descripcion, objetivos, prerequisitos, duracion_horas, horas_teoria, horas_practica, nivel, cupo_maximo, fecha_inicio, fecha_fin, modalidad, tipo_costo, costo)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -225,11 +269,8 @@ const createCurso = async (req, res) => {
     );
 
     const newCursoId = result.insertId;
-
-    // 2. Generar el código del curso
     const codigo_curso = `CURSO-${String(newCursoId).padStart(5, "0")}`;
 
-    // 3. Actualizar el curso con el código generado
     await connection.query(
       "UPDATE curso SET codigo_curso = ? WHERE id_curso = ?",
       [codigo_curso, newCursoId],
@@ -257,14 +298,12 @@ const createCurso = async (req, res) => {
   }
 };
 
-// @desc    Actualizar un curso
-// @route   PUT /api/cursos/:id
 const updateCurso = async (req, res) => {
   const { id } = req.params;
   const {
     id_maestro,
     id_categoria,
-    id_area, // <-- Añadir id_area
+    id_area,
     id_universidad,
     id_facultad,
     id_carrera,
@@ -281,7 +320,6 @@ const updateCurso = async (req, res) => {
     modalidad,
     tipo_costo,
     costo,
-    // Añadimos horas de teoría y práctica
     horas_teoria,
     horas_practica,
   } = req.body;
@@ -299,7 +337,6 @@ const updateCurso = async (req, res) => {
       .json({ error: "Faltan campos obligatorios para actualizar el curso." });
   }
 
-   // --- INICIO DE VALIDACIÓN DE HORAS ---
   const totalHoras = parseInt(duracion_horas, 10);
   const teoriaHoras = parseInt(horas_teoria, 10) || 0;
   const practicaHoras = parseInt(horas_practica, 10) || 0;
@@ -317,8 +354,6 @@ const updateCurso = async (req, res) => {
         "Un curso debe tener al menos 1 hora de teoría y 1 hora de práctica.",
     });
   }
-
-   // --- FIN DE VALIDACIÓN DE HORAS ---
 
   try {
     const [result] = await pool.query(
@@ -367,8 +402,6 @@ const updateCurso = async (req, res) => {
   }
 };
 
-// @desc    Eliminar un curso
-// @route   DELETE /api/cursos/:id
 const deleteCurso = async (req, res) => {
   const { id } = req.params;
   try {
@@ -381,7 +414,6 @@ const deleteCurso = async (req, res) => {
     res.json({ message: "Curso eliminado con éxito." });
   } catch (error) {
     console.error(`Error al eliminar el curso ${id}:`, error);
-    // ER_ROW_IS_REFERENCED_2 es el código de error de MySQL para violación de foreign key
     if (error.code === "ER_ROW_IS_REFERENCED_2") {
       return res.status(400).json({
         error:
