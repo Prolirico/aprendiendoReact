@@ -8,11 +8,11 @@ const API_BASE_URL = "http://localhost:5000";
 
 // Componente para el modal de edición de calificaciones
 const CalificacionModal = ({ curso, onClose, onSave }) => {
-    const [actividades, setActividades] = useState(curso.actividades || [{ nombre: "Tarea 1", porcentaje: 100 }])
+    const [actividades, setActividades] = useState(curso.actividades || [{ nombre: "Tarea 1", porcentaje: 100, fecha_limite: '', max_archivos: 5, max_tamano_mb: 10, tipos_permitidos: ['pdf', 'link'] }])
     const [umbral, setUmbral] = useState(curso.umbral_aprobatorio || 60)
 
     const handleAddActividad = () => {
-        setActividades([...actividades, { nombre: `Actividad ${actividades.length + 1}`, porcentaje: 0 }])
+        setActividades([...actividades, { nombre: `Actividad ${actividades.length + 1}`, porcentaje: 0, fecha_limite: '', max_archivos: 5, max_tamano_mb: 10, tipos_permitidos: ['pdf', 'link'] }])
     }
 
     const handleActividadChange = (index, field, value) => {
@@ -41,6 +41,22 @@ const CalificacionModal = ({ curso, onClose, onSave }) => {
             alert("El umbral aprobatorio debe estar entre 50 y 100.")
             return
         }
+
+        // Validación de campos obligatorios en cada actividad
+        for (const act of actividades) {
+            if (!act.nombre.trim()) {
+                alert(`El nombre de la actividad no puede estar vacío.`);
+                return;
+            }
+            if (!act.max_archivos || act.max_archivos <= 0) {
+                alert(`La actividad "${act.nombre}" debe permitir al menos 1 archivo.`);
+                return;
+            }
+            if (!act.max_tamano_mb || act.max_tamano_mb <= 0) {
+                alert(`El tamaño máximo de archivo para "${act.nombre}" debe ser mayor a 0.`);
+                return;
+            }
+        }
         onSave({ ...curso, umbral_aprobatorio: umbral, actividades })
         onClose()
     }
@@ -64,24 +80,55 @@ const CalificacionModal = ({ curso, onClose, onSave }) => {
 
                 <h3>Actividades de Calificación</h3>
                 {actividades.map((act, index) => (
-                    <div key={index} className={styles.actividadRow}>
-                        <input
-                            type="text"
-                            placeholder="Nombre de la actividad"
-                            value={act.nombre}
-                            onChange={(e) => handleActividadChange(index, "nombre", e.target.value)}
-                            className={styles.input}
-                        />
-                        <input
-                            type="number"
-                            placeholder="%"
-                            value={act.porcentaje}
-                            onChange={(e) => handleActividadChange(index, "porcentaje", e.target.value)}
-                            className={styles.inputPorcentaje}
-                        />
-                        <button onClick={() => handleRemoveActividad(index)} className={styles.removeButton}>
-                            &times;
-                        </button>
+                    <div key={index} className={styles.actividadItem}>
+                        <div className={styles.actividadRow}>
+                            <input
+                                type="text"
+                                placeholder="Nombre de la actividad"
+                                value={act.nombre}
+                                onChange={(e) => handleActividadChange(index, "nombre", e.target.value)}
+                                className={styles.input}
+                            />
+                            <input
+                                type="number"
+                                placeholder="%"
+                                value={act.porcentaje}
+                                onChange={(e) => handleActividadChange(index, "porcentaje", e.target.value)}
+                                className={styles.inputPorcentaje}
+                            />
+                            <button onClick={() => handleRemoveActividad(index)} className={styles.removeButton}>
+                                &times;
+                            </button>
+                        </div>
+                        <div className={styles.actividadDetalles}>
+                            <div className={styles.opcionDetalle}>
+                                <label>Fecha Límite: (Opcional)</label>
+                                <input
+                                    type="date"
+                                    value={act.fecha_limite}
+                                    onChange={(e) => handleActividadChange(index, "fecha_limite", e.target.value)}
+                                    className={styles.input}
+                                />
+                            </div>
+                            <div className={styles.opcionDetalle} style={{ display: 'none' }}>
+                                <label>Máx. Archivos:</label>
+                                <input
+                                    type="number"
+                                    value={act.max_archivos}
+                                    onChange={(e) => handleActividadChange(index, "max_archivos", e.target.value)}
+                                    className={styles.input} min="1" max="10"
+                                />
+                            </div>
+                            <div className={styles.opcionDetalle} style={{ display: 'none' }}>
+                                <label>Tamaño Máx. (MB):</label>
+                                <input
+                                    type="number"
+                                    value={act.max_tamano_mb}
+                                    onChange={(e) => handleActividadChange(index, "max_tamano_mb", e.target.value)}
+                                    className={styles.input} min="1" max="15"
+                                />
+                            </div>
+                        </div>
                     </div>
                 ))}
 
@@ -122,10 +169,12 @@ const CalificacionCurso = ({ rol, entidadId }) => {
     // Estados para los filtros
     const [universidades, setUniversidades] = useState([])
     const [facultades, setFacultades] = useState([])
+    const [carreras, setCarreras] = useState([])
     const [filtros, setFiltros] = useState({
         universidadId: "",
         facultadId: "",
-        cursoId: "",
+        carreraId: "",
+        searchTerm: ""
     })
 
     const fetchData = async (page = 1, filtrosActuales = filtros) => {
@@ -190,6 +239,16 @@ const CalificacionCurso = ({ rol, entidadId }) => {
                     } else {
                         setFacultades([]); // Limpiar si no hay universidad
                     }
+
+                    // Cargar Carreras (si una facultad está seleccionada)
+                    if (filtros.facultadId) {
+                        const carRes = await fetch(`${API_BASE_URL}/api/carreras/facultad/${filtros.facultadId}`);
+                        const carData = await carRes.json();
+                        setCarreras(carData.data || []);
+                    }
+                    else {
+                        setCarreras([]);
+                    }
                 } catch (error) {
                     console.error("Error al cargar datos de filtros:", error);
                 }
@@ -198,7 +257,7 @@ const CalificacionCurso = ({ rol, entidadId }) => {
             fetchFilterData();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [token, rol, entidadId, filtros.universidadId]); // Se vuelve a ejecutar si cambia el ID de la universidad
+    }, [token, rol, entidadId, filtros.universidadId, filtros.facultadId]); // Se vuelve a ejecutar si cambia el ID de la universidad o facultad
 
 
 
@@ -210,19 +269,47 @@ const CalificacionCurso = ({ rol, entidadId }) => {
 
     const handleFiltroChange = (campo, valor) => {
         // Si se cambia la universidad, se resetea la facultad
+        let nuevosFiltros = { ...filtros, [campo]: valor };
         if (campo === 'universidadId') {
-            setFiltros({ ...filtros, universidadId: valor, facultadId: "" });
-            return; // El useEffect se encargará de recargar
+            nuevosFiltros.facultadId = "";
+            nuevosFiltros.carreraId = "";
         }
-        const nuevosFiltros = { ...filtros, [campo]: valor }
+        if (campo === 'facultadId') {
+            nuevosFiltros.carreraId = "";
+        }
         setFiltros(nuevosFiltros)
         setPaginaActual(1) // Resetear a página 1 cuando se filtran
         fetchData(1, nuevosFiltros)
     }
 
-    const handleSaveCurso = (cursoActualizado) => {
-        console.log("Guardando curso:", cursoActualizado)
-        setCursos(cursos.map((c) => (c.id === cursoActualizado.id ? cursoActualizado : c)))
+    const handleSaveCurso = async (cursoActualizado) => {
+        try {
+            const payload = {
+                id_curso: cursoActualizado.id_curso,
+                umbral_aprobatorio: cursoActualizado.umbral_aprobatorio,
+                actividades: cursoActualizado.actividades
+            };
+
+            const response = await fetch(`${API_BASE_URL}/api/calificaciones`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Error al guardar la configuración.');
+            }
+
+            alert("Configuración guardada con éxito.");
+            // Opcional: Volver a cargar los datos para reflejar el nuevo umbral
+            fetchData(paginaActual, filtros);
+        } catch (err) {
+            alert(`Error: ${err.message}`);
+        }
     }
 
     if (loading) return (
@@ -249,31 +336,50 @@ const CalificacionCurso = ({ rol, entidadId }) => {
 
             <main className={styles.main}>
                 {/* Sección de Filtros */}
-                <div className={styles.filters}>
-                    <select
-                        className={styles.input}
-                        value={filtros.universidadId}
-                        onChange={(e) => handleFiltroChange('universidadId', e.target.value)}
-                    >
-                        <option value="">-- Todas las Universidades --</option>
-                        {universidades.map(uni => (
-                            <option key={uni.id_universidad} value={uni.id_universidad}>{uni.nombre}</option>
-                        ))}
-                    </select>
-                    <select
-                        className={styles.input}
-                        value={filtros.facultadId}
-                        onChange={(e) => handleFiltroChange('facultadId', e.target.value)}
-                        disabled={!filtros.universidadId || facultades.length === 0}
-                    >
-                        <option value="">-- Todas las Facultades --</option>
-                        {facultades.map(fac => (
-                            <option key={fac.id_facultad} value={fac.id_facultad}>{fac.nombre}</option>
-                        ))}
-                    </select>
-                    <select className={styles.input} disabled>
-                        <option>-- Filtrar por Curso --</option>
-                    </select>
+                <div className={styles.filterBar}>
+                    <div className={styles.filters}>
+                        <select
+                            className={styles.input}
+                            value={filtros.universidadId}
+                            onChange={(e) => handleFiltroChange('universidadId', e.target.value)}
+                        >
+                            <option value="">Todas las Universidades</option>
+                            {universidades.map(uni => (
+                                <option key={uni.id_universidad} value={uni.id_universidad}>{uni.nombre}</option>
+                            ))}
+                        </select>
+                        <select
+                            className={styles.input}
+                            value={filtros.facultadId}
+                            onChange={(e) => handleFiltroChange('facultadId', e.target.value)}
+                            disabled={!filtros.universidadId || facultades.length === 0}
+                        >
+                            <option value="">Facultad</option>
+                            {facultades.map(fac => (
+                                <option key={fac.id_facultad} value={fac.id_facultad}>{fac.nombre}</option>
+                            ))}
+                        </select>
+                        <select
+                            className={styles.input}
+                            value={filtros.carreraId}
+                            onChange={(e) => handleFiltroChange('carreraId', e.target.value)}
+                            disabled={!filtros.facultadId || carreras.length === 0}
+                        >
+                            <option value="">Carrera</option>
+                            {carreras.map(car => (
+                                <option key={car.id_carrera} value={car.id_carrera}>{car.nombre}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className={styles.searchContainer}>
+                        <input
+                            type="text"
+                            placeholder="Buscar por nombre de curso..."
+                            className={styles.searchInput}
+                            value={filtros.searchTerm}
+                            onChange={(e) => handleFiltroChange('searchTerm', e.target.value)}
+                        />
+                    </div>
                 </div>
 
                 {/* Información de resultados */}
@@ -286,8 +392,10 @@ const CalificacionCurso = ({ rol, entidadId }) => {
                 {/* Grid de Cursos */}
                 {cursos.length > 0 ? (
                     <div className={styles.coursesGrid}>
-                        {cursos.map((curso) => (
-                            <div key={curso.id_curso} className={styles.courseCard}>
+                        {cursos.map((curso) => {
+                            const isCursoFinalizado = curso.fecha_fin && new Date(curso.fecha_fin) < new Date();
+                            return (
+                                <div key={curso.id_curso} className={styles.courseCard}>
                                 <h3 className={styles.courseTitle}>{curso.nombre_curso}</h3>
                                 <p className={styles.courseInfo}>
                                     {curso.nombre_universidad || 'N/A'} - {curso.nombre_facultad || 'N/A'}
@@ -296,11 +404,17 @@ const CalificacionCurso = ({ rol, entidadId }) => {
                                 <div className={styles.courseStats}>
                                     <span>Umbral: {curso.umbral_aprobatorio ?? 'N/A'}%</span>
                                 </div>
-                                <button onClick={() => setCursoSeleccionado(curso)} className={styles.buttonPrimary}>
-                                    Configurar Calificación
-                                </button>
+                                    <button
+                                        onClick={() => setCursoSeleccionado(curso)}
+                                        className={styles.buttonPrimary}
+                                        disabled={isCursoFinalizado}
+                                        title={isCursoFinalizado ? "Este curso ya ha finalizado y no se puede configurar." : "Configurar calificaciones del curso"}
+                                    >
+                                        {isCursoFinalizado ? "Curso Finalizado" : "Configurar Calificación"}
+                                    </button>
                             </div>
-                        ))}
+                            )
+                        })}
                     </div>
                 ) : (
                     <div className={styles.emptyState}>
