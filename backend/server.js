@@ -107,6 +107,7 @@ const areaConocimientoRoutes = require("./routes/areaConocimientoRoutes");
 const horarioRoutes = require("./routes/horarioRoutes"); // <-- 1. IMPORTAMOS LAS NUEVAS RUTAS
 const unidadesRoutes = require("./routes/unidadesRoutes");
 const calificacionesRoutes = require("./routes/calificacionesRoutes");
+const entregasRoutes = require("./routes/entregasRoutes");
 
 log(`✅ Rutas importadas correctamente`);
 
@@ -126,6 +127,7 @@ app.use("/api/areas-conocimiento", areaConocimientoRoutes);
 app.use("/api/horarios", horarioRoutes); // <-- 2. REGISTRAMOS LAS NUEVAS RUTAS
 app.use("/api/unidades", unidadesRoutes);
 app.use("/api/calificaciones", calificacionesRoutes);
+app.use("/api/entregas", entregasRoutes);
 log(`🔌 Rutas configuradas en la aplicación`);
 
 log(`💾 Conectando a la base de datos...`);

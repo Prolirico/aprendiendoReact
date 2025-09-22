@@ -26,24 +26,28 @@ const upsertCalificacionCurso = async (req, res) => {
     // Obtener el ID de la configuración de calificación (ya sea nueva o existente)
     const [califCursoRows] = await connection.query(
       "SELECT id_calificaciones FROM calificaciones_curso WHERE id_curso = ?",
-      [id_curso]
+      [id_curso],
     );
     const id_calificaciones_curso = califCursoRows[0].id_calificaciones;
 
     // Paso 2: Borrar las actividades antiguas para este curso para evitar duplicados
     await connection.query(
       "DELETE FROM calificaciones_actividades WHERE id_calificaciones_curso = ?",
-      [id_calificaciones_curso]
+      [id_calificaciones_curso],
     );
 
     // Paso 3: Si hay nuevas actividades, insertarlas
     if (actividades && actividades.length > 0) {
-      const allowedTypes = ['pdf', 'link'];
-      const actividadesValues = actividades.map(act => {
+      const allowedTypes = ["pdf", "link"];
+      const actividadesValues = actividades.map((act) => {
         // Validación de seguridad en el backend
-        const tiposValidos = act.tipos_permitidos.every(tipo => allowedTypes.includes(tipo));
+        const tiposValidos = act.tipos_permitidos.every((tipo) =>
+          allowedTypes.includes(tipo),
+        );
         if (!tiposValidos) {
-          throw new Error(`Tipo de archivo no permitido en la actividad: ${act.nombre}`);
+          throw new Error(
+            `Tipo de archivo no permitido en la actividad: ${act.nombre}`,
+          );
         }
 
         return [
@@ -53,7 +57,7 @@ const upsertCalificacionCurso = async (req, res) => {
           act.fecha_limite || null,
           act.max_archivos,
           act.max_tamano_mb,
-          JSON.stringify(act.tipos_permitidos) // Guardamos el array como un string JSON
+          JSON.stringify(act.tipos_permitidos), // Guardamos el array como un string JSON
         ];
       });
 
@@ -65,15 +69,79 @@ const upsertCalificacionCurso = async (req, res) => {
     }
 
     await connection.commit();
-    res.status(200).json({ message: "Configuración de calificación guardada con éxito." });
-
+    res
+      .status(200)
+      .json({ message: "Configuración de calificación guardada con éxito." });
   } catch (error) {
     if (connection) await connection.rollback();
     console.error("Error al guardar la configuración de calificación:", error);
-    res.status(500).json({ error: "Error interno del servidor al guardar la configuración." });
+    res
+      .status(500)
+      .json({
+        error: "Error interno del servidor al guardar la configuración.",
+      });
   } finally {
     if (connection) connection.release();
   }
 };
 
-module.exports = { upsertCalificacionCurso };
+// @desc    Obtener la configuración de calificación de un curso y sus actividades
+// @route   GET /api/calificaciones/:id_curso
+// @access  Private (Alumno/Maestro)
+const getCalificacionCurso = async (req, res) => {
+  const { id_curso } = req.params;
+
+  if (!id_curso) {
+    return res.status(400).json({ error: "El ID del curso es obligatorio." });
+  }
+
+  try {
+    // Obtener la configuración de calificación del curso
+    const [califCursoRows] = await pool.query(
+      "SELECT * FROM calificaciones_curso WHERE id_curso = ?",
+      [id_curso],
+    );
+
+    if (califCursoRows.length === 0) {
+      return res
+        .status(404)
+        .json({
+          error:
+            "No se encontró configuración de calificación para este curso.",
+        });
+    }
+
+    const califCurso = califCursoRows[0];
+
+    // Obtener las actividades del curso
+    const [actividadesRows] = await pool.query(
+      "SELECT * FROM calificaciones_actividades WHERE id_calificaciones_curso = ?",
+      [califCurso.id_calificaciones],
+    );
+
+    // Procesar las actividades para parsear el JSON de tipos_archivo_permitidos
+    const actividades = actividadesRows.map((actividad) => ({
+      ...actividad,
+      tipos_permitidos: JSON.parse(actividad.tipos_archivo_permitidos || "[]"),
+    }));
+
+    const response = {
+      id_curso: califCurso.id_curso,
+      umbral_aprobatorio: califCurso.umbral_aprobatorio,
+      actividades: actividades,
+      calificacion_final: 0, // Placeholder - se calculará cuando haya calificaciones reales
+      aprobado: false, // Placeholder - se calculará cuando haya calificaciones reales
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    console.error("Error al obtener la configuración de calificación:", error);
+    res
+      .status(500)
+      .json({
+        error: "Error interno del servidor al obtener la configuración.",
+      });
+  }
+};
+
+module.exports = { upsertCalificacionCurso, getCalificacionCurso };

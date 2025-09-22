@@ -1,0 +1,417 @@
+/* AlumnoTareasExample.module.css */
+
+.exampleContainer {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, #185d96 0%, #4a89d2 100%);
+    color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(24, 93, 150, 0.2);
+}
+
+.header h1 {
+    margin: 0 0 1rem 0;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.header p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 1.1rem;
+}
+
+.header code {
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    gap: 2rem;
+}
+
+.userSelector {
+    flex: 1;
+}
+
+.userSelector label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #eaeaea;
+    border-radius: 8px;
+    font-size: 1rem;
+    background-color: white;
+    transition: border-color 0.3s ease;
+}
+
+.select:focus {
+    outline: none;
+    border-color: #185d96;
+    box-shadow: 0 0 0 3px rgba(24, 93, 150, 0.1);
+}
+
+.toggleButton {
+    flex-shrink: 0;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btnPrimary {
+    background-color: #185d96;
+    color: white;
+}
+
+.btnPrimary:hover {
+    background-color: #4a89d2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(24, 93, 150, 0.3);
+}
+
+.btnDanger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btnDanger:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.currentUser {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.currentUser h3 {
+    margin: 0 0 1rem 0;
+    color: #333;
+    font-size: 1.25rem;
+}
+
+.userInfo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+}
+
+.userName {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #185d96;
+}
+
+.userRole {
+    font-size: 0.9rem;
+    color: #666;
+    background-color: #f0f0f0;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+}
+
+.userId {
+    font-size: 0.8rem;
+    color: #999;
+    font-family: monospace;
+    background-color: #f8f9fa;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.moduleContainer {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.moduleHeader {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 1.5rem;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.moduleHeader h2 {
+    margin: 0 0 0.5rem 0;
+    color: #185d96;
+    font-size: 1.5rem;
+}
+
+.moduleHeader p {
+    margin: 0;
+    color: #666;
+}
+
+.hiddenState {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.hiddenIcon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.hiddenState h3 {
+    margin: 0 0 0.5rem 0;
+    color: #666;
+    font-size: 1.5rem;
+}
+
+.hiddenState p {
+    margin: 0;
+    color: #999;
+    font-size: 1.1rem;
+}
+
+.features {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.features h3 {
+    margin: 0 0 1.5rem 0;
+    color: #185d96;
+    font-size: 1.5rem;
+}
+
+.featureList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.featureList li {
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #185d96;
+    transition: transform 0.2s ease;
+}
+
+.featureList li:hover {
+    transform: translateX(5px);
+    background-color: #e9ecef;
+}
+
+.featureList strong {
+    color: #185d96;
+}
+
+.apiInfo {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 12px;
+    border: 2px dashed #ddd;
+}
+
+.apiInfo h3 {
+    margin: 0 0 1.5rem 0;
+    color: #185d96;
+    font-size: 1.5rem;
+}
+
+.techDetails {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.techItem {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.techItem strong {
+    display: block;
+    color: #333;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.techItem code {
+    background-color: #f1f3f4;
+    color: #d63384;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    word-break: break-all;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .exampleContainer {
+        padding: 1rem;
+    }
+
+    .header h1 {
+        font-size: 1.5rem;
+    }
+
+    .header p {
+        font-size: 1rem;
+    }
+
+    .controls {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .userSelector {
+        width: 100%;
+    }
+
+    .userInfo {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .featureList {
+        grid-template-columns: 1fr;
+    }
+
+    .techDetails {
+        grid-template-columns: 1fr;
+    }
+
+    .moduleHeader {
+        padding: 1rem;
+    }
+
+    .features {
+        padding: 1.5rem;
+    }
+
+    .apiInfo {
+        padding: 1.5rem;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.moduleContainer {
+    animation: fadeIn 0.5s ease;
+}
+
+.hiddenState {
+    animation: fadeIn 0.3s ease;
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+    .exampleContainer {
+        background-color: #1a1a1a;
+        color: #e9ecef;
+    }
+
+    .controls,
+    .currentUser,
+    .moduleContainer,
+    .hiddenState,
+    .features {
+        background: #2d2d2d;
+        color: #e9ecef;
+    }
+
+    .select {
+        background-color: #2d2d2d;
+        color: #e9ecef;
+        border-color: #555;
+    }
+
+    .userRole {
+        background-color: #555;
+        color: #e9ecef;
+    }
+
+    .userId {
+        background-color: #444;
+        color: #ccc;
+    }
+
+    .featureList li {
+        background-color: #444;
+        color: #e9ecef;
+    }
+
+    .featureList li:hover {
+        background-color: #555;
+    }
+
+    .techItem {
+        background: #444;
+        color: #e9ecef;
+    }
+
+    .techItem code {
+        background-color: #555;
+        color: #ff6b9d;
+    }
+}
