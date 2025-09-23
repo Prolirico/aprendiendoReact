@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
@@ -50,7 +50,8 @@ const CalificacionModal = ({
         max_tamano_mb: 10,
         tipos_permitidos: ["pdf", "link"],
         archivo_instrucciones: null,
-        enlace_recurso: "",
+        archivos_instrucciones: [], // Para múltiples archivos
+        enlace_recursos: [], // Para múltiples enlaces
       },
     ],
   );
@@ -68,7 +69,8 @@ const CalificacionModal = ({
         max_tamano_mb: 10,
         tipos_permitidos: ["pdf", "link"],
         archivo_instrucciones: null,
-        enlace_recurso: "",
+        archivos_instrucciones: [],
+        enlace_recursos: [],
       },
     ]);
   };
@@ -92,6 +94,21 @@ const CalificacionModal = ({
     (sum, act) => sum + act.porcentaje,
     0,
   );
+
+  // Usamos useMemo para agrupar los materiales de actividad por su nombre de actividad
+  const materialesPorActividad = useMemo(() => {
+    const agrupados = {};
+    if (materialExistente.actividad) {
+      materialExistente.actividad.forEach(material => {
+        // Extraemos el nombre de la actividad de la descripción
+        const match = material.descripcion?.match(/para la actividad: (.+)/);
+        const nombreActividad = match ? match[1] : material.nombre_archivo;
+        if (!agrupados[nombreActividad]) agrupados[nombreActividad] = [];
+        agrupados[nombreActividad].push(material);
+      });
+    }
+    return agrupados;
+  }, [materialExistente.actividad]);
 
   const handleSave = () => {
     if (totalPorcentaje !== 100) {
@@ -205,6 +222,46 @@ const CalificacionModal = ({
     }
   }, [curso.id_curso, curso._reloadTrigger]);
 
+  // --- Nuevas funciones para manejar múltiples archivos y enlaces ---
+
+  const handleAddArchivoActividad = (actividadIndex) => {
+    const nuevasActividades = [...actividades];
+    if (!nuevasActividades[actividadIndex].archivos_instrucciones) {
+      nuevasActividades[actividadIndex].archivos_instrucciones = [];
+    }
+    nuevasActividades[actividadIndex].archivos_instrucciones.push(null);
+    setActividades(nuevasActividades);
+  };
+
+  const handleRemoveArchivoActividad = (actividadIndex, archivoIndex) => {
+    const nuevasActividades = [...actividades];
+    nuevasActividades[actividadIndex].archivos_instrucciones.splice(archivoIndex, 1);
+    setActividades(nuevasActividades);
+  };
+
+  const handleAddEnlaceActividad = (actividadIndex) => {
+    const nuevasActividades = [...actividades];
+    if (!nuevasActividades[actividadIndex].enlace_recursos) {
+      nuevasActividades[actividadIndex].enlace_recursos = [];
+    }
+    nuevasActividades[actividadIndex].enlace_recursos.push("");
+    setActividades(nuevasActividades);
+  };
+
+  const handleRemoveEnlaceActividad = (actividadIndex, enlaceIndex) => {
+    const nuevasActividades = [...actividades];
+    nuevasActividades[actividadIndex].enlace_recursos.splice(enlaceIndex, 1);
+    setActividades(nuevasActividades);
+  };
+
+  const handleEnlaceChange = (actividadIndex, enlaceIndex, value) => {
+    const nuevasActividades = [...actividades];
+    nuevasActividades[actividadIndex].enlace_recursos[enlaceIndex] = value;
+    setActividades(nuevasActividades);
+  };
+
+  // --- Fin de nuevas funciones ---
+
   // Funciones para manejar materiales
   const handleAddMaterial = () => {
     setMateriales([
@@ -238,7 +295,12 @@ const CalificacionModal = ({
     } else if (type === "material" && index !== null) {
       handleMaterialChange(index, "archivo", file);
     } else if (type === "actividad" && index !== null) {
-      handleActividadChange(index, "archivo_instrucciones", file);
+      // Modificado para manejar múltiples archivos
+      const nuevasActividades = [...actividades];
+      const archivoIndex = nuevasActividades[index].archivos_instrucciones.findIndex(f => f === null);
+      if (archivoIndex !== -1) {
+        nuevasActividades[index].archivos_instrucciones[archivoIndex] = file;
+      }
     }
   };
 
@@ -660,47 +722,108 @@ const CalificacionModal = ({
                   {/* Recursos para la actividad */}
                   <div className={styles.actividadRecursos}>
                     <h4>Recursos adicionales para esta actividad (Opcional)</h4>
-
-                    <div className={styles.recursoOption}>
-                      <label>Subir archivo de apoyo (PDF):</label>
-                      <div className={styles.fileUploadArea}>
-                        <input
-                          type="file"
-                          accept=".pdf"
-                          onChange={(e) =>
-                            handleFileChange(e, "actividad", index)
-                          }
-                          className={styles.fileInput}
-                          id={`actividad-archivo-${index}`}
-                        />
-                        <label
-                          htmlFor={`actividad-archivo-${index}`}
-                          className={styles.fileLabel}
-                        >
-                          📎{" "}
-                          {act.archivo_instrucciones
-                            ? act.archivo_instrucciones.name
-                            : "Seleccionar PDF de apoyo"}
-                        </label>
+                    
+                    {/* Material existente para esta actividad */}
+                    {materialesPorActividad[act.nombre] && materialesPorActividad[act.nombre].length > 0 && (
+                      <div className={styles.existingMaterial}>
+                        <h5>Recursos ya subidos:</h5>
+                        {materialesPorActividad[act.nombre].map(item => (
+                          <div key={item.id_material} className={styles.materialCard}>
+                            <div className={styles.materialInfo}>
+                              <span className={styles.materialName}>
+                                {item.es_enlace ? "🔗" : "📄"} {item.nombre_archivo}
+                              </span>
+                            </div>
+                            <div className={styles.materialActions}>
+                              <button
+                                type="button"
+                                onClick={() => eliminarMaterialExistente(item.id_material, "actividad")}
+                                className={styles.deleteButton}
+                                title="Eliminar recurso"
+                              >
+                                <FontAwesomeIcon icon={faTrash} />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
                       </div>
+                    )}
+
+                    {/* Sección para múltiples archivos */}
+                    <div className={styles.recursoOption}>
+                      <label>Subir archivos de apoyo (PDF):</label>
+                      {act.archivos_instrucciones.map((archivo, archivoIndex) => (
+                        <div key={archivoIndex} className={styles.recursoItem}>
+                          <div className={styles.fileUploadArea}>
+                            <input
+                              type="file"
+                              accept=".pdf"
+                              onChange={(e) => {
+                                const nuevasActividades = [...actividades];
+                                nuevasActividades[index].archivos_instrucciones[archivoIndex] = e.target.files[0];
+                                setActividades(nuevasActividades);
+                              }}
+                              className={styles.fileInput}
+                              id={`actividad-archivo-${index}-${archivoIndex}`}
+                            />
+                            <label
+                              htmlFor={`actividad-archivo-${index}-${archivoIndex}`}
+                              className={styles.fileLabel}
+                            >
+                              📎{" "}
+                              {archivo ? archivo.name : "Seleccionar PDF"}
+                            </label>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveArchivoActividad(index, archivoIndex)}
+                            className={styles.removeButton}
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => handleAddArchivoActividad(index)}
+                        className={styles.addButton}
+                        style={{marginTop: '0.5rem'}}
+                      >
+                        + Añadir Archivo
+                      </button>
                     </div>
 
+                    {/* Sección para múltiples enlaces */}
                     <div className={styles.recursoOption}>
-                      <label>O enlace a recurso externo:</label>
-                      <input
-                        type="url"
-                        placeholder="https://ejemplo.com/recurso"
-                        value={act.enlace_recurso}
-                        onChange={(e) =>
-                          handleActividadChange(
-                            index,
-                            "enlace_recurso",
-                            e.target.value,
-                          )
-                        }
-                        className={styles.input}
-                      />
+                      <label>Añadir enlaces a recursos externos:</label>
+                      {act.enlace_recursos.map((enlace, enlaceIndex) => (
+                        <div key={enlaceIndex} className={styles.recursoItem}>
+                          <input
+                            type="url"
+                            placeholder="https://ejemplo.com/recurso"
+                            value={enlace}
+                            onChange={(e) => handleEnlaceChange(index, enlaceIndex, e.target.value)}
+                            className={styles.input}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveEnlaceActividad(index, enlaceIndex)}
+                            className={styles.removeButton}
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => handleAddEnlaceActividad(index)}
+                        className={styles.addButton}
+                        style={{marginTop: '0.5rem'}}
+                      >
+                        + Añadir Enlace
+                      </button>
                     </div>
+
                   </div>
                 </div>
               ))}
@@ -1098,16 +1221,17 @@ const CalificacionCurso = ({ rol, entidadId }) => {
           console.log(`✅ Actividad creada exitosamente: ${actividad.nombre}`);
         }
 
-        // Si hay archivo de apoyo, subirlo como material adicional
-        if (actividad.archivo_instrucciones) {
+        // Subir cada archivo de apoyo
+        for (const archivo of actividad.archivos_instrucciones || []) {
+          if (!archivo) continue;
           console.log(`📎 Subiendo archivo de apoyo para: ${actividad.nombre}`);
           const formDataRecurso = new FormData();
-          formDataRecurso.append("archivo", actividad.archivo_instrucciones);
+          formDataRecurso.append("archivo", archivo);
           formDataRecurso.append("id_curso", cursoActualizado.id_curso);
           formDataRecurso.append("categoria_material", "actividad");
           formDataRecurso.append(
             "nombre_archivo",
-            `${actividad.nombre} - Recurso de apoyo`,
+            archivo.name,
           );
           formDataRecurso.append(
             "descripcion",
@@ -1130,26 +1254,27 @@ const CalificacionCurso = ({ rol, entidadId }) => {
           }
         }
 
-        // Si hay enlace de recurso, guardarlo
-        if (actividad.enlace_recurso && actividad.enlace_recurso.trim()) {
+        // Guardar cada enlace de recurso
+        for (const enlace of actividad.enlace_recursos || []) {
+          if (!enlace || !enlace.trim()) continue;
           console.log(
             `🔗 Guardando enlace de recurso para: ${actividad.nombre}`,
           );
-          console.log(`   - URL: ${actividad.enlace_recurso}`);
+          console.log(`   - URL: ${enlace}`);
 
           const formDataEnlace = new FormData();
           formDataEnlace.append("id_curso", cursoActualizado.id_curso);
           formDataEnlace.append("categoria_material", "actividad");
           formDataEnlace.append(
             "nombre_archivo",
-            `${actividad.nombre} - Enlace de apoyo`,
+            `${actividad.nombre} - Enlace de apoyo`, // Nombre genérico para enlaces
           );
           formDataEnlace.append(
             "descripcion",
             `Enlace de apoyo para la actividad: ${actividad.nombre}`,
           );
           formDataEnlace.append("es_enlace", "true");
-          formDataEnlace.append("url_enlace", actividad.enlace_recurso.trim());
+          formDataEnlace.append("url_enlace", enlace.trim());
 
           const responseEnlace = await fetch(`${API_BASE_URL}/api/material`, {
             method: "POST",
@@ -1175,7 +1300,7 @@ const CalificacionCurso = ({ rol, entidadId }) => {
         }
       }
 
-      // Crear resumen de lo que se subió
+      // 5. Crear resumen de lo que se subió
       let resumen = "¡Configuración guardada con éxito!\n\n";
       let conteoSubidos = {
         planeacion: 0,

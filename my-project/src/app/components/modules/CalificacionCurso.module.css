@@ -942,6 +942,14 @@
     margin-bottom: 0;
 }
 
+.recursoItem {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+
 .recursoOption label {
     display: block;
     font-size: 0.875rem;
