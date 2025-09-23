@@ -4,7 +4,10 @@
     display: flex;
     flex-direction: column;
     background-color: #f9fafb;
-    font-family: system-ui, -apple-system, sans-serif;
+    font-family:
+        system-ui,
+        -apple-system,
+        sans-serif;
 }
 
 /* Header */
@@ -487,6 +490,520 @@
     padding: 0 0.5rem;
 }
 
+/* Modal Header */
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+    transition: all 0.2s;
+}
+
+.closeButton:hover {
+    background-color: #f3f4f6;
+    color: #374151;
+}
+
+/* Tabs Container */
+.tabsContainer {
+    margin-bottom: 1.5rem;
+}
+
+.tabs {
+    display: flex;
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 1rem;
+    overflow-x: auto;
+}
+
+.tab {
+    background: none;
+    border: none;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #6b7280;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.tab:hover {
+    color: #4f46e5;
+    background-color: #f8fafc;
+}
+
+.activeTab {
+    color: #4f46e5;
+    border-bottom-color: #4f46e5;
+    background-color: #f8fafc;
+}
+
+/* Tab Content */
+.tabContent {
+    min-height: 300px;
+}
+
+.tabDescription {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+    font-style: italic;
+}
+
+/* Planeación Tab */
+.planeacionTab {
+    padding: 0.5rem 0;
+}
+
+.textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 60px;
+}
+
+.textarea:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+/* File Upload */
+.fileUploadArea {
+    border: 2px dashed #d1d5db;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.fileUploadArea:hover {
+    border-color: #4f46e5;
+    background-color: #f8fafc;
+}
+
+.fileInput {
+    display: none;
+}
+
+.fileLabel {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: #4f46e5;
+    color: white;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: background-color 0.2s;
+}
+
+.fileLabel:hover {
+    background-color: #4338ca;
+}
+
+.fileHint {
+    display: block;
+    margin-top: 0.5rem;
+    color: #6b7280;
+    font-size: 0.75rem;
+}
+
+/* Materiales Tab */
+.materialesTab {
+    padding: 0.5rem 0;
+}
+
+.materialItem {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background-color: #f9fafb;
+}
+
+.materialHeader {
+    display: grid;
+    grid-template-columns: 2fr 1fr auto;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.materialContent {
+    border-top: 1px solid #e5e7eb;
+    padding-top: 1rem;
+}
+
+.select {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    background-color: white;
+}
+
+.select:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+/* Actividades Tab */
+.actividadesTab {
+    padding: 0.5rem 0;
+}
+
+/* Modal Content Sizing */
+.modalContent {
+    width: 800px;
+    max-width: 90vw;
+    max-height: 90vh;
+}
+
+/* Delete Modal (Confirmation Modal) */
+.deleteModal {
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    max-width: 400px;
+    width: 90vw;
+}
+
+.deleteModalContent {
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.deleteIcon {
+    font-size: 3rem;
+    color: #f59e0b;
+    margin-bottom: 1rem;
+}
+
+.deleteIcon.success {
+    color: #10b981;
+}
+
+.deleteIcon.error {
+    color: #ef4444;
+}
+
+.deleteIcon.warning {
+    color: #f59e0b;
+}
+
+.deleteModalContent h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.deleteModalContent p {
+    margin: 0;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+.deleteActions {
+    display: flex;
+    border-top: 1px solid #e5e7eb;
+}
+
+.deleteActions button {
+    flex: 1;
+    padding: 1rem;
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    background: none;
+}
+
+.deleteActions button:first-child {
+    border-right: 1px solid #e5e7eb;
+}
+
+.cancelButton {
+    color: #374151;
+}
+
+.cancelButton:hover {
+    background-color: #f3f4f6;
+}
+
+.confirmDeleteButton {
+    color: #ef4444;
+}
+
+.confirmDeleteButton:hover {
+    background-color: #fef2f2;
+}
+
+/* Toast Notifications */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 3000;
+    animation: slideInRight 0.3s ease-out;
+}
+
+.toastContent {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid;
+    max-width: 300px;
+}
+
+.toastContent.success {
+    border-left-color: #10b981;
+}
+
+.toastContent.error {
+    border-left-color: #ef4444;
+}
+
+.toastContent.warning {
+    border-left-color: #f59e0b;
+}
+
+.toastContent p {
+    margin: 0;
+    color: #374151;
+    font-size: 0.875rem;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Material Existente */
+.existingMaterial {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.existingMaterial h4 {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.materialCard {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    transition: all 0.2s;
+}
+
+.materialCard:hover {
+    border-color: #4f46e5;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.materialInfo {
+    flex: 1;
+    margin-right: 1rem;
+}
+
+.materialName {
+    font-weight: 500;
+    color: #1f2937;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.materialDesc {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin: 0.25rem 0;
+    line-height: 1.4;
+}
+
+.materialDate {
+    color: #9ca3af;
+    font-size: 0.75rem;
+}
+
+.materialActions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.viewButton {
+    background: none;
+    border: none;
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #3b82f6;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+}
+
+.viewButton:hover {
+    background-color: #eff6ff;
+    color: #2563eb;
+}
+
+.loadingState {
+    text-align: center;
+    padding: 1rem;
+    color: #6b7280;
+    font-style: italic;
+}
+
+/* Material Link Styles */
+.materialLink {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.75rem;
+}
+
+.linkPreview {
+    color: #3b82f6;
+    text-decoration: none;
+    word-break: break-all;
+    font-family: monospace;
+    background-color: #f1f5f9;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+}
+
+.linkPreview:hover {
+    color: #2563eb;
+    text-decoration: underline;
+}
+
+/* Actividades Recursos */
+.actividadRecursos {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-top: 1rem;
+    border-left: 4px solid #8b5cf6;
+}
+
+.actividadRecursos h4 {
+    margin: 0 0 1rem 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #6d28d9;
+}
+
+.recursoOption {
+    margin-bottom: 1rem;
+}
+
+.recursoOption:last-child {
+    margin-bottom: 0;
+}
+
+.recursoOption label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.actividadDetalles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* Delete Button Styles (copied from Dominios) */
+.deleteButton {
+    padding: 0.5rem;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+    background-color: #ef4444;
+    color: white;
+    width: 32px;
+    height: 32px;
+}
+
+.deleteButton:hover {
+    background-color: #dc2626;
+    transform: scale(1.05);
+}
+
+.deleteButton:active {
+    transform: scale(0.95);
+}
+
+/* Remove Button (for form items) */
+.removeButton {
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+}
+
+.removeButton:hover {
+    background: #dc2626;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .headerContent {
@@ -532,5 +1049,63 @@
 
     .modalActions {
         flex-direction: column;
+    }
+
+    .materialHeader {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .tabs {
+        flex-direction: column;
+    }
+
+    .tab {
+        text-align: left;
+        border-bottom: 1px solid #e5e7eb;
+        border-right: none;
+    }
+
+    .activeTab {
+        border-bottom-color: #e5e7eb;
+        border-left: 3px solid #4f46e5;
+    }
+
+    .deleteModal {
+        margin: 1rem;
+        max-width: calc(100% - 2rem);
+    }
+
+    .deleteModalContent {
+        padding: 1.5rem;
+    }
+
+    .deleteIcon {
+        font-size: 2.5rem;
+    }
+
+    .deleteActions {
+        flex-direction: column;
+    }
+
+    .deleteActions button:first-child {
+        border-right: none;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .toast {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+    }
+
+    .toastContent {
+        max-width: none;
+    }
+
+    .toast {
+        top: 10px;
+        right: 10px;
+        left: 10px;
     }
 }

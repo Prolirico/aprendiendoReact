@@ -4,13 +4,19 @@ import styles from "./AlumnoTareaYCalificaciones.module.css";
 const API_BASE_URL = "http://localhost:5000";
 
 const AlumnoTareaYCalificaciones = ({ userId }) => {
-  const [activeTab, setActiveTab] = useState("tareas");
+  const [activeTab, setActiveTab] = useState("material");
   const [cursosInscritos, setCursosInscritos] = useState([]);
   const [cursoSeleccionado, setCursoSeleccionado] = useState(null);
+  const [material, setMaterial] = useState({
+    planeacion: [],
+    material_descarga: [],
+    actividad: [],
+  });
   const [tareas, setTareas] = useState([]);
   const [calificaciones, setCalificaciones] = useState(null);
   const [loading, setLoading] = useState({
     cursos: false,
+    material: false,
     tareas: false,
     calificaciones: false,
   });
@@ -170,17 +176,64 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
     }
   };
 
+  const loadMaterial = async () => {
+    if (!cursoSeleccionado) {
+      console.log("No hay curso seleccionado para cargar material");
+      return;
+    }
+
+    console.log("Cargando material para curso:", cursoSeleccionado.id);
+    setLoading((prev) => ({ ...prev, material: true }));
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        showToast("Debes iniciar sesión para ver el material.", "error");
+        return;
+      }
+
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      };
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/material/curso/${cursoSeleccionado.id}`,
+        { headers },
+      );
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          console.log("No hay material configurado para este curso");
+          setMaterial({ planeacion: [], material_descarga: [], actividad: [] });
+          return;
+        }
+        throw new Error(`Error ${response.status}: ${await response.text()}`);
+      }
+
+      const data = await response.json();
+      console.log("Material recibido:", data);
+      setMaterial(
+        data.material || {
+          planeacion: [],
+          material_descarga: [],
+          actividad: [],
+        },
+      );
+    } catch (error) {
+      console.error("Error loading material:", error);
+      showToast("Error al cargar el material: " + error.message, "error");
+    } finally {
+      setLoading((prev) => ({ ...prev, material: false }));
+    }
+  };
+
   const loadTareas = async () => {
     if (!cursoSeleccionado) {
       console.log("No hay curso seleccionado para cargar tareas");
       return;
     }
 
-    console.log(
-      "Cargando tareas para curso:",
-      cursoSeleccionado.id,
-      cursoSeleccionado.nombre,
-    );
+    console.log("Cargando tareas para curso:", cursoSeleccionado.id);
     setLoading((prev) => ({ ...prev, tareas: true }));
     try {
       const token = localStorage.getItem("token");
@@ -194,49 +247,49 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
         "Content-Type": "application/json",
       };
 
-      // Obtener calificaciones del curso que incluye las actividades/tareas
-      const response = await fetch(
-        `${API_BASE_URL}/api/calificaciones/${cursoSeleccionado.id}`,
+      // Cargar actividades desde material_curso
+      const materialResponse = await fetch(
+        `${API_BASE_URL}/api/material/curso/${cursoSeleccionado.id}?categoria=actividad`,
         { headers },
       );
 
-      console.log("Respuesta de calificaciones:", response.status);
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          // No hay calificaciones configuradas aún
-          console.log("No hay calificaciones configuradas para este curso");
-          setTareas([]);
-          showToast(
-            "Este curso aún no tiene actividades configuradas.",
-            "info",
-          );
-          return;
-        }
-        const errorText = await response.text();
-        console.error("Error en respuesta:", errorText);
-        throw new Error(`Error ${response.status}: ${errorText}`);
+      let actividadesMaterial = [];
+      if (materialResponse.ok) {
+        const materialData = await materialResponse.json();
+        actividadesMaterial = materialData.material?.actividad || [];
       }
 
-      const data = await response.json();
-      console.log("Datos de calificaciones recibidos:", data);
+      // Cargar entregas existentes del alumno
+      const entregasResponse = await fetch(
+        `${API_BASE_URL}/api/entregas/alumno/${cursoSeleccionado.id}`,
+        { headers },
+      );
 
-      // Transformar las actividades a formato de tareas
-      const tareasFormateadas = (data.actividades || []).map((actividad) => ({
-        id:
-          actividad.id_actividad ||
-          actividad.id ||
-          `act_${actividad.nombre.replace(/\s+/g, "_")}`,
-        nombre: actividad.nombre,
-        porcentaje: actividad.porcentaje,
-        fecha_limite: actividad.fecha_limite,
-        entregada: false, // Por ahora asumimos que no están entregadas
-        calificacion: null, // Se llenará cuando haya calificaciones
-        max_archivos: actividad.max_archivos || 5,
-        max_tamano_mb: actividad.max_tamano_mb || 10,
-        tipos_archivo_permitidos: actividad.tipos_archivo_permitidos ||
-          actividad.tipos_permitidos || ["pdf", "zip"],
-      }));
+      let entregasExistentes = [];
+      if (entregasResponse.ok) {
+        const entregasData = await entregasResponse.json();
+        entregasExistentes = entregasData.entregas || [];
+      }
+
+      // Combinar actividades con entregas
+      const tareasFormateadas = actividadesMaterial.map((actividad) => {
+        const entregaExistente = entregasExistentes.find(
+          (entrega) => entrega.id_material === actividad.id_material,
+        );
+
+        return {
+          id: actividad.id_material,
+          nombre: actividad.nombre_archivo,
+          descripcion: actividad.descripcion,
+          instrucciones: actividad.instrucciones_texto,
+          fecha_limite: actividad.fecha_limite,
+          entregada: !!entregaExistente,
+          entrega: entregaExistente || null,
+          max_archivos: 5, // Por defecto
+          max_tamano_mb: 25, // Por defecto
+          tipos_archivo_permitidos: ["pdf", "docx", "zip", "jpg", "png"],
+        };
+      });
 
       console.log("Tareas formateadas:", tareasFormateadas);
       setTareas(tareasFormateadas);
@@ -337,7 +390,9 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
   }, [userId]);
 
   useEffect(() => {
-    if (activeTab === "tareas" && cursoSeleccionado) {
+    if (activeTab === "material" && cursoSeleccionado) {
+      loadMaterial();
+    } else if (activeTab === "tareas" && cursoSeleccionado) {
       loadTareas();
     } else if (activeTab === "calificaciones" && cursoSeleccionado) {
       loadCalificaciones();
@@ -420,9 +475,6 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
     }));
 
     try {
-      const formData = new FormData();
-      files.forEach((file) => formData.append("files[]", file));
-
       const token = localStorage.getItem("token");
       if (!token) {
         showToast("Debes iniciar sesión para enviar entregas.", "error");
@@ -431,10 +483,11 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
 
       // Preparar FormData para envío al backend
       const formDataToSend = new FormData();
-      formDataToSend.append("curso_id", cursoSeleccionado.id);
-      formDataToSend.append("actividad_id", tareaId);
-      files.forEach((file, index) => {
-        formDataToSend.append(`archivos`, file);
+      formDataToSend.append("id_material", tareaId);
+      formDataToSend.append("comentario_estudiante", "Entrega de actividad");
+
+      files.forEach((file) => {
+        formDataToSend.append("archivos", file);
       });
 
       const response = await fetch(`${API_BASE_URL}/api/entregas`, {
@@ -446,17 +499,14 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
       });
 
       if (response.ok) {
+        const responseData = await response.json();
         showToast(
           "Tu entrega ha sido enviada con éxito. ¡Estás un paso más cerca!",
           "success",
         );
 
-        // Update task as submitted
-        setTareas((prev) =>
-          prev.map((tarea) =>
-            tarea.id === tareaId ? { ...tarea, entregada: true } : tarea,
-          ),
-        );
+        // Recargar tareas para mostrar la entrega actualizada
+        loadTareas();
 
         // Clear file uploads for this task
         setFileUploads((prev) => ({
@@ -472,6 +522,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
         );
       }
     } catch (error) {
+      console.error("Error en upload:", error);
       showToast(
         "No se pudo enviar la entrega. Por favor, inténtalo de nuevo.",
         "error",
@@ -487,24 +538,57 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
   const FileUploadComponent = ({ tarea }) => {
     const files = fileUploads[tarea.id]?.files || [];
     const uploading = fileUploads[tarea.id]?.uploading || false;
-    const isOverdue = new Date(tarea.fecha_limite) < new Date();
+    const isOverdue =
+      tarea.fecha_limite && new Date(tarea.fecha_limite) < new Date();
 
-    if (tarea.entregada) {
+    if (tarea.entregada && tarea.entrega) {
       return (
         <div className={styles.taskResult}>
-          {!isOverdue ? (
-            <div className={styles.successMessage}>
-              <i className="fas fa-check-circle"></i>
-              <div>¡Genial! Tu entrega ha sido enviada. ¡Sigue así!</div>
+          <div className={styles.successMessage}>
+            <i className="fas fa-check-circle"></i>
+            <div>
+              <strong>¡Entrega enviada!</strong>
+              <p>Enviada el: {formatDate(tarea.entrega.fecha_entrega)}</p>
+              {tarea.entrega.calificacion && (
+                <p>
+                  Calificación: <strong>{tarea.entrega.calificacion}</strong>
+                </p>
+              )}
+              {tarea.entrega.comentario_profesor && (
+                <div className={styles.professorComment}>
+                  <strong>Comentario del profesor:</strong>
+                  <p>{tarea.entrega.comentario_profesor}</p>
+                </div>
+              )}
+              {tarea.entrega.archivos && tarea.entrega.archivos.length > 0 && (
+                <div className={styles.entregaFiles}>
+                  <strong>Archivos entregados:</strong>
+                  {tarea.entrega.archivos.map((archivo) => (
+                    <div
+                      key={archivo.id_archivo_entrega}
+                      className={styles.archivoEntregado}
+                    >
+                      📎 {archivo.nombre_archivo_original}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          ) : (
-            <div className={styles.errorMessage}>
-              <i className="fas fa-exclamation-circle"></i>
-              <div>
-                Lo sentimos, el plazo ha terminado. ¡Sigue con lo siguiente!
-              </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (isOverdue) {
+      return (
+        <div className={styles.taskResult}>
+          <div className={styles.errorMessage}>
+            <i className="fas fa-exclamation-circle"></i>
+            <div>
+              Lo sentimos, el plazo ha terminado el{" "}
+              {formatDate(tarea.fecha_limite)}
             </div>
-          )}
+          </div>
         </div>
       );
     }
@@ -700,6 +784,12 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
 
           <div className={styles.tabs}>
             <div
+              className={`${styles.tab} ${activeTab === "material" ? styles.active : ""}`}
+              onClick={() => setActiveTab("material")}
+            >
+              <i className="fas fa-book"></i> Material del Curso
+            </div>
+            <div
               className={`${styles.tab} ${activeTab === "tareas" ? styles.active : ""}`}
               onClick={() => setActiveTab("tareas")}
             >
@@ -718,6 +808,143 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
       {/* Tab Content */}
       {cursoSeleccionado && (
         <div className={styles.tabContent}>
+          {activeTab === "material" && (
+            <div className={styles.materialTab}>
+              {loading.material ? (
+                <div className={styles.loading}>
+                  <div className={styles.spinner}></div>
+                  <span>Cargando material...</span>
+                </div>
+              ) : (
+                <div className={styles.materialSections}>
+                  {/* Planeación del Curso */}
+                  {material.planeacion.length > 0 && (
+                    <div className={styles.materialSection}>
+                      <h3>📋 Planeación del Curso</h3>
+                      <div className={styles.materialList}>
+                        {material.planeacion.map((item) => (
+                          <div
+                            key={item.id_material}
+                            className={styles.materialItem}
+                          >
+                            <div className={styles.materialInfo}>
+                              <span className={styles.materialName}>
+                                {item.nombre_archivo}
+                              </span>
+                              {item.descripcion && (
+                                <p className={styles.materialDesc}>
+                                  {item.descripcion}
+                                </p>
+                              )}
+                            </div>
+                            <div className={styles.materialActions}>
+                              {item.es_enlace ? (
+                                <a
+                                  href={item.url_enlace}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className={styles.materialLink}
+                                >
+                                  <i className="fas fa-external-link-alt"></i>{" "}
+                                  Abrir enlace
+                                </a>
+                              ) : (
+                                <a
+                                  href={item.ruta_descarga}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className={styles.materialDownload}
+                                >
+                                  <i className="fas fa-download"></i> Descargar
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Material de Descarga */}
+                  {material.material_descarga.length > 0 && (
+                    <div className={styles.materialSection}>
+                      <h3>📚 Material de Descarga</h3>
+                      <div className={styles.materialList}>
+                        {material.material_descarga.map((item) => (
+                          <div
+                            key={item.id_material}
+                            className={styles.materialItem}
+                          >
+                            <div className={styles.materialInfo}>
+                              <span className={styles.materialName}>
+                                {item.nombre_archivo}
+                              </span>
+                              {item.descripcion && (
+                                <p className={styles.materialDesc}>
+                                  {item.descripcion}
+                                </p>
+                              )}
+                            </div>
+                            <div className={styles.materialActions}>
+                              {item.es_enlace ? (
+                                <a
+                                  href={item.url_enlace}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className={styles.materialLink}
+                                >
+                                  <i className="fas fa-external-link-alt"></i>{" "}
+                                  Abrir enlace
+                                </a>
+                              ) : (
+                                <a
+                                  href={item.ruta_descarga}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className={styles.materialDownload}
+                                >
+                                  <i className="fas fa-download"></i> Descargar
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Mensaje si no hay material */}
+                  {material.planeacion.length === 0 &&
+                    material.material_descarga.length === 0 && (
+                      <div className={styles.emptyMessage}>
+                        <div className={styles.messageIcon}>
+                          <i className="fas fa-book-open"></i>
+                        </div>
+                        <h3>📖 Material en preparación</h3>
+                        <p>
+                          El profesor aún no ha subido material para este curso.
+                        </p>
+                        <div className={styles.helpInfo}>
+                          <div className={styles.helpItem}>
+                            <i className="fas fa-file-pdf"></i>
+                            <span>PDFs de referencia y lecturas</span>
+                          </div>
+                          <div className={styles.helpItem}>
+                            <i className="fas fa-link"></i>
+                            <span>Enlaces a recursos externos</span>
+                          </div>
+                          <div className={styles.helpItem}>
+                            <i className="fas fa-clipboard-list"></i>
+                            <span>Planeación y temarios del curso</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                </div>
+              )}
+            </div>
+          )}
+
           {activeTab === "tareas" && (
             <div className={styles.tareasTab}>
               {loading.tareas ? (
@@ -737,7 +964,9 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                           <span>{tarea.nombre}</span>
                           {tarea.entregada && (
                             <span className={styles.entregadaBadge}>
-                              Entregada
+                              {tarea.entrega?.estatus_entrega === "calificada"
+                                ? "Calificada"
+                                : "Entregada"}
                             </span>
                           )}
                         </div>
@@ -748,19 +977,31 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
 
                       {openAccordions[tarea.id] && (
                         <div className={styles.accordionContent}>
+                          {tarea.descripcion && (
+                            <div className={styles.taskDescription}>
+                              <h4>Descripción:</h4>
+                              <p>{tarea.descripcion}</p>
+                            </div>
+                          )}
+
+                          {tarea.instrucciones && (
+                            <div className={styles.taskInstructions}>
+                              <h4>Instrucciones:</h4>
+                              <p>{tarea.instrucciones}</p>
+                            </div>
+                          )}
+
                           <div className={styles.taskMeta}>
-                            <span>
-                              <i className="fas fa-calendar-alt"></i>
-                              Fecha límite: {formatDate(tarea.fecha_limite)}
-                            </span>
-                            <span>
-                              <i className="fas fa-percentage"></i>
-                              Valor: {tarea.porcentaje}%
-                            </span>
-                            {tarea.calificacion && (
+                            {tarea.fecha_limite && (
+                              <span>
+                                <i className="fas fa-calendar-alt"></i>
+                                Fecha límite: {formatDate(tarea.fecha_limite)}
+                              </span>
+                            )}
+                            {tarea.entrega?.calificacion && (
                               <span>
                                 <i className="fas fa-star"></i>
-                                Calificación: {tarea.calificacion}
+                                Calificación: {tarea.entrega.calificacion}
                               </span>
                             )}
                           </div>
