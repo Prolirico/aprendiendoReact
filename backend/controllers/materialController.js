@@ -7,20 +7,8 @@ const multer = require("multer");
 // Configuración de almacenamiento para archivos
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // Multer procesa el archivo antes del body, así que usamos el fieldname como fallback
-    let categoria = "general";
-
-    // Intentar obtener categoría del body si está disponible
-    if (req.body && req.body.categoria_material) {
-      categoria = req.body.categoria_material;
-    } else {
-      // Fallback basado en el contexto de la subida
-      console.log(
-        "⚠️ categoria_material no disponible en destination, usando general",
-      );
-    }
-
-    const uploadPath = path.join(__dirname, "../uploads/material", categoria);
+    // Usar carpeta temporal, moveremos después cuando tengamos la categoría
+    const uploadPath = path.join(__dirname, "../uploads/material");
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath, { recursive: true });
     }
@@ -157,12 +145,28 @@ const subirMaterial = async (req, res) => {
 
     // Si es un archivo subido (PDF)
     if (req.file && !esEnlace) {
-      ruta_archivo = req.file.path;
+      // Mover archivo a la carpeta correcta de la categoría
+      const finalPath = path.join(
+        __dirname,
+        "../uploads/material",
+        categoria_material,
+      );
+      if (!fs.existsSync(finalPath)) {
+        fs.mkdirSync(finalPath, { recursive: true });
+      }
+
+      const finalFileName = path.basename(req.file.filename);
+      const finalFilePath = path.join(finalPath, finalFileName);
+
+      // Mover archivo de uploads/material/ a uploads/material/categoria/
+      fs.renameSync(req.file.path, finalFilePath);
+
+      ruta_archivo = finalFilePath;
       tipo_archivo = "pdf";
       tamaño_archivo = req.file.size;
       nombre_final = req.file.originalname;
       console.log(
-        `✅ Archivo PDF procesado: ${nombre_final} -> ${ruta_archivo}`,
+        `✅ Archivo PDF procesado: ${nombre_final} -> ${finalFilePath}`,
       );
     }
 
