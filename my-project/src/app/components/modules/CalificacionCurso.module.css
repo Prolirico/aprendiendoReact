@@ -385,6 +385,32 @@
     transform: rotate(-90deg);
 }
 
+/* Fila del título de la actividad */
+.actividadTitleRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* Nombre de la actividad */
+.actividadNombre {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+/* Controles de la actividad (porcentaje y botón) */
+.actividadControls {
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* Espacio entre el porcentaje y el ícono */
+}
+
+.actividadPorcentaje {
+    font-weight: 500;
+    color: #4f46e5; /* Un color que resalte */
+}
+
 /* Actividad Content - Collapsible content area */
 .actividadContent {
     padding: 1rem;
