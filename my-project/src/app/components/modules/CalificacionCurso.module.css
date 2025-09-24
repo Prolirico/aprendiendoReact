@@ -4,10 +4,7 @@
     display: flex;
     flex-direction: column;
     background-color: #f9fafb;
-    font-family:
-        system-ui,
-        -apple-system,
-        sans-serif;
+    font-family: system-ui, -apple-system, sans-serif;
 }
 
 /* Header */
@@ -60,13 +57,15 @@
 .filters {
     display: flex;
     gap: 1rem;
-    flex: 3; /* Ocupa más espacio */
+    flex: 3;
+    /* Ocupa más espacio */
     min-width: 300px;
 }
 
 .searchContainer {
     display: flex;
-    flex: 2; /* Ocupa menos espacio */
+    flex: 2;
+    /* Ocupa menos espacio */
     min-width: 250px;
 }
 
@@ -264,7 +263,7 @@
     background: white;
     border-radius: 0.5rem;
     max-width: 90%;
-    width: 500px;
+    width: 800px;
     max-height: 90vh;
     overflow-y: auto;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
@@ -335,6 +334,71 @@
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
+/* Added collapsible activity styles */
+/* Actividad Item - Updated for collapsible functionality */
+.actividadItem {
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.actividadItem:hover {
+    border-color: #4f46e5;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Actividad Header - Clickable header for collapse/expand */
+.actividadHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    cursor: pointer;
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e5e7eb;
+    transition: background-color 0.2s ease;
+}
+
+.actividadHeader:hover {
+    background-color: #f1f5f9;
+}
+
+.actividadHeader h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+    flex: 1;
+}
+
+/* Collapse Icon - Rotating chevron */
+.collapseIcon {
+    font-size: 1rem;
+    color: #6b7280;
+    transition: transform 0.2s ease;
+}
+
+.collapseIcon.collapsed {
+    transform: rotate(-90deg);
+}
+
+/* Actividad Content - Collapsible content area */
+.actividadContent {
+    padding: 1rem;
+    background-color: #f9fafb;
+    max-height: 1000px;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+.actividadContent.collapsed {
+    max-height: 0;
+    padding: 0 1rem;
+}
+
 /* Actividad Row */
 .actividadRow {
     display: flex;
@@ -345,15 +409,6 @@
 
 .actividadRow .input {
     flex: 1;
-}
-
-/* Estilos para la sección de una actividad individual */
-.actividadItem {
-    background-color: #f9fafb;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    padding: 1rem;
-    margin-bottom: 1rem;
 }
 
 .actividadDetalles {
@@ -386,7 +441,8 @@
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
-    flex-basis: 100%; /* Ocupa todo el ancho */
+    flex-basis: 100%;
+    /* Ocupa todo el ancho */
 }
 
 .checkboxGroup {
@@ -401,6 +457,7 @@
     gap: 0.3rem;
     font-size: 0.875rem;
 }
+
 /* Total Porcentaje */
 .totalPorcentaje {
     font-weight: 600;
@@ -671,13 +728,6 @@
     padding: 0.5rem 0;
 }
 
-/* Modal Content Sizing */
-.modalContent {
-    width: 800px;
-    max-width: 90vw;
-    max-height: 90vh;
-}
-
 /* Delete Modal (Confirmation Modal) */
 .deleteModal {
     background: white;
@@ -799,6 +849,7 @@
         transform: translateX(100%);
         opacity: 0;
     }
+
     to {
         transform: translateX(0);
         opacity: 1;
@@ -821,6 +872,7 @@
     color: #374151;
 }
 
+/* Updated material card styles with resource icons */
 .materialCard {
     background: white;
     border: 1px solid #e5e7eb;
@@ -841,6 +893,30 @@
 .materialInfo {
     flex: 1;
     margin-right: 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+/* Resource Icon - Distinctive icons for PDFs and links */
+.resourceIcon {
+    font-size: 1.25rem;
+    margin-top: 0.125rem;
+    flex-shrink: 0;
+}
+
+.resourceIcon.pdf {
+    color: #dc2626;
+    /* Red for PDFs */
+}
+
+.resourceIcon.link {
+    color: #2563eb;
+    /* Blue for links */
+}
+
+.materialDetails {
+    flex: 1;
 }
 
 .materialName {
@@ -948,7 +1024,6 @@
     gap: 0.5rem;
     margin-bottom: 0.5rem;
 }
-
 
 .recursoOption label {
     display: block;
@@ -1111,9 +1186,24 @@
         max-width: none;
     }
 
-    .toast {
-        top: 10px;
-        right: 10px;
-        left: 10px;
+    /* Mobile responsive styles for collapsible activities */
+    .actividadHeader {
+        padding: 0.75rem;
+    }
+
+    .actividadContent {
+        padding: 0.75rem;
+    }
+
+    .actividadContent.collapsed {
+        padding: 0 0.75rem;
+    }
+
+    .materialInfo {
+        gap: 0.5rem;
+    }
+
+    .resourceIcon {
+        font-size: 1rem;
     }
 }
