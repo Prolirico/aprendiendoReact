@@ -546,14 +546,13 @@ const eliminarMaterial = async (req, res) => {
       });
     }
 
-    // Soft delete
-    await pool.query(
-      "UPDATE material_curso SET activo = 0 WHERE id_material = ?",
-      [id_material],
-    );
+    // Hard delete
+    await pool.query("DELETE FROM material_curso WHERE id_material = ?", [
+      id_material,
+    ]);
 
     logger.info(
-      `Material eliminado (soft delete): ID ${id_material} por usuario ${id_usuario}`,
+      `Material eliminado (hard delete): ID ${id_material} por usuario ${id_usuario}`,
     );
 
     res.status(200).json({
