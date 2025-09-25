@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+"use client";
+
+import { useState, useEffect } from "react";
 import styles from "./AlumnoTareaYCalificaciones.module.css";
 
 const API_BASE_URL = "http://localhost:5000";
@@ -10,7 +12,6 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
   const [material, setMaterial] = useState({
     planeacion: [],
     material_descarga: [],
-    actividad: [],
   });
   const [tareas, setTareas] = useState([]);
   const [calificaciones, setCalificaciones] = useState(null);
@@ -72,7 +73,12 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return null;
     const date = new Date(dateString);
+    // Verificar si la fecha es válida
+    if (isNaN(date.getTime())) return null;
+    // Verificar si no es la fecha Unix epoch (1970-01-01)
+    if (date.getFullYear() <= 1970) return null;
     return date.toLocaleDateString("es-ES", {
       year: "numeric",
       month: "long",
@@ -204,7 +210,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
       if (!response.ok) {
         if (response.status === 404) {
           console.log("No hay material configurado para este curso");
-          setMaterial({ planeacion: [], material_descarga: [], actividad: [] });
+          setMaterial({ planeacion: [], material_descarga: [] });
           return;
         }
         throw new Error(`Error ${response.status}: ${await response.text()}`);
@@ -212,13 +218,13 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
 
       const data = await response.json();
       console.log("Material recibido:", data);
-      setMaterial(
-        data.material || {
-          planeacion: [],
-          material_descarga: [],
-          actividad: [],
-        },
-      );
+
+      // Formatear material correctamente para mostrar planeación y material de descarga
+      const formattedMaterial = {
+        planeacion: data.material?.planeacion || [],
+        material_descarga: data.material?.material_descarga || [],
+      };
+      setMaterial(formattedMaterial);
     } catch (error) {
       console.error("Error loading material:", error);
       showToast("Error al cargar el material: " + error.message, "error");
@@ -247,19 +253,31 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
         "Content-Type": "application/json",
       };
 
-      // Cargar actividades desde material_curso
-      const materialResponse = await fetch(
-        `${API_BASE_URL}/api/material/curso/${cursoSeleccionado.id}?categoria=actividad`,
+      // Obtener actividades configuradas desde el backend de calificaciones
+      const actividadesResponse = await fetch(
+        `${API_BASE_URL}/api/calificaciones/${cursoSeleccionado.id}`,
         { headers },
       );
 
-      let actividadesMaterial = [];
-      if (materialResponse.ok) {
-        const materialData = await materialResponse.json();
-        actividadesMaterial = materialData.material?.actividad || [];
+      let actividadesConfiguradas = [];
+      if (actividadesResponse.ok) {
+        const actividadesData = await actividadesResponse.json();
+        actividadesConfiguradas = actividadesData.actividades || [];
       }
 
-      // Cargar entregas existentes del alumno
+      // Obtener material de actividad (recursos de apoyo)
+      const materialResponse = await fetch(
+        `${API_BASE_URL}/api/material/curso/${cursoSeleccionado.id}`,
+        { headers },
+      );
+
+      let materialesActividad = [];
+      if (materialResponse.ok) {
+        const materialData = await materialResponse.json();
+        materialesActividad = materialData.material?.actividad || [];
+      }
+
+      // Fetch existing submissions (entregas)
       const entregasResponse = await fetch(
         `${API_BASE_URL}/api/entregas/alumno/${cursoSeleccionado.id}`,
         { headers },
@@ -271,23 +289,44 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
         entregasExistentes = entregasData.entregas || [];
       }
 
-      // Combinar actividades con entregas
-      const tareasFormateadas = actividadesMaterial.map((actividad) => {
+      // Combinar actividades con material de apoyo y entregas
+      const tareasFormateadas = actividadesConfiguradas.map((actividad) => {
         const entregaExistente = entregasExistentes.find(
-          (entrega) => entrega.id_material === actividad.id_material,
+          (entrega) => entrega.id_actividad === actividad.id_actividad,
         );
 
+        // Buscar recursos de apoyo para esta actividad específica
+        const recursosActividad = materialesActividad.filter(
+          (material) => material.id_actividad === actividad.id_actividad,
+        );
+
+        const recursos = recursosActividad.map((material) => ({
+          nombre:
+            material.nombre_archivo || material.nombre_enlace || "Recurso",
+          url: material.ruta_descarga || material.url_enlace,
+          tipo: material.es_enlace ? "enlace" : "archivo",
+        }));
+
         return {
-          id: actividad.id_material,
-          nombre: actividad.nombre_archivo,
-          descripcion: actividad.descripcion,
-          instrucciones: actividad.instrucciones_texto,
-          fecha_limite: actividad.fecha_limite,
+          id: actividad.id_actividad,
+          nombre: actividad.nombre,
+          descripcion: actividad.descripcion || "",
+          instrucciones: actividad.instrucciones || "",
+          fecha_limite:
+            actividad.fecha_limite &&
+            actividad.fecha_limite !== "0000-00-00 00:00:00" &&
+            new Date(actividad.fecha_limite).getFullYear() > 1970
+              ? actividad.fecha_limite
+              : null,
           entregada: !!entregaExistente,
           entrega: entregaExistente || null,
-          max_archivos: 5, // Por defecto
-          max_tamano_mb: 25, // Por defecto
-          tipos_archivo_permitidos: ["pdf", "docx", "zip", "jpg", "png"],
+          calificacion: entregaExistente?.calificacion || null,
+          recursos: recursos,
+          max_archivos: actividad.max_archivos || 5,
+          max_tamano_mb: actividad.max_tamano_mb || 25,
+          tipos_archivo_permitidos: actividad.tipos_archivo_permitidos
+            ? JSON.parse(actividad.tipos_archivo_permitidos)
+            : ["pdf", "docx", "zip", "jpg", "png"],
         };
       });
 
@@ -535,12 +574,17 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
     }
   };
 
-  const FileUploadComponent = ({ tarea }) => {
-    const files = fileUploads[tarea.id]?.files || [];
-    const uploading = fileUploads[tarea.id]?.uploading || false;
+  // New FileUploadComponent adapted for the updated Tareas tab structure
+  const FileUploadComponent = ({ tareaId, onUploadSuccess }) => {
+    const tarea = tareas.find((t) => t.id === tareaId);
+    if (!tarea) return null;
+
+    const files = fileUploads[tareaId]?.files || [];
+    const uploading = fileUploads[tareaId]?.uploading || false;
     const isOverdue =
       tarea.fecha_limite && new Date(tarea.fecha_limite) < new Date();
 
+    // If already delivered, show success message
     if (tarea.entregada && tarea.entrega) {
       return (
         <div className={styles.taskResult}>
@@ -579,6 +623,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
       );
     }
 
+    // If overdue, show overdue message
     if (isOverdue) {
       return (
         <div className={styles.taskResult}>
@@ -593,6 +638,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
       );
     }
 
+    // Otherwise, show the upload form
     return (
       <div className={styles.uploadSection}>
         <h4>Subir entrega:</h4>
@@ -600,7 +646,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
           className={styles.uploadContainer}
           onDrop={(e) => {
             e.preventDefault();
-            handleFileSelect(tarea.id, e.dataTransfer.files);
+            handleFileSelect(tareaId, e.dataTransfer.files);
           }}
           onDragOver={(e) => e.preventDefault()}
         >
@@ -616,14 +662,14 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
             accept={tarea.tipos_archivo_permitidos
               .map((ext) => `.${ext}`)
               .join(",")}
-            onChange={(e) => handleFileSelect(tarea.id, e.target.files)}
+            onChange={(e) => handleFileSelect(tareaId, e.target.files)}
             style={{ display: "none" }}
-            id={`file-input-${tarea.id}`}
+            id={`file-input-${tareaId}`}
           />
           <button
             className={styles.btnOutline}
             onClick={() =>
-              document.getElementById(`file-input-${tarea.id}`).click()
+              document.getElementById(`file-input-${tareaId}`).click()
             }
           >
             Seleccionar archivos
@@ -636,7 +682,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
               <div key={index} className={styles.fileItem}>
                 <span>{file.name}</span>
                 <button
-                  onClick={() => handleFileRemove(tarea.id, index)}
+                  onClick={() => handleFileRemove(tareaId, index)}
                   className={styles.removeFileBtn}
                 >
                   <i className="fas fa-times"></i>
@@ -649,7 +695,10 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
         <button
           className={styles.btnPrimary}
           disabled={files.length === 0 || uploading}
-          onClick={() => handleUpload(tarea.id)}
+          onClick={async () => {
+            await handleUpload(tareaId);
+            if (onUploadSuccess) onUploadSuccess(); // Call the success callback
+          }}
         >
           {uploading ? (
             <>
@@ -663,6 +712,346 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
             </>
           )}
         </button>
+      </div>
+    );
+  };
+
+  // Handler for successful upload to refresh the task list
+  const handleUploadSuccess = (taskIndex) => {
+    // Reload tasks to reflect the new submission status
+    loadTareas();
+  };
+
+  const renderMaterialTab = () => {
+    const loadingMaterial = loading.material; // Alias for clarity
+
+    if (loadingMaterial) {
+      return (
+        <div className={styles.loading}>
+          <div className={styles.spinner}></div>
+          <span>Cargando material del curso...</span>
+        </div>
+      );
+    }
+
+    return (
+      <div className={styles.materialTab}>
+        {/* Planeación Section */}
+        {material.planeacion && material.planeacion.length > 0 && (
+          <div className={styles.materialSection}>
+            <h3>
+              <i className="fas fa-calendar-alt"></i>
+              Planeación del Curso
+            </h3>
+            <div className={styles.materialGrid}>
+              {material.planeacion.map((item, index) => {
+                const isLink = item.es_enlace || item.url_enlace;
+                const url = item.ruta_descarga || item.url_enlace;
+                return (
+                  <div key={index} className={styles.materialCard}>
+                    <div className={styles.materialHeader}>
+                      <div
+                        className={`${styles.materialIcon} ${isLink ? styles.link : styles.pdf}`}
+                      >
+                        <i
+                          className={isLink ? "fas fa-link" : "fas fa-file-pdf"}
+                        ></i>
+                      </div>
+                      <div className={styles.materialInfo}>
+                        <div className={styles.materialTitle}>
+                          {item.nombre_archivo ||
+                            item.nombre_enlace ||
+                            "Planeación del Curso"}
+                        </div>
+                        <div className={styles.materialDescription}>
+                          {item.descripcion ||
+                            "Documento de planeación académica del curso"}
+                        </div>
+                      </div>
+                    </div>
+                    <div className={styles.materialActions}>
+                      <a
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`${styles.materialBtn} ${styles.primary}`}
+                      >
+                        <i
+                          className={
+                            isLink
+                              ? "fas fa-external-link-alt"
+                              : "fas fa-download"
+                          }
+                        ></i>
+                        {isLink ? "Ver" : "Descargar PDF"}
+                      </a>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Material para Descargar Section */}
+        {material.material_descarga &&
+          material.material_descarga.length > 0 && (
+            <div className={styles.materialSection}>
+              <h3>
+                <i className="fas fa-download"></i>
+                Material para Descargar
+              </h3>
+              <div className={styles.materialGrid}>
+                {material.material_descarga.map((item, index) => {
+                  const isLink = item.es_enlace || item.url_enlace;
+                  const url = item.ruta_descarga || item.url_enlace;
+                  return (
+                    <div key={index} className={styles.materialCard}>
+                      <div className={styles.materialHeader}>
+                        <div
+                          className={`${styles.materialIcon} ${isLink ? styles.link : styles.pdf}`}
+                        >
+                          <i
+                            className={
+                              isLink ? "fas fa-link" : "fas fa-file-pdf"
+                            }
+                          ></i>
+                        </div>
+                        <div className={styles.materialInfo}>
+                          <div className={styles.materialTitle}>
+                            {item.nombre_archivo ||
+                              item.nombre_enlace ||
+                              "Material del Curso"}
+                          </div>
+                          <div className={styles.materialDescription}>
+                            {item.descripcion ||
+                              (isLink
+                                ? "Enlace de apoyo para el curso"
+                                : "Documento PDF para descargar")}
+                          </div>
+                        </div>
+                      </div>
+                      <div className={styles.materialActions}>
+                        <a
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`${styles.materialBtn} ${styles.primary}`}
+                        >
+                          <i
+                            className={
+                              isLink
+                                ? "fas fa-external-link-alt"
+                                : "fas fa-download"
+                            }
+                          ></i>
+                          {isLink ? "Ver" : "Descargar"}
+                        </a>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+        {(!material.planeacion || material.planeacion.length === 0) &&
+          (!material.material_descarga ||
+            material.material_descarga.length === 0) && (
+            <div className={styles.emptyMessage}>
+              <div className={styles.messageIcon}>
+                <i className="fas fa-folder-open"></i>
+              </div>
+              <h3>No hay material disponible</h3>
+              <p>El profesor aún no ha subido material para este curso.</p>
+              <small>El material aparecerá aquí cuando esté disponible.</small>
+            </div>
+          )}
+      </div>
+    );
+  };
+
+  const renderTareasTab = () => {
+    const loadingTareas = loading.tareas; // Alias for clarity
+
+    if (loadingTareas) {
+      return (
+        <div className={styles.loading}>
+          <div className={styles.spinner}></div>
+          <span>Cargando tareas...</span>
+        </div>
+      );
+    }
+
+    if (!tareas || tareas.length === 0) {
+      return (
+        <div className={styles.emptyMessage}>
+          <div className={styles.messageIcon}>
+            <i className="fas fa-tasks"></i>
+          </div>
+          <h3>No hay tareas disponibles</h3>
+          <p>Aún no se han asignado tareas para este curso.</p>
+          <div className={styles.helpInfo}>
+            <div className={styles.helpItem}>
+              <i className="fas fa-info-circle"></i>
+              <span>
+                Las tareas aparecerán aquí cuando el profesor las publique
+              </span>
+            </div>
+            <div className={styles.helpItem}>
+              <i className="fas fa-clock"></i>
+              <span>Revisa regularmente para no perder fechas límite</span>
+            </div>
+            <div className={styles.helpItem}>
+              <i className="fas fa-upload"></i>
+              <span>Podrás subir tus entregas directamente desde aquí</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className={styles.tareasTab}>
+        <div className={styles.tareasList}>
+          {tareas.map((tarea, index) => (
+            <div
+              key={index}
+              className={`${styles.taskAccordion} ${tarea.entregada ? styles.taskCompleted : styles.taskPending}`}
+            >
+              <div
+                className={styles.taskAccordionHeader}
+                onClick={() => toggleAccordion(index)}
+              >
+                <div className={styles.taskHeaderContent}>
+                  <div className={styles.taskTitle}>
+                    <i
+                      className={
+                        tarea.entregada ? "fas fa-check-circle" : "fas fa-clock"
+                      }
+                    ></i>
+                    <span>{tarea.nombre}</span>
+                  </div>
+                  <div className={styles.taskStatus}>
+                    {tarea.entregada ? (
+                      <span
+                        className={styles.statusBadge + " " + styles.completed}
+                      >
+                        ✓ Entregada
+                      </span>
+                    ) : (
+                      <span
+                        className={styles.statusBadge + " " + styles.pending}
+                      >
+                        ⏳ Pendiente
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <i
+                  className={`fas fa-chevron-${openAccordions[index] ? "up" : "down"} ${styles.chevronIcon}`}
+                ></i>
+              </div>
+
+              {openAccordions[index] && (
+                <div className={styles.taskAccordionContent}>
+                  <div className={styles.taskMeta}>
+                    {tarea.fecha_limite && (
+                      <div className={styles.taskMetaItem}>
+                        <i className="fas fa-calendar-alt"></i>
+                        <span>
+                          Fecha límite: {formatDate(tarea.fecha_limite)}
+                        </span>
+                      </div>
+                    )}
+                    {tarea.calificacion && (
+                      <div className={styles.taskMetaItem}>
+                        <i className="fas fa-star"></i>
+                        <span>Calificación: {tarea.calificacion}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {tarea.instrucciones && (
+                    <div className={styles.taskInstructions}>
+                      <h4>
+                        <i className="fas fa-info-circle"></i>
+                        Instrucciones
+                      </h4>
+                      <p>{tarea.instrucciones}</p>
+                    </div>
+                  )}
+
+                  {tarea.recursos && tarea.recursos.length > 0 && (
+                    <div className={styles.taskResourcesSection}>
+                      <h4>
+                        <i className="fas fa-book-open"></i>
+                        Material de apoyo
+                      </h4>
+                      <div className={styles.taskResourcesList}>
+                        {tarea.recursos.map((recurso, rIndex) => {
+                          const isLink =
+                            recurso.tipo === "enlace" ||
+                            recurso.url?.includes("http");
+                          return (
+                            <div
+                              key={rIndex}
+                              className={styles.taskResourceItem}
+                            >
+                              <div className={styles.taskResourceInfo}>
+                                <div
+                                  className={`${styles.taskResourceIcon} ${isLink ? styles.linkIcon : styles.pdfIcon}`}
+                                >
+                                  <i
+                                    className={
+                                      isLink ? "fas fa-link" : "fas fa-file-pdf"
+                                    }
+                                  ></i>
+                                </div>
+                                <span className={styles.taskResourceName}>
+                                  {recurso.nombre ||
+                                    (isLink
+                                      ? "Enlace de apoyo"
+                                      : "Documento PDF")}
+                                </span>
+                              </div>
+                              <a
+                                href={recurso.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`${styles.taskResourceBtn} ${isLink ? styles.linkBtn : styles.downloadBtn}`}
+                              >
+                                <i
+                                  className={
+                                    isLink
+                                      ? "fas fa-external-link-alt"
+                                      : "fas fa-download"
+                                  }
+                                ></i>
+                                {isLink ? "Ver" : "Descargar"}
+                              </a>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className={styles.taskSubmissionSection}>
+                    <h4>
+                      <i className="fas fa-upload"></i>
+                      Tu Entrega
+                    </h4>
+                    <FileUploadComponent
+                      tareaId={tarea.id}
+                      onUploadSuccess={() => handleUploadSuccess(index)}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     );
   };
@@ -808,244 +1197,9 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
       {/* Tab Content */}
       {cursoSeleccionado && (
         <div className={styles.tabContent}>
-          {activeTab === "material" && (
-            <div className={styles.materialTab}>
-              {loading.material ? (
-                <div className={styles.loading}>
-                  <div className={styles.spinner}></div>
-                  <span>Cargando material...</span>
-                </div>
-              ) : (
-                <div className={styles.materialSections}>
-                  {/* Planeación del Curso */}
-                  {material.planeacion.length > 0 && (
-                    <div className={styles.materialSection}>
-                      <h3>📋 Planeación del Curso</h3>
-                      <div className={styles.materialList}>
-                        {material.planeacion.map((item) => (
-                          <div
-                            key={item.id_material}
-                            className={styles.materialItem}
-                          >
-                            <div className={styles.materialInfo}>
-                              <span className={styles.materialName}>
-                                {item.nombre_archivo}
-                              </span>
-                              {item.descripcion && (
-                                <p className={styles.materialDesc}>
-                                  {item.descripcion}
-                                </p>
-                              )}
-                            </div>
-                            <div className={styles.materialActions}>
-                              {item.es_enlace ? (
-                                <a
-                                  href={item.url_enlace}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className={styles.materialLink}
-                                >
-                                  <i className="fas fa-external-link-alt"></i>{" "}
-                                  Abrir enlace
-                                </a>
-                              ) : (
-                                <a
-                                  href={item.ruta_descarga}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className={styles.materialDownload}
-                                >
-                                  <i className="fas fa-download"></i> Descargar
-                                </a>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+          {activeTab === "material" && renderMaterialTab()}
 
-                  {/* Material de Descarga */}
-                  {material.material_descarga.length > 0 && (
-                    <div className={styles.materialSection}>
-                      <h3>📚 Material de Descarga</h3>
-                      <div className={styles.materialList}>
-                        {material.material_descarga.map((item) => (
-                          <div
-                            key={item.id_material}
-                            className={styles.materialItem}
-                          >
-                            <div className={styles.materialInfo}>
-                              <span className={styles.materialName}>
-                                {item.nombre_archivo}
-                              </span>
-                              {item.descripcion && (
-                                <p className={styles.materialDesc}>
-                                  {item.descripcion}
-                                </p>
-                              )}
-                            </div>
-                            <div className={styles.materialActions}>
-                              {item.es_enlace ? (
-                                <a
-                                  href={item.url_enlace}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className={styles.materialLink}
-                                >
-                                  <i className="fas fa-external-link-alt"></i>{" "}
-                                  Abrir enlace
-                                </a>
-                              ) : (
-                                <a
-                                  href={item.ruta_descarga}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className={styles.materialDownload}
-                                >
-                                  <i className="fas fa-download"></i> Descargar
-                                </a>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Mensaje si no hay material */}
-                  {material.planeacion.length === 0 &&
-                    material.material_descarga.length === 0 && (
-                      <div className={styles.emptyMessage}>
-                        <div className={styles.messageIcon}>
-                          <i className="fas fa-book-open"></i>
-                        </div>
-                        <h3>📖 Material en preparación</h3>
-                        <p>
-                          El profesor aún no ha subido material para este curso.
-                        </p>
-                        <div className={styles.helpInfo}>
-                          <div className={styles.helpItem}>
-                            <i className="fas fa-file-pdf"></i>
-                            <span>PDFs de referencia y lecturas</span>
-                          </div>
-                          <div className={styles.helpItem}>
-                            <i className="fas fa-link"></i>
-                            <span>Enlaces a recursos externos</span>
-                          </div>
-                          <div className={styles.helpItem}>
-                            <i className="fas fa-clipboard-list"></i>
-                            <span>Planeación y temarios del curso</span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                </div>
-              )}
-            </div>
-          )}
-
-          {activeTab === "tareas" && (
-            <div className={styles.tareasTab}>
-              {loading.tareas ? (
-                <div className={styles.loading}>
-                  <div className={styles.spinner}></div>
-                  <span>Cargando tareas...</span>
-                </div>
-              ) : tareas.length > 0 ? (
-                <div className={styles.tareasList}>
-                  {tareas.map((tarea) => (
-                    <div key={tarea.id} className={styles.accordion}>
-                      <div
-                        className={styles.accordionHeader}
-                        onClick={() => toggleAccordion(tarea.id)}
-                      >
-                        <div>
-                          <span>{tarea.nombre}</span>
-                          {tarea.entregada && (
-                            <span className={styles.entregadaBadge}>
-                              {tarea.entrega?.estatus_entrega === "calificada"
-                                ? "Calificada"
-                                : "Entregada"}
-                            </span>
-                          )}
-                        </div>
-                        <i
-                          className={`fas ${openAccordions[tarea.id] ? "fa-chevron-up" : "fa-chevron-down"}`}
-                        ></i>
-                      </div>
-
-                      {openAccordions[tarea.id] && (
-                        <div className={styles.accordionContent}>
-                          {tarea.descripcion && (
-                            <div className={styles.taskDescription}>
-                              <h4>Descripción:</h4>
-                              <p>{tarea.descripcion}</p>
-                            </div>
-                          )}
-
-                          {tarea.instrucciones && (
-                            <div className={styles.taskInstructions}>
-                              <h4>Instrucciones:</h4>
-                              <p>{tarea.instrucciones}</p>
-                            </div>
-                          )}
-
-                          <div className={styles.taskMeta}>
-                            {tarea.fecha_limite && (
-                              <span>
-                                <i className="fas fa-calendar-alt"></i>
-                                Fecha límite: {formatDate(tarea.fecha_limite)}
-                              </span>
-                            )}
-                            {tarea.entrega?.calificacion && (
-                              <span>
-                                <i className="fas fa-star"></i>
-                                Calificación: {tarea.entrega.calificacion}
-                              </span>
-                            )}
-                          </div>
-
-                          <FileUploadComponent tarea={tarea} />
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className={styles.emptyMessage}>
-                  <div className={styles.messageIcon}>
-                    <i className="fas fa-clipboard-list"></i>
-                  </div>
-                  <h3>📋 Sin actividades configuradas</h3>
-                  <p>
-                    El profesor aún no ha publicado tareas o proyectos para este
-                    curso.
-                  </p>
-                  <div className={styles.helpInfo}>
-                    <div className={styles.helpItem}>
-                      <i className="fas fa-clock"></i>
-                      <span>
-                        Las actividades aparecerán automáticamente aquí
-                      </span>
-                    </div>
-                    <div className={styles.helpItem}>
-                      <i className="fas fa-upload"></i>
-                      <span>Podrás subir archivos PDF y agregar enlaces</span>
-                    </div>
-                    <div className={styles.helpItem}>
-                      <i className="fas fa-star"></i>
-                      <span>Recibirás calificaciones y retroalimentación</span>
-                    </div>
-                  </div>
-                  <small>
-                    💡 Mientras tanto, puedes revisar otros cursos o explorar el
-                    material disponible.
-                  </small>
-                </div>
-              )}
-            </div>
-          )}
+          {activeTab === "tareas" && renderTareasTab()}
 
           {activeTab === "calificaciones" && (
             <div className={styles.calificacionesTab}>

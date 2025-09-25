@@ -24,6 +24,13 @@
     font-size: 1.5rem;
 }
 
+.courseSelectorDescription {
+    text-align: center;
+    color: #666;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
 .courseCards {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -45,28 +52,6 @@
     border-color: #185d96;
     box-shadow: 0 4px 12px rgba(24, 93, 150, 0.15);
     transform: translateY(-2px);
-}
-
-.courseDetails {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin: 1rem 0;
-    font-size: 0.85rem;
-}
-
-.courseModalidad,
-.courseFechaFin {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #666;
-}
-
-.courseModalidad i,
-.courseFechaFin i {
-    color: #185d96;
-    width: 14px;
 }
 
 .courseCard.selectedCourse {
@@ -105,6 +90,21 @@
 .courseStatus.finalizado {
     background-color: rgba(158, 158, 158, 0.2);
     color: #9e9e9e;
+}
+
+.courseStatus.abierto {
+    background-color: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+}
+
+.courseStatus.planificado {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #ff9800;
+}
+
+.courseStatus.cancelado {
+    background-color: rgba(244, 67, 54, 0.2);
+    color: #f44336;
 }
 
 .selectedCourseHeader {
@@ -205,7 +205,152 @@
     animation: spin 1s infinite linear;
 }
 
-/* Tareas Tab */
+/* Improved Material de Curso styles */
+.materialTab {
+    min-height: 300px;
+}
+
+.materialSection {
+    margin-bottom: 2rem;
+}
+
+.materialSection h3 {
+    color: #185d96;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.materialSection h3 i {
+    color: #4a89d2;
+}
+
+.materialGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.materialCard {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.materialCard:hover {
+    border-color: #185d96;
+    box-shadow: 0 4px 12px rgba(24, 93, 150, 0.1);
+    transform: translateY(-2px);
+}
+
+.materialCard::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(135deg, #185d96, #4a89d2);
+}
+
+.materialHeader {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.materialIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    flex-shrink: 0;
+}
+
+.materialIcon.pdf {
+    background: linear-gradient(135deg, #dc3545, #e74c3c);
+}
+
+.materialIcon.link {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+}
+
+.materialInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.materialTitle {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    line-height: 1.3;
+    word-wrap: break-word;
+}
+
+.materialDescription {
+    color: #666;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    margin-bottom: 1rem;
+}
+
+.materialActions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.materialBtn {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+}
+
+.materialBtn.primary {
+    background: linear-gradient(135deg, #185d96, #4a89d2);
+    color: white;
+}
+
+.materialBtn.primary:hover {
+    background: linear-gradient(135deg, #4a89d2, #185d96);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(24, 93, 150, 0.3);
+}
+
+.materialBtn.secondary {
+    background: rgba(24, 93, 150, 0.1);
+    color: #185d96;
+    border: 1px solid rgba(24, 93, 150, 0.2);
+}
+
+.materialBtn.secondary:hover {
+    background: rgba(24, 93, 150, 0.2);
+    border-color: #185d96;
+}
+
+/* Improved Tareas Tab with separated sections */
 .tareasTab {
     min-height: 300px;
 }
@@ -214,223 +359,349 @@
     margin-bottom: 2rem;
 }
 
-.accordion {
+/* New task accordion with status-based styling */
+.taskAccordion {
     margin-bottom: 1rem;
     border-radius: 12px;
     overflow: hidden;
-    border: 1px solid #eaeaea;
-    transition: box-shadow 0.3s ease;
+    border: 2px solid #eaeaea;
+    transition: all 0.3s ease;
+    position: relative;
 }
 
-.accordion:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.taskAccordion.taskCompleted {
+    border-color: #4caf50;
+    background: linear-gradient(135deg, #f8fff8 0%, #e8f5e8 100%);
 }
 
-.accordionHeader {
-    padding: 1rem 1.5rem;
-    background-color: #ffffff;
+.taskAccordion.taskPending {
+    border-color: #ff9800;
+    background: linear-gradient(135deg, #fffbf0 0%, #fff3e0 100%);
+}
+
+.taskAccordion:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.taskAccordion.taskCompleted:hover {
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+}
+
+.taskAccordion.taskPending:hover {
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.2);
+}
+
+/* Status indicator bar on the left */
+.taskAccordion.taskCompleted::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(135deg, #4caf50, #66bb6a);
+}
+
+.taskAccordion.taskPending::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(135deg, #ff9800, #ffb74d);
+}
+
+.taskAccordionHeader {
+    padding: 1.25rem 1.5rem;
+    background-color: transparent;
     cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-weight: 500;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
 }
 
-.accordionHeader:hover {
-    background-color: #f8f9fa;
+.taskAccordionHeader:hover {
+    background-color: rgba(255, 255, 255, 0.7);
 }
 
-.accordionHeader div {
+.taskHeaderContent {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    justify-content: space-between;
+    width: 100%;
+    margin-right: 1rem;
 }
 
-.entregadaBadge {
-    font-size: 0.75rem;
-    background-color: rgba(76, 175, 80, 0.2);
+.taskTitle {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.taskTitle i {
+    font-size: 1.2rem;
+}
+
+.taskCompleted .taskTitle i {
     color: #4caf50;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-weight: 500;
 }
 
-.accordionContent {
-    padding: 1.5rem;
-    background-color: #fafafa;
-    border-top: 1px solid #eaeaea;
+.taskPending .taskTitle i {
+    color: #ff9800;
+}
+
+.taskStatus {
+    margin-left: auto;
+}
+
+.statusBadge {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.statusBadge.completed {
+    background: rgba(76, 175, 80, 0.2);
+    color: #2e7d32;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.statusBadge.pending {
+    background: rgba(255, 152, 0, 0.2);
+    color: #e65100;
+    border: 1px solid rgba(255, 152, 0, 0.3);
+}
+
+.chevronIcon {
+    font-size: 1.1rem;
+    color: #666;
+    transition: transform 0.3s ease;
+}
+
+.taskAccordionContent {
+    padding: 0;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .taskMeta {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    font-size: 0.875rem;
-    color: #666;
+    gap: 1.5rem;
+    margin-bottom: 0;
+    font-size: 0.9rem;
+    color: #555;
+    padding: 1.5rem 1.5rem 1rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.taskMeta span {
+.taskMetaItem {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.taskMeta i {
+.taskMetaItem i {
     color: #185d96;
+    font-size: 0.9rem;
 }
 
-/* Upload Section */
-.uploadSection {
-    margin-top: 1.5rem;
+/* Task instructions section */
+.taskInstructions {
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.7);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.uploadSection h4 {
-    font-weight: 500;
-    margin-bottom: 1rem;
-    color: #333;
-}
-
-.uploadContainer {
-    border: 2px dashed #ccc;
-    border-radius: 12px;
-    padding: 2rem;
-    text-align: center;
-    margin: 1rem 0;
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-.uploadContainer:hover,
-.uploadContainer:focus-within {
-    border-color: #4a89d2;
-    background-color: rgba(74, 137, 210, 0.05);
-}
-
-.uploadContainer i {
-    font-size: 3rem;
-    color: #ccc;
-    margin-bottom: 1rem;
-}
-
-.uploadContainer p {
-    margin: 0.5rem 0;
-    color: #666;
-}
-
-.uploadHint {
-    font-size: 0.875rem;
-    color: #999;
-}
-
-.fileList {
-    margin: 1rem 0;
-}
-
-.fileItem {
+.taskInstructions h4 {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 0.75rem;
-    background-color: #f0f0f0;
-    border-radius: 8px;
-    margin-bottom: 0.5rem;
-}
-
-.fileItem span {
-    font-size: 0.875rem;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
     color: #333;
+    font-size: 1rem;
+    font-weight: 600;
 }
 
-.removeFileBtn {
-    background: none;
-    border: none;
-    color: #f44336;
-    cursor: pointer;
-    padding: 0.25rem;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
+.taskInstructions h4 i {
+    color: #17a2b8;
+    font-size: 1rem;
 }
 
-.removeFileBtn:hover {
-    background-color: rgba(244, 67, 54, 0.1);
+.taskInstructions p {
+    color: #555;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0.75rem;
+    background: rgba(23, 162, 184, 0.05);
+    border-left: 3px solid #17a2b8;
+    border-radius: 0 6px 6px 0;
 }
 
-/* Buttons */
-.btnPrimary {
-    background-color: #185d96;
-    color: #ffffff;
-    border: none;
-    padding: 0.75rem 1.5rem;
+/* Updated task resources section */
+.taskResourcesSection {
+    background: #ffffff;
+    border-bottom: 2px solid #f0f0f0;
+    padding: 1.5rem;
+}
+
+.taskResourcesSection h4 {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    color: #185d96;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.taskResourcesSection h4 i {
+    font-size: 1.1rem;
+    color: #4a89d2;
+}
+
+.taskResourcesList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.taskResourceItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
     border-radius: 8px;
-    font-weight: 500;
-    cursor: pointer;
     transition: all 0.3s ease;
+    position: relative;
+}
+
+.taskResourceItem:hover {
+    border-color: #185d96;
+    box-shadow: 0 2px 8px rgba(24, 93, 150, 0.1);
+    transform: translateY(-1px);
+}
+
+.taskResourceItem::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: #185d96;
+    border-radius: 3px 0 0 3px;
+}
+
+.taskResourceInfo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.taskResourceIcon {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    color: white;
+    flex-shrink: 0;
+}
+
+.taskResourceIcon.pdfIcon {
+    background: linear-gradient(135deg, #dc3545, #e74c3c);
+}
+
+.taskResourceIcon.linkIcon {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+}
+
+.taskResourceName {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.95rem;
+    line-height: 1.3;
+}
+
+.taskResourceBtn {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    margin-top: 1rem;
-}
-
-.btnPrimary:hover:not(:disabled) {
-    background-color: #4a89d2;
-    transform: scale(1.05);
-}
-
-.btnPrimary:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.btnOutline {
-    border: 1px solid #185d96;
-    color: #185d96;
-    background-color: transparent;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 500;
-    cursor: pointer;
     transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+    white-space: nowrap;
 }
 
-.btnOutline:hover {
-    background-color: rgba(24, 93, 150, 0.1);
+.taskResourceBtn.downloadBtn {
+    background: linear-gradient(135deg, #dc3545, #e74c3c);
+    color: white;
 }
 
-/* Task Results */
-.taskResult {
-    margin-top: 1.5rem;
+.taskResourceBtn.downloadBtn:hover {
+    background: linear-gradient(135deg, #e74c3c, #dc3545);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
 }
 
-.successMessage {
-    background-color: rgba(76, 175, 80, 0.1);
-    color: #4caf50;
-    padding: 1rem;
-    border-radius: 8px;
+.taskResourceBtn.linkBtn {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+}
+
+.taskResourceBtn.linkBtn:hover {
+    background: linear-gradient(135deg, #0056b3, #007bff);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+/* Updated task submission section */
+.taskSubmissionSection {
+    background: #fafafa;
+    padding: 1.5rem;
+    border-top: 3px solid #28a745;
+}
+
+.taskSubmissionSection h4 {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    font-weight: 500;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    color: #28a745;
+    font-weight: 600;
+    font-size: 1rem;
 }
 
-.successMessage i {
-    font-size: 1.5rem;
-}
-
-.errorMessage {
-    background-color: rgba(244, 67, 54, 0.1);
-    color: #f44336;
-    padding: 1rem;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.errorMessage i {
-    font-size: 1.5rem;
+.taskSubmissionSection h4 i {
+    font-size: 1.1rem;
+    color: #34ce57;
 }
 
 /* Calificaciones Tab */
@@ -560,6 +831,13 @@
     line-height: 1.5;
 }
 
+.emptyMessage small {
+    color: #999;
+    font-size: 0.85rem;
+    display: block;
+    margin-top: 1rem;
+}
+
 /* Toast Styles */
 .toast {
     position: fixed;
@@ -676,55 +954,17 @@
         font-size: 1.25rem;
     }
 
-    .helpSteps {
-        gap: 0.75rem;
-        margin: 1.5rem 0;
+    .materialGrid {
+        grid-template-columns: 1fr;
     }
 
-    .helpStep {
-        flex-direction: column;
-        text-align: center;
-        gap: 0.5rem;
-        padding: 0.75rem;
+    .taskResourcesGrid {
+        grid-template-columns: 1fr;
     }
 
-    .helpStep i {
-        font-size: 1.5rem;
-        margin-bottom: 0.25rem;
+    .taskSections {
+        gap: 0;
     }
-
-    .helpInfo,
-    .gradeInfo {
-        gap: 0.5rem;
-        margin: 1rem 0;
-    }
-
-    .helpItem,
-    .infoItem {
-        flex-direction: column;
-        text-align: center;
-        gap: 0.5rem;
-        padding: 0.5rem;
-    }
-
-    .helpItem i,
-    .infoItem i {
-        font-size: 1.25rem;
-        margin-bottom: 0.25rem;
-    }
-
-    .courseSelectorDescription {
-        font-size: 0.9rem;
-        padding: 0 1rem;
-    }
-}
-
-/* Course selector description */
-.courseSelectorDescription {
-    text-align: center;
-    color: #666;
-    margin-bottom: 1.5rem;
-    font-size: 0.95rem;
 }
 
 /* Help steps for empty state */
@@ -825,90 +1065,4 @@
     color: #555;
     font-size: 0.85rem;
     line-height: 1.3;
-}
-
-/* Toast Messages */
-.toast {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 1rem 1.5rem;
-    border-radius: 8px;
-    color: white;
-    font-weight: 500;
-    z-index: 1000;
-    animation: slideInRight 0.3s ease;
-    max-width: 400px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.toast.success {
-    background-color: #4caf50;
-}
-
-.toast.error {
-    background-color: #f44336;
-}
-
-.toast.info {
-    background-color: #2196f3;
-}
-
-/* Additional course status styles */
-.courseStatus.abierto {
-    background-color: rgba(76, 175, 80, 0.2);
-    color: #4caf50;
-}
-
-.courseStatus.planificado {
-    background-color: rgba(255, 193, 7, 0.2);
-    color: #ff9800;
-}
-
-.courseStatus.cancelado {
-    background-color: rgba(244, 67, 54, 0.2);
-    color: #f44336;
-}
-
-/* Slide in animation for toast */
-@keyframes slideInRight {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-/* Empty state improvements */
-.emptyMessage {
-    text-align: center;
-    padding: 3rem 2rem;
-    color: #666;
-}
-
-.emptyMessage .messageIcon {
-    font-size: 3rem;
-    color: #ccc;
-    margin-bottom: 1rem;
-}
-
-.emptyMessage h3 {
-    color: #333;
-    margin-bottom: 1rem;
-    font-size: 1.5rem;
-}
-
-.emptyMessage p {
-    margin-bottom: 0.5rem;
-    line-height: 1.5;
-}
-
-.emptyMessage small {
-    color: #999;
-    font-size: 0.85rem;
-    display: block;
-    margin-top: 1rem;
 }
