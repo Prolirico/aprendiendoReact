@@ -30,18 +30,21 @@ const upsertCalificacionCurso = async (req, res) => {
     );
     const id_calificaciones_curso = califCursoRows[0].id_calificaciones;
 
-    // Paso 2: Borrar las actividades antiguas para este curso para evitar duplicados
-    await connection.query(
-      "DELETE FROM calificaciones_actividades WHERE id_calificaciones_curso = ?",
-      [id_calificaciones_curso],
-    );
+    // Paso 2: Procesar actividades (Upsert: Update, Insert, Delete)
+    const idsActividadesRecibidas = [];
 
-    // Paso 3: Si hay nuevas actividades, insertarlas
     if (actividades && actividades.length > 0) {
       const allowedTypes = ["pdf", "link"];
-      const actividadesValues = actividades.map((act) => {
-        // Validación de seguridad en el backend
-        const tiposValidos = act.tipos_permitidos.every((tipo) =>
+
+      for (const act of actividades) {
+        // Validar que tipos_permitidos existe y es un array
+        const tiposPermitidos = act.tipos_permitidos ||
+          act.tipos_archivo_permitidos || ["pdf", "link"];
+        const tiposArray = Array.isArray(tiposPermitidos)
+          ? tiposPermitidos
+          : JSON.parse(tiposPermitidos || '["pdf", "link"]');
+
+        const tiposValidos = tiposArray.every((tipo) =>
           allowedTypes.includes(tipo),
         );
         if (!tiposValidos) {
@@ -50,36 +53,78 @@ const upsertCalificacionCurso = async (req, res) => {
           );
         }
 
-        return [
-          id_calificaciones_curso,
-          act.nombre,
-          act.porcentaje,
-          act.fecha_limite || null,
-          act.max_archivos,
-          act.max_tamano_mb,
-          JSON.stringify(act.tipos_permitidos), // Guardamos el array como un string JSON
-        ];
-      });
+        if (act.id_actividad) {
+          // --- UPDATE ---
+          // Es una actividad existente, la actualizamos
+          idsActividadesRecibidas.push(act.id_actividad);
+          const updateQuery = `
+            UPDATE calificaciones_actividades SET
+              nombre = ?, porcentaje = ?, fecha_limite = ?, max_archivos = ?, max_tamano_mb = ?, tipos_archivo_permitidos = ?
+            WHERE id_actividad = ? AND id_calificaciones_curso = ?
+          `;
+          await connection.query(updateQuery, [
+            act.nombre,
+            act.porcentaje,
+            act.fecha_limite || null,
+            act.max_archivos,
+            act.max_tamano_mb,
+            JSON.stringify(tiposArray),
+            act.id_actividad,
+            id_calificaciones_curso,
+          ]);
+        } else {
+          // --- INSERT ---
+          // Es una actividad nueva, la insertamos
+          const insertQuery = `
+            INSERT INTO calificaciones_actividades (id_calificaciones_curso, nombre, porcentaje, fecha_limite, max_archivos, max_tamano_mb, tipos_archivo_permitidos)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+          `;
+          const [result] = await connection.query(insertQuery, [
+            id_calificaciones_curso,
+            act.nombre,
+            act.porcentaje,
+            act.fecha_limite || null,
+            act.max_archivos,
+            act.max_tamano_mb,
+            JSON.stringify(tiposArray),
+          ]);
+          idsActividadesRecibidas.push(result.insertId);
+        }
+      }
+    }
 
-      const insertActividadesQuery = `
-        INSERT INTO calificaciones_actividades (id_calificaciones_curso, nombre, porcentaje, fecha_limite, max_archivos, max_tamano_mb, tipos_archivo_permitidos)
-        VALUES ?
-      `;
-      await connection.query(insertActividadesQuery, [actividadesValues]);
+    // Paso 3: --- DELETE ---
+    // Eliminar actividades que ya no están en la lista enviada por el frontend
+    if (idsActividadesRecibidas.length > 0) {
+      const deleteQuery = `DELETE FROM calificaciones_actividades WHERE id_calificaciones_curso = ? AND id_actividad NOT IN (?)`;
+      await connection.query(deleteQuery, [
+        id_calificaciones_curso,
+        idsActividadesRecibidas,
+      ]);
+    } else {
+      // Si no se recibieron actividades, se borran todas las del curso
+      const deleteAllQuery = `DELETE FROM calificaciones_actividades WHERE id_calificaciones_curso = ?`;
+      await connection.query(deleteAllQuery, [id_calificaciones_curso]);
     }
 
     await connection.commit();
-    res
-      .status(200)
-      .json({ message: "Configuración de calificación guardada con éxito." });
+
+    // Paso 4: Devolver la lista actualizada de actividades
+    const [actividadesActualizadas] = await pool.query(
+      "SELECT * FROM calificaciones_actividades WHERE id_calificaciones_curso = ?",
+      [id_calificaciones_curso],
+    );
+
+    res.status(200).json({
+      message: "Configuración de calificación guardada con éxito.",
+      actividades: actividadesActualizadas,
+    });
   } catch (error) {
     if (connection) await connection.rollback();
     console.error("Error al guardar la configuración de calificación:", error);
-    res
-      .status(500)
-      .json({
-        error: "Error interno del servidor al guardar la configuración.",
-      });
+    res.status(500).json({
+      error: "Error interno del servidor al guardar la configuración.",
+    });
   } finally {
     if (connection) connection.release();
   }
@@ -103,12 +148,9 @@ const getCalificacionCurso = async (req, res) => {
     );
 
     if (califCursoRows.length === 0) {
-      return res
-        .status(404)
-        .json({
-          error:
-            "No se encontró configuración de calificación para este curso.",
-        });
+      return res.status(404).json({
+        error: "No se encontró configuración de calificación para este curso.",
+      });
     }
 
     const califCurso = califCursoRows[0];
@@ -136,11 +178,9 @@ const getCalificacionCurso = async (req, res) => {
     res.status(200).json(response);
   } catch (error) {
     console.error("Error al obtener la configuración de calificación:", error);
-    res
-      .status(500)
-      .json({
-        error: "Error interno del servidor al obtener la configuración.",
-      });
+    res.status(500).json({
+      error: "Error interno del servidor al obtener la configuración.",
+    });
   }
 };
 

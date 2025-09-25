@@ -61,6 +61,7 @@ const subirMaterial = async (req, res) => {
       url_enlace,
       instrucciones_texto,
       fecha_limite,
+      id_actividad, // <-- Recibimos el nuevo campo
     } = req.body;
 
     const subido_por = req.user.id_usuario;
@@ -71,6 +72,7 @@ const subirMaterial = async (req, res) => {
     console.log(`   - Usuario ID: ${subido_por}`);
     console.log(`   - Tipo Usuario: ${req.user.tipo_usuario}`);
     console.log(`   - Categoría: ${categoria_material}`);
+    console.log(`   - ID Actividad (si aplica): ${id_actividad}`);
     console.log(`   - Es enlace: ${es_enlace}`);
     console.log(
       `📁 Archivo recibido:`,
@@ -216,8 +218,9 @@ const subirMaterial = async (req, res) => {
         descripcion,
         instrucciones_texto,
         fecha_limite,
-        subido_por
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        subido_por,
+        id_actividad
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const [result] = await pool.query(insertQuery, [
@@ -233,6 +236,7 @@ const subirMaterial = async (req, res) => {
       instrucciones_texto || null,
       fecha_limite || null,
       subido_por,
+      id_actividad || null, // <-- Guardamos el ID de la actividad
     ]);
 
     logger.info(
@@ -312,6 +316,7 @@ const getMaterialCurso = async (req, res) => {
         url_enlace: material.url_enlace,
         descripcion: material.descripcion,
         instrucciones_texto: material.instrucciones_texto,
+        id_actividad: material.id_actividad, // <-- Devolvemos el ID de la actividad
         fecha_limite: material.fecha_limite,
         fecha_subida: material.fecha_subida,
         subido_por_nombre: material.subido_por_nombre,
