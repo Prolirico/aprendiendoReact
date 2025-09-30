@@ -1066,3 +1066,310 @@
     font-size: 0.85rem;
     line-height: 1.3;
 }
+
+/* Estilos para la sección de subida de archivos */
+.uploadSection {
+    margin-top: 1rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.uploadSection h4 {
+    color: #333;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.uploadContainer {
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    background: white;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.uploadContainer:hover {
+    border-color: #4f46e5;
+    background: #f8faff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+}
+
+.uploadContainer i {
+    font-size: 2.5rem;
+    color: #6b7280;
+    margin-bottom: 1rem;
+    transition: color 0.3s ease;
+}
+
+.uploadContainer:hover i {
+    color: #4f46e5;
+}
+
+.uploadContainer p {
+    color: #374151;
+    margin: 0.5rem 0;
+    font-weight: 500;
+}
+
+.uploadHint {
+    color: #6b7280 !important;
+    font-size: 0.875rem !important;
+    font-weight: 400 !important;
+    margin-bottom: 1rem !important;
+}
+
+.btnPrimary {
+    background: #4f46e5;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.btnPrimary:hover:not(:disabled) {
+    background: #4338ca;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(79, 70, 229, 0.25);
+}
+
+.btnPrimary:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btnOutline {
+    background: white;
+    color: #4f46e5;
+    border: 2px solid #4f46e5;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btnOutline:hover {
+    background: #4f46e5;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(79, 70, 229, 0.25);
+}
+
+.fileList {
+    margin-top: 1rem;
+    background: white;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+}
+
+.fileItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    background: white;
+    transition: background-color 0.2s ease;
+}
+
+.fileItem:last-child {
+    border-bottom: none;
+}
+
+.fileItem:hover {
+    background: #f8f9fa;
+}
+
+.fileItem span {
+    color: #374151;
+    font-weight: 500;
+    flex: 1;
+}
+
+.removeFileBtn {
+    background: #ef4444;
+    color: white;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.removeFileBtn:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+}
+
+.taskResult {
+    margin-top: 1rem;
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+.successMessage {
+    background: #f0f9ff;
+    border: 1px solid #0ea5e9;
+    color: #0c4a6e;
+    padding: 1rem;
+    border-radius: 6px;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.successMessage i {
+    color: #0ea5e9;
+    font-size: 1.25rem;
+    margin-top: 0.125rem;
+}
+
+.errorMessage {
+    background: #fef2f2;
+    border: 1px solid #f87171;
+    color: #991b1b;
+    padding: 1rem;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.errorMessage i {
+    color: #f87171;
+    font-size: 1.25rem;
+}
+
+.professorComment {
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    background: rgba(79, 70, 229, 0.05);
+    border-radius: 4px;
+    border-left: 4px solid #4f46e5;
+}
+
+.entregaFiles {
+    margin-top: 0.75rem;
+}
+
+.archivoEntregado {
+    padding: 0.5rem;
+    background: rgba(34, 197, 94, 0.1);
+    border-radius: 4px;
+    margin: 0.25rem 0;
+    font-size: 0.875rem;
+}
+
+/* Estilos para archivos entregados estilo Google Classroom */
+.archivosEntregadosList {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.archivoEntregadoItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.archivoEntregadoItem:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-color: #d1d5db;
+}
+
+.archivoInfo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.archivoInfo i {
+    color: #dc2626;
+    font-size: 1.25rem;
+}
+
+.archivoNombre {
+    color: #374151;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.archivoAcciones {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btnArchivoAction {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btnArchivoAction:hover {
+    background: #2563eb;
+    transform: scale(1.05);
+}
+
+.btnArchivoDelete {
+    background: #ef4444;
+    color: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btnArchivoDelete:hover {
+    background: #dc2626;
+    transform: scale(1.05);
+}

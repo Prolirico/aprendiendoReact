@@ -287,28 +287,53 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
       if (entregasResponse.ok) {
         const entregasData = await entregasResponse.json();
         entregasExistentes = entregasData.entregas || [];
+        console.log("=== DEBUG ENTREGAS EXISTENTES ===");
+        console.log("Entregas encontradas:", entregasExistentes.length);
+        console.log("Datos de entregas:", entregasExistentes);
+        console.log("=== FIN DEBUG ENTREGAS ===");
+      } else {
+        console.error("Error cargando entregas:", entregasResponse.status);
       }
 
       // Combinar actividades con material de apoyo y entregas
       const tareasFormateadas = actividadesConfiguradas.map((actividad) => {
-        const entregaExistente = entregasExistentes.find(
-          (entrega) => entrega.id_actividad === actividad.id_actividad,
-        );
-
         // Buscar recursos de apoyo para esta actividad específica
         const recursosActividad = materialesActividad.filter(
           (material) => material.id_actividad === actividad.id_actividad,
         );
 
+        // Encontrar el primer material de esta actividad para usar como id_material
+        const materialPrincipal =
+          recursosActividad.find((material) => !material.es_enlace) ||
+          recursosActividad[0];
+
+        // Buscar entregas existentes usando id_material si existe
+        const entregaExistente = materialPrincipal
+          ? entregasExistentes.find(
+              (entrega) =>
+                entrega.id_material === materialPrincipal.id_material,
+            )
+          : null;
+
         const recursos = recursosActividad.map((material) => ({
           nombre:
             material.nombre_archivo || material.nombre_enlace || "Recurso",
-          url: material.ruta_descarga || material.url_enlace,
+          url: material.es_enlace
+            ? material.url_enlace
+            : `${API_BASE_URL}${material.ruta_descarga}`,
           tipo: material.es_enlace ? "enlace" : "archivo",
         }));
 
+        console.log(`=== DEBUG ACTIVIDAD: ${actividad.nombre} ===`);
+        console.log("Material principal:", materialPrincipal);
+        console.log("Entrega encontrada:", entregaExistente);
+        console.log("=== FIN DEBUG ACTIVIDAD ===");
+
         return {
-          id: actividad.id_actividad,
+          id: materialPrincipal
+            ? materialPrincipal.id_material
+            : actividad.id_actividad,
+          id_actividad: actividad.id_actividad,
           nombre: actividad.nombre,
           descripcion: actividad.descripcion || "",
           instrucciones: actividad.instrucciones || "",
@@ -508,6 +533,10 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
     const files = fileUploads[tareaId]?.files || [];
     if (files.length === 0) return;
 
+    console.log("=== DEBUG UPLOAD ===");
+    console.log("Tarea ID:", tareaId);
+    console.log("Número de archivos:", files.length);
+
     setFileUploads((prev) => ({
       ...prev,
       [tareaId]: { ...prev[tareaId], uploading: true },
@@ -515,6 +544,9 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
 
     try {
       const token = localStorage.getItem("token");
+      console.log("Token disponible:", token ? "Sí" : "No");
+      console.log("Token length:", token ? token.length : 0);
+
       if (!token) {
         showToast("Debes iniciar sesión para enviar entregas.", "error");
         return;
@@ -522,12 +554,30 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
 
       // Preparar FormData para envío al backend
       const formDataToSend = new FormData();
-      formDataToSend.append("id_material", tareaId);
+
+      // Verificar que tareaId es realmente un id_material válido
+      const tarea = tareas.find((t) => t.id === tareaId);
+      const id_material =
+        tarea && tarea.id !== tarea.id_actividad ? tareaId : null;
+
+      if (!id_material) {
+        showToast(
+          "No hay material asociado a esta actividad para recibir entregas.",
+          "error",
+        );
+        return;
+      }
+
+      formDataToSend.append("id_material", id_material);
       formDataToSend.append("comentario_estudiante", "Entrega de actividad");
 
-      files.forEach((file) => {
+      files.forEach((file, index) => {
+        console.log(`Archivo ${index + 1}:`, file.name, file.size, "bytes");
         formDataToSend.append("archivos", file);
       });
+
+      console.log("URL de subida:", `${API_BASE_URL}/api/entregas`);
+      console.log("Enviando FormData con", files.length, "archivos");
 
       const response = await fetch(`${API_BASE_URL}/api/entregas`, {
         method: "POST",
@@ -537,8 +587,12 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
         body: formDataToSend,
       });
 
+      console.log("Response status:", response.status);
+      console.log("Response ok:", response.ok);
+
       if (response.ok) {
         const responseData = await response.json();
+        console.log("Upload exitoso:", responseData);
         showToast(
           "Tu entrega ha sido enviada con éxito. ¡Estás un paso más cerca!",
           "success",
@@ -553,24 +607,114 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
           [tareaId]: { files: [] },
         }));
       } else {
-        const errorData = await response.json();
+        // Handle error
+        const errorText = await response.text();
+        console.error("Error response status:", response.status);
+        console.error("Error response text:", errorText);
         showToast(
-          errorData.error ||
-            "Ha ocurrido un error al enviar tu entrega. Inténtalo de nuevo.",
+          `Error al enviar entrega: ${response.status} ${response.statusText}`,
           "error",
         );
       }
     } catch (error) {
-      console.error("Error en upload:", error);
+      console.error("Error durante upload:", error);
+      console.error("Error completo:", error);
+      showToast(`Error de conexión: ${error.message}`, "error");
       showToast(
         "No se pudo enviar la entrega. Por favor, inténtalo de nuevo.",
         "error",
       );
     } finally {
+      console.log("=== FIN DEBUG UPLOAD ===");
       setFileUploads((prev) => ({
         ...prev,
         [tareaId]: { ...prev[tareaId], uploading: false },
       }));
+    }
+  };
+
+  // Función para manejar descargas con autenticación
+  const handleDownloadWithAuth = async (url) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        showToast("Debes iniciar sesión para descargar archivos.", "error");
+        return;
+      }
+
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = downloadUrl;
+
+        // Obtener el nombre del archivo desde los headers de la respuesta
+        const contentDisposition = response.headers.get("content-disposition");
+        let filename = "archivo";
+        if (contentDisposition && contentDisposition.includes("filename=")) {
+          filename = contentDisposition
+            .split("filename=")[1]
+            .replace(/"/g, "")
+            .trim();
+        } else {
+          // Fallback: usar el último segmento de la URL si no hay header
+          filename = url.split("/").pop() || "archivo";
+        }
+
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(downloadUrl);
+      } else {
+        showToast("Error al descargar el archivo.", "error");
+      }
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      showToast("Error al descargar el archivo.", "error");
+    }
+  };
+
+  // Función para eliminar una entrega
+  const handleEliminarEntrega = async (id_archivo_entrega) => {
+    if (!confirm("¿Estás seguro de que quieres eliminar este archivo?")) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        showToast("Debes iniciar sesión para eliminar archivos.", "error");
+        return;
+      }
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/entregas/archivo/${id_archivo_entrega}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (response.ok) {
+        showToast("Archivo eliminado exitosamente.", "success");
+        loadTareas(); // Recargar para actualizar la vista
+      } else {
+        const errorText = await response.text();
+        showToast("Error al eliminar el archivo.", "error");
+      }
+    } catch (error) {
+      console.error("Error eliminando archivo:", error);
+      showToast("Error al eliminar el archivo.", "error");
     }
   };
 
@@ -607,14 +751,43 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
               {tarea.entrega.archivos && tarea.entrega.archivos.length > 0 && (
                 <div className={styles.entregaFiles}>
                   <strong>Archivos entregados:</strong>
-                  {tarea.entrega.archivos.map((archivo) => (
-                    <div
-                      key={archivo.id_archivo_entrega}
-                      className={styles.archivoEntregado}
-                    >
-                      📎 {archivo.nombre_archivo_original}
-                    </div>
-                  ))}
+                  <div className={styles.archivosEntregadosList}>
+                    {tarea.entrega.archivos.map((archivo) => (
+                      <div
+                        key={archivo.id_archivo_entrega}
+                        className={styles.archivoEntregadoItem}
+                      >
+                        <div className={styles.archivoInfo}>
+                          <i className="fas fa-file-pdf"></i>
+                          <span className={styles.archivoNombre}>
+                            {archivo.nombre_archivo_original}
+                          </span>
+                        </div>
+                        <div className={styles.archivoAcciones}>
+                          <button
+                            onClick={() =>
+                              handleDownloadWithAuth(
+                                `${API_BASE_URL}/api/entregas/download/${archivo.id_archivo_entrega}`,
+                              )
+                            }
+                            className={styles.btnArchivoAction}
+                            title="Ver archivo"
+                          >
+                            <i className="fas fa-eye"></i>
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleEliminarEntrega(archivo.id_archivo_entrega)
+                            }
+                            className={styles.btnArchivoDelete}
+                            title="Eliminar archivo"
+                          >
+                            <i className="fas fa-trash"></i>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -746,7 +919,9 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
             <div className={styles.materialGrid}>
               {material.planeacion.map((item, index) => {
                 const isLink = item.es_enlace || item.url_enlace;
-                const url = item.ruta_descarga || item.url_enlace;
+                const url = item.es_enlace
+                  ? item.url_enlace
+                  : `${API_BASE_URL}${item.ruta_descarga}`;
                 return (
                   <div key={index} className={styles.materialCard}>
                     <div className={styles.materialHeader}>
@@ -770,21 +945,25 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                       </div>
                     </div>
                     <div className={styles.materialActions}>
-                      <a
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`${styles.materialBtn} ${styles.primary}`}
-                      >
-                        <i
-                          className={
-                            isLink
-                              ? "fas fa-external-link-alt"
-                              : "fas fa-download"
-                          }
-                        ></i>
-                        {isLink ? "Ver" : "Descargar PDF"}
-                      </a>
+                      {isLink ? (
+                        <a
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`${styles.materialBtn} ${styles.primary}`}
+                        >
+                          <i className="fas fa-external-link-alt"></i>
+                          Ver
+                        </a>
+                      ) : (
+                        <button
+                          onClick={() => handleDownloadWithAuth(url)}
+                          className={`${styles.materialBtn} ${styles.primary}`}
+                        >
+                          <i className="fas fa-download"></i>
+                          Descargar PDF
+                        </button>
+                      )}
                     </div>
                   </div>
                 );
@@ -804,7 +983,9 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
               <div className={styles.materialGrid}>
                 {material.material_descarga.map((item, index) => {
                   const isLink = item.es_enlace || item.url_enlace;
-                  const url = item.ruta_descarga || item.url_enlace;
+                  const url = item.es_enlace
+                    ? item.url_enlace
+                    : `${API_BASE_URL}${item.ruta_descarga}`;
                   return (
                     <div key={index} className={styles.materialCard}>
                       <div className={styles.materialHeader}>
@@ -832,21 +1013,25 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                         </div>
                       </div>
                       <div className={styles.materialActions}>
-                        <a
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`${styles.materialBtn} ${styles.primary}`}
-                        >
-                          <i
-                            className={
-                              isLink
-                                ? "fas fa-external-link-alt"
-                                : "fas fa-download"
-                            }
-                          ></i>
-                          {isLink ? "Ver" : "Descargar"}
-                        </a>
+                        {isLink ? (
+                          <a
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`${styles.materialBtn} ${styles.primary}`}
+                          >
+                            <i className="fas fa-external-link-alt"></i>
+                            Ver
+                          </a>
+                        ) : (
+                          <button
+                            onClick={() => handleDownloadWithAuth(url)}
+                            className={`${styles.materialBtn} ${styles.primary}`}
+                          >
+                            <i className="fas fa-download"></i>
+                            Descargar
+                          </button>
+                        )}
                       </div>
                     </div>
                   );
@@ -990,9 +1175,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                       </h4>
                       <div className={styles.taskResourcesList}>
                         {tarea.recursos.map((recurso, rIndex) => {
-                          const isLink =
-                            recurso.tipo === "enlace" ||
-                            recurso.url?.includes("http");
+                          const isLink = recurso.tipo === "enlace";
                           return (
                             <div
                               key={rIndex}
@@ -1015,21 +1198,27 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                                       : "Documento PDF")}
                                 </span>
                               </div>
-                              <a
-                                href={recurso.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={`${styles.taskResourceBtn} ${isLink ? styles.linkBtn : styles.downloadBtn}`}
-                              >
-                                <i
-                                  className={
-                                    isLink
-                                      ? "fas fa-external-link-alt"
-                                      : "fas fa-download"
+                              {isLink ? (
+                                <a
+                                  href={recurso.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className={`${styles.taskResourceBtn} ${styles.linkBtn}`}
+                                >
+                                  <i className="fas fa-external-link-alt"></i>
+                                  Ver
+                                </a>
+                              ) : (
+                                <button
+                                  onClick={() =>
+                                    handleDownloadWithAuth(recurso.url)
                                   }
-                                ></i>
-                                {isLink ? "Ver" : "Descargar"}
-                              </a>
+                                  className={`${styles.taskResourceBtn} ${styles.downloadBtn}`}
+                                >
+                                  <i className="fas fa-download"></i>
+                                  Descargar
+                                </button>
+                              )}
                             </div>
                           );
                         })}

@@ -1,0 +1,302 @@
+/* Estilos para VistaCalificacion.jsx */
+
+.vistaCalificacionBackdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    padding: 1rem;
+}
+
+.vistaCalificacionContent {
+    background: #f9fafb;
+    border-radius: 0.75rem;
+    width: 95%;
+    max-width: 1200px;
+    height: 90vh;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    background-color: white;
+}
+
+.header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.mainLayout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.panelIzquierdo {
+    width: 30%;
+    min-width: 250px;
+    background: white;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.panelIzquierdo h3 {
+    padding: 1rem 1.5rem;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    border-bottom: 1px solid #e5e7eb;
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 1;
+}
+
+.listaAlumnos {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.alumnoItem {
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.btnAlumno {
+    width: 100%;
+    text-align: left;
+    padding: 1rem 1.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: #374151;
+    transition: background-color 0.2s;
+}
+
+.btnAlumno:hover {
+    background-color: #f8fafc;
+}
+
+.alumnoItemSelected .btnAlumno {
+    background-color: #eef2ff;
+    color: #4f46e5;
+    font-weight: 600;
+}
+
+.panelDerecho {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.headerAlumno {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    background-color: white;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.headerAlumno h3 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.areaCalificacion {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.actividadCard {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.actividadCard h4 {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.archivosEntregados {
+    margin-bottom: 1rem;
+}
+
+.archivosEntregados ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 0.5rem;
+}
+
+.archivosEntregados a {
+    color: #4f46e5;
+    text-decoration: none;
+}
+
+.archivosEntregados a:hover {
+    text-decoration: underline;
+}
+
+.actividadCard label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-top: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.campoCalificacion,
+.campoFeedback {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+}
+
+.campoFeedback {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.actividadCard button {
+    margin-top: 1rem;
+    background-color: #4f46e5;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.actividadCard button:hover {
+    background-color: #4338ca;
+}
+
+.actividadCard button:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+}
+
+.emptyState {
+    padding: 2rem;
+    text-align: center;
+    color: #6b7280;
+}
+
+.loader {
+    padding: 2rem;
+    text-align: center;
+    color: #6b7280;
+}
+
+/* Navegación de alumnos */
+.navegacionAlumnos {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.btnNav {
+    background-color: #4f46e5;
+    color: white;
+    border: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+}
+
+.btnNav:hover:not(:disabled) {
+    background-color: #4338ca;
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(79, 70, 229, 0.3);
+}
+
+.btnNav:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
+.btnNav:disabled {
+    background-color: #e5e7eb;
+    color: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.contadorAlumnos {
+    font-size: 0.875rem;
+    color: #6b7280;
+    font-weight: 500;
+    min-width: 4rem;
+    text-align: center;
+}
+
+/* Botón de cierre */
+.btn-close {
+    background-color: #e5e7eb;
+    color: #374151;
+    border: none;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-size: 1.5rem;
+    line-height: 1;
+    transition: background-color 0.2s;
+}
+
+.btn-close:hover {
+    background-color: #d1d5db;
+}
+
+/* Secciones de entrega dentro de actividades */
+.entregaSection {
+    border: 1px solid #f3f4f6;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background-color: #fafafa;
+}
+
+.entregaSection:last-child {
+    margin-bottom: 0;
+}

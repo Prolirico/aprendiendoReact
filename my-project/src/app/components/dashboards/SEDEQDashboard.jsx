@@ -86,7 +86,7 @@ function SEDEQDashboard({ userId }) {
         <section>
           <CalificacionCurso rol="sedeq" />
         </section>
-      </div>      
+      </div>
     </div>
   );
 }

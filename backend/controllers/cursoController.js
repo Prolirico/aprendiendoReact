@@ -35,12 +35,18 @@ const getAllCursos = async (req, res) => {
 
     // **FILTRO POR UNIVERSIDADES** (puede venir como 'universidades' o 'universidadId')
     if (universidades) {
-      const uniIds = universidades.split(',').map(id => parseInt(id.trim(), 10));
+      const uniIds = universidades
+        .split(",")
+        .map((id) => parseInt(id.trim(), 10));
       if (uniIds.length > 0) {
         whereClauses.push(`c.id_universidad IN (?)`);
         queryParams.push(uniIds);
       }
-    } else if (universidadId && universidadId !== "undefined" && universidadId !== "") {
+    } else if (
+      universidadId &&
+      universidadId !== "undefined" &&
+      universidadId !== ""
+    ) {
       whereClauses.push("c.id_universidad = ?");
       queryParams.push(universidadId);
     }
@@ -73,12 +79,12 @@ const getAllCursos = async (req, res) => {
 
     // **CONTEO CORREGIDO PARA CONSIDERAR GROUP BY**
     let countQuery, totalCursos;
-    
-    if (groupByCourse === 'true') {
+
+    if (groupByCourse === "true") {
       // Para consultas agrupadas, necesitamos contar grupos únicos
       countQuery = `
-        SELECT COUNT(DISTINCT c.id_curso) as total 
-        FROM curso c 
+        SELECT COUNT(DISTINCT c.id_curso) as total
+        FROM curso c
         LEFT JOIN maestro m ON c.id_maestro = m.id_maestro
         LEFT JOIN universidad u ON c.id_universidad = u.id_universidad
         LEFT JOIN facultades f ON c.id_facultad = f.id_facultad
@@ -93,16 +99,18 @@ const getAllCursos = async (req, res) => {
       // Para consultas normales, conteo estándar
       countQuery = `SELECT COUNT(*) as total FROM curso c ${whereString}`;
     }
-    
+
     const [countResult] = await pool.query(countQuery, queryParams);
     totalCursos = countResult[0].total;
     const totalPages = Math.ceil(totalCursos / limit);
-    
-    // Construcción dinámica de la consulta principal
-    let selectFields, joins, groupByClause = "";
 
-    if (groupByCourse === 'true') {
-        selectFields = `
+    // Construcción dinámica de la consulta principal
+    let selectFields,
+      joins,
+      groupByClause = "";
+
+    if (groupByCourse === "true") {
+      selectFields = `
             c.*,
             m.nombre_completo as nombre_maestro,
             u.nombre as nombre_universidad,
@@ -112,7 +120,7 @@ const getAllCursos = async (req, res) => {
             cc.umbral_aprobatorio,
             GROUP_CONCAT(DISTINCT cert.nombre SEPARATOR ', ') as nombre_credencial
         `;
-        joins = `
+      joins = `
             LEFT JOIN maestro m ON c.id_maestro = m.id_maestro
             LEFT JOIN universidad u ON c.id_universidad = u.id_universidad
             LEFT JOIN facultades f ON c.id_facultad = f.id_facultad
@@ -122,10 +130,10 @@ const getAllCursos = async (req, res) => {
             LEFT JOIN requisitos_certificado rc ON c.id_curso = rc.id_curso
             LEFT JOIN certificacion cert ON rc.id_certificacion = cert.id_certificacion
         `;
-        groupByClause = "GROUP BY c.id_curso";
+      groupByClause = "GROUP BY c.id_curso";
     } else {
-        selectFields = `c.*, m.nombre_completo as nombre_maestro, u.nombre as nombre_universidad, f.nombre as nombre_facultad, cat.nombre_categoria, cat.id_area, cert.nombre as nombre_credencial, cert.id_certificacion as id_credencial`;
-        joins = `
+      selectFields = `c.*, m.nombre_completo as nombre_maestro, u.nombre as nombre_universidad, f.nombre as nombre_facultad, cat.nombre_categoria, cat.id_area, cert.nombre as nombre_credencial, cert.id_certificacion as id_credencial`;
+      joins = `
             LEFT JOIN maestro m ON c.id_maestro = m.id_maestro
             LEFT JOIN universidad u ON c.id_universidad = u.id_universidad
             LEFT JOIN facultades f ON c.id_facultad = f.id_facultad
@@ -222,7 +230,7 @@ const createCurso = async (req, res) => {
   const teoriaHoras = parseInt(horas_teoria, 10) || 0;
   const practicaHoras = parseInt(horas_practica, 10) || 0;
 
-  if (totalHoras > 0 && (teoriaHoras + practicaHoras !== totalHoras)) {
+  if (totalHoras > 0 && teoriaHoras + practicaHoras !== totalHoras) {
     return res.status(400).json({
       error:
         "La suma de las horas de teoría y práctica debe ser igual a la duración total del curso.",
@@ -263,7 +271,7 @@ const createCurso = async (req, res) => {
         fecha_inicio,
         fecha_fin,
         modalidad,
-        tipo_costo || 'gratuito',
+        tipo_costo || "gratuito",
         costo || null,
       ],
     );
@@ -341,7 +349,7 @@ const updateCurso = async (req, res) => {
   const teoriaHoras = parseInt(horas_teoria, 10) || 0;
   const practicaHoras = parseInt(horas_practica, 10) || 0;
 
-  if (totalHoras > 0 && (teoriaHoras + practicaHoras !== totalHoras)) {
+  if (totalHoras > 0 && teoriaHoras + practicaHoras !== totalHoras) {
     return res.status(400).json({
       error:
         "La suma de las horas de teoría y práctica debe ser igual a la duración total del curso.",
@@ -381,7 +389,7 @@ const updateCurso = async (req, res) => {
         cupo_maximo,
         fecha_inicio,
         fecha_fin,
-        estatus_curso || 'planificado',
+        estatus_curso || "planificado",
         modalidad,
         tipo_costo,
         costo,
@@ -426,10 +434,43 @@ const deleteCurso = async (req, res) => {
   }
 };
 
+// @desc    Obtener todos los alumnos inscritos en un curso
+// @route   GET /api/cursos/:id/alumnos
+const getAlumnosPorCurso = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const query = `
+      SELECT
+        a.id_alumno,
+        u.id_usuario,
+        a.nombre_completo,
+        u.username,
+        u.email,
+        i.estatus_inscripcion
+      FROM inscripcion i
+      JOIN alumno a ON i.id_alumno = a.id_alumno
+      JOIN usuario u ON a.id_usuario = u.id_usuario
+      WHERE i.id_curso = ? AND i.estatus_inscripcion = 'aprobada'
+      ORDER BY a.nombre_completo ASC;
+    `;
+
+    const [alumnos] = await pool.query(query, [id]);
+
+    res.json(alumnos);
+  } catch (error) {
+    console.error(`Error al obtener alumnos para el curso ${id}:`, error);
+    res
+      .status(500)
+      .json({ error: "Error interno del servidor al obtener los alumnos." });
+  }
+};
+
 module.exports = {
   getAllCursos,
   getCursoById,
   createCurso,
   updateCurso,
   deleteCurso,
+  getAlumnosPorCurso,
 };

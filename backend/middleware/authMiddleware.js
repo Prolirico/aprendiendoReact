@@ -9,6 +9,9 @@ const JWT_SECRET =
 const protect = async (req, res, next) => {
   let token;
 
+  console.log("=== DEBUG AUTH MIDDLEWARE ===");
+  console.log("Authorization header:", req.headers.authorization);
+
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer")
@@ -17,8 +20,16 @@ const protect = async (req, res, next) => {
       // Obtener token del header
       token = req.headers.authorization.split(" ")[1];
 
+      console.log("Token extraído:", token ? "Presente" : "Ausente");
+      console.log("Token length:", token ? token.length : 0);
+      console.log(
+        "Token preview:",
+        token ? token.substring(0, 50) + "..." : "No token",
+      );
+
       // Verificar el token
       const decoded = jwt.verify(token, JWT_SECRET);
+      console.log("Token decodificado exitosamente:", decoded);
 
       // Obtener datos del usuario desde la BD para asegurar que existe y tener datos frescos
       const [users] = await pool.query(
@@ -43,12 +54,23 @@ const protect = async (req, res, next) => {
         }
       }
 
+      console.log("Usuario autenticado:", req.user);
+      console.log("=== FIN DEBUG AUTH MIDDLEWARE ===");
       next();
     } catch (error) {
+      console.error("=== ERROR EN AUTH MIDDLEWARE ===");
+      console.error("Error completo:", error);
+      console.error("Error message:", error.message);
+      console.error("Error name:", error.name);
+      console.error("Token que falló:", token);
+      console.error("=== FIN ERROR AUTH MIDDLEWARE ===");
+
       logger.error(`Error de autenticación: ${error.message}`);
       return res.status(401).json({ error: "No autorizado, el token falló." });
     }
   } else {
+    console.log("No se encontró header de autorización válido");
+    console.log("Headers recibidos:", Object.keys(req.headers));
     return res
       .status(401)
       .json({ error: "No autorizado, no se encontró token." });

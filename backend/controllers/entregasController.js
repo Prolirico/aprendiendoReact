@@ -8,7 +8,11 @@ const crypto = require("crypto");
 // Configuración de almacenamiento para archivos de entregas
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadPath = path.join(__dirname, "../uploads/entregas");
+    // Crear estructura: uploads/material/entregas_Alumno
+    const uploadPath = path.join(
+      __dirname,
+      "../uploads/material/entregas_Alumno",
+    );
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath, { recursive: true });
     }
@@ -300,11 +304,15 @@ const getEntregasAlumno = async (req, res) => {
     const [entregasRows] = await pool.query(
       `SELECT
         e.*,
+        m.id_material,
+        m.id_actividad,
         m.nombre_archivo as nombre_actividad,
         m.fecha_limite,
+        ca.nombre as nombre_actividad_real,
         COUNT(a.id_archivo_entrega) as total_archivos
        FROM entregas_estudiantes e
        INNER JOIN material_curso m ON e.id_material = m.id_material
+       LEFT JOIN calificaciones_actividades ca ON m.id_actividad = ca.id_actividad
        LEFT JOIN archivos_entrega a ON e.id_entrega = a.id_entrega
        WHERE e.id_inscripcion = ? AND m.id_curso = ?
        GROUP BY e.id_entrega
@@ -329,7 +337,10 @@ const getEntregasAlumno = async (req, res) => {
 
       entregas.push({
         id_entrega: entrega.id_entrega,
-        nombre_actividad: entrega.nombre_actividad,
+        id_material: entrega.id_material,
+        id_actividad: entrega.id_actividad,
+        nombre_actividad:
+          entrega.nombre_actividad_real || entrega.nombre_actividad,
         fecha_entrega: entrega.fecha_entrega,
         fecha_limite: entrega.fecha_limite,
         comentario_estudiante: entrega.comentario_estudiante,
@@ -433,6 +444,142 @@ const getEntregasActividad = async (req, res) => {
     res.status(500).json({
       error: "Error interno del servidor al obtener las entregas.",
     });
+  }
+};
+
+// @desc    Obtener todas las actividades de un curso y las entregas de un alumno específico
+// @route   GET /api/entregas/curso/:id_curso/alumno/:id_alumno
+// @access  Private (Maestro/Admin)
+const getEntregasPorAlumnoYCurso = async (req, res) => {
+  const { id_curso, id_alumno } = req.params;
+
+  try {
+    // 1. Obtener la inscripción del alumno en el curso
+    const [inscripcionRows] = await pool.query(
+      "SELECT id_inscripcion FROM inscripcion WHERE id_curso = ? AND id_alumno = ?",
+      [id_curso, id_alumno],
+    );
+
+    if (inscripcionRows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "El alumno no está inscrito en este curso." });
+    }
+    const id_inscripcion = inscripcionRows[0].id_inscripcion;
+
+    // 2. Primero obtenemos todas las actividades del curso
+    const actividadesQuery = `
+      SELECT
+        ca.id_actividad,
+        ca.nombre AS nombre_actividad,
+        ca.porcentaje AS ponderacion
+      FROM calificaciones_curso cc
+      JOIN calificaciones_actividades ca ON cc.id_calificaciones = ca.id_calificaciones_curso
+      WHERE cc.id_curso = ?
+      ORDER BY ca.id_actividad;
+    `;
+
+    const [actividades] = await pool.query(actividadesQuery, [id_curso]);
+
+    // 3. Para cada actividad, obtenemos sus entregas (si las hay)
+    const actividadesYEntregas = [];
+
+    for (const actividad of actividades) {
+      // Buscamos los materiales de tipo actividad para esta actividad
+      const [materiales] = await pool.query(
+        `
+        SELECT mc.id_material, mc.nombre_archivo, mc.url_enlace, mc.es_enlace
+        FROM material_curso mc
+        WHERE mc.id_actividad = ? AND mc.categoria_material = 'actividad' AND mc.activo = 1
+        ORDER BY mc.id_material
+      `,
+        [actividad.id_actividad],
+      );
+
+      if (materiales.length > 0) {
+        // Si hay materiales para esta actividad, buscamos entregas
+        const materialesIds = materiales.map((m) => m.id_material);
+        const placeholders = materialesIds.map(() => "?").join(",");
+
+        const [entregas] = await pool.query(
+          `
+          SELECT
+            ee.id_entrega,
+            ee.id_material,
+            ee.fecha_entrega,
+            ee.calificacion,
+            ee.comentario_profesor AS feedback
+          FROM entregas_estudiantes ee
+          WHERE ee.id_material IN (${placeholders}) AND ee.id_inscripcion = ?
+        `,
+          [...materialesIds, id_inscripcion],
+        );
+
+        // Agrupamos las entregas por material
+        const entregasPorMaterial = {};
+        entregas.forEach((entrega) => {
+          entregasPorMaterial[entrega.id_material] = entrega;
+        });
+
+        // Para cada material, obtenemos la entrega (si existe) y sus archivos
+        for (const material of materiales) {
+          const entrega = entregasPorMaterial[material.id_material];
+          const actividadConEntrega = {
+            id_actividad: actividad.id_actividad,
+            nombre_actividad: actividad.nombre_actividad,
+            ponderacion: actividad.ponderacion,
+            id_material: material.id_material,
+            id_entrega: entrega ? entrega.id_entrega : null,
+            fecha_entrega: entrega ? entrega.fecha_entrega : null,
+            calificacion: entrega ? entrega.calificacion : null,
+            feedback: entrega ? entrega.feedback : null,
+            archivos: [],
+          };
+
+          // Si hay una entrega, obtenemos sus archivos
+          if (entrega && entrega.id_entrega) {
+            const [archivos] = await pool.query(
+              "SELECT id_archivo_entrega as id_archivo, nombre_archivo_original as nombre_original FROM archivos_entrega WHERE id_entrega = ?",
+              [entrega.id_entrega],
+            );
+            actividadConEntrega.archivos = archivos;
+          }
+
+          actividadesYEntregas.push(actividadConEntrega);
+        }
+      } else {
+        // Si no hay materiales para esta actividad, la incluimos sin entrega
+        actividadesYEntregas.push({
+          id_actividad: actividad.id_actividad,
+          nombre_actividad: actividad.nombre_actividad,
+          ponderacion: actividad.ponderacion,
+          id_material: null,
+          id_entrega: null,
+          fecha_entrega: null,
+          calificacion: null,
+          feedback: null,
+          archivos: [],
+        });
+      }
+    }
+
+    console.log("=== DEBUG ENTREGAS POR ALUMNO Y CURSO ===");
+    console.log("ID Curso:", id_curso);
+    console.log("ID Alumno:", id_alumno);
+    console.log("ID Inscripción:", id_inscripcion);
+    console.log(
+      "Actividades y entregas encontradas:",
+      actividadesYEntregas.length,
+    );
+    console.log("Datos:", JSON.stringify(actividadesYEntregas, null, 2));
+    console.log("=== FIN DEBUG ENTREGAS ===");
+
+    res.json(actividadesYEntregas);
+  } catch (error) {
+    logger.error(
+      `Error al obtener entregas por alumno y curso: ${error.message}`,
+    );
+    res.status(500).json({ error: "Error interno del servidor." });
   }
 };
 
@@ -576,11 +723,91 @@ const descargarArchivoEntrega = async (req, res) => {
   }
 };
 
+// @desc    Eliminar archivo individual de entrega
+// @route   DELETE /api/entregas/archivo/:id_archivo
+// @access  Private (Alumno propietario)
+const eliminarArchivoEntrega = async (req, res) => {
+  const { id_archivo } = req.params;
+  const { id_usuario } = req.user;
+
+  try {
+    // 1. Verificar que el archivo existe y obtener información
+    const [archivoRows] = await pool.query(
+      `
+      SELECT ae.*, ee.id_inscripcion, i.id_alumno, a.id_usuario
+      FROM archivos_entrega ae
+      JOIN entregas_estudiantes ee ON ae.id_entrega = ee.id_entrega
+      JOIN inscripcion i ON ee.id_inscripcion = i.id_inscripcion
+      JOIN alumno a ON i.id_alumno = a.id_alumno
+      WHERE ae.id_archivo_entrega = ?
+    `,
+      [id_archivo],
+    );
+
+    if (archivoRows.length === 0) {
+      return res.status(404).json({ error: "Archivo no encontrado." });
+    }
+
+    const archivo = archivoRows[0];
+
+    // 2. Verificar que el usuario es el propietario del archivo
+    if (archivo.id_usuario !== id_usuario) {
+      return res
+        .status(403)
+        .json({ error: "No tienes permisos para eliminar este archivo." });
+    }
+
+    // 3. Eliminar el archivo físico
+    try {
+      if (fs.existsSync(archivo.ruta_archivo)) {
+        fs.unlinkSync(archivo.ruta_archivo);
+      }
+    } catch (fileError) {
+      console.warn(
+        `No se pudo eliminar el archivo físico: ${archivo.ruta_archivo}`,
+        fileError,
+      );
+    }
+
+    // 4. Eliminar el registro de la base de datos
+    await pool.query(
+      "DELETE FROM archivos_entrega WHERE id_archivo_entrega = ?",
+      [id_archivo],
+    );
+
+    // 5. Verificar si quedan archivos en la entrega
+    const [archivosRestantes] = await pool.query(
+      "SELECT COUNT(*) as total FROM archivos_entrega WHERE id_entrega = ?",
+      [archivo.id_entrega],
+    );
+
+    // 6. Si no quedan archivos, actualizar el estatus de la entrega
+    if (archivosRestantes[0].total === 0) {
+      await pool.query(
+        "UPDATE entregas_estudiantes SET estatus_entrega = 'no_entregada' WHERE id_entrega = ?",
+        [archivo.id_entrega],
+      );
+    }
+
+    logger.info(
+      `Archivo eliminado exitosamente: ${archivo.nombre_archivo_original} por usuario ${id_usuario}`,
+    );
+    res.json({ message: "Archivo eliminado exitosamente." });
+  } catch (error) {
+    logger.error(`Error al eliminar archivo: ${error.message}`);
+    res
+      .status(500)
+      .json({ error: "Error interno del servidor al eliminar el archivo." });
+  }
+};
+
 module.exports = {
   upload,
   crearEntrega,
   getEntregasAlumno,
   getEntregasActividad,
+  getEntregasPorAlumnoYCurso,
   calificarEntrega,
   descargarArchivoEntrega,
+  eliminarArchivoEntrega,
 };

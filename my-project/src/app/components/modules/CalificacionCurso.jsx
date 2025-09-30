@@ -11,6 +11,7 @@ import {
   faLink,
 } from "@fortawesome/free-solid-svg-icons";
 import styles from "./CalificacionCurso.module.css";
+import VistaCalificacion from "./vistaCalificado"; // Importamos el nuevo componente
 
 const API_BASE_URL = "http://localhost:5000";
 
@@ -1137,6 +1138,7 @@ const CalificacionCurso = ({ rol, entidadId }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [cursoSeleccionado, setCursoSeleccionado] = useState(null);
+  const [vistaCalificacionVisible, setVistaCalificacionVisible] = useState(false);
 
   // Estados para modales de confirmación y toast
   const [confirmModal, setConfirmModal] = useState({
@@ -1760,23 +1762,40 @@ const CalificacionCurso = ({ rol, entidadId }) => {
                   <div className={styles.courseStats}>
                     <span>Umbral: {curso.umbral_aprobatorio ?? "N/A"}%</span>
                   </div>
-                  <button
-                    onClick={() =>
-                      setCursoSeleccionado({
-                        ...curso,
-                        _reloadTrigger: Date.now(),
-                      })
-                    }
-                    className={styles.buttonPrimary}
-                    disabled={isCursoFinalizado}
-                    title={
-                      isCursoFinalizado
-                        ? "Este curso ya ha finalizado y no se puede configurar."
-                        : "Gestionar curso completo"
-                    }
-                  >
-                    {isCursoFinalizado ? "Curso Finalizado" : "Gestionar Curso"}
-                  </button>
+                  <div className={styles.courseCardActions}>
+                    <button
+                      onClick={() => {
+                        setCursoSeleccionado(curso);
+                        setVistaCalificacionVisible(true);
+                      }}
+                      className={styles.buttonSecondary} // Usamos un estilo secundario para este botón
+                      disabled={isCursoFinalizado}
+                      title={
+                        isCursoFinalizado
+                          ? "Este curso ya ha finalizado."
+                          : "Calificar alumnos del curso"
+                      }
+                    >
+                      Calificar Alumnos
+                    </button>
+                    <button
+                      onClick={() =>
+                        setCursoSeleccionado({
+                          ...curso,
+                          _reloadTrigger: Date.now(),
+                        })
+                      }
+                      className={styles.buttonPrimary}
+                      disabled={isCursoFinalizado}
+                      title={
+                        isCursoFinalizado
+                          ? "Este curso ya ha finalizado y no se puede configurar."
+                          : "Configurar actividades y materiales"
+                      }
+                    >
+                      {isCursoFinalizado ? "Finalizado" : "Gestionar"}
+                    </button>
+                  </div>
                 </div>
               );
             })}
@@ -1825,6 +1844,14 @@ const CalificacionCurso = ({ rol, entidadId }) => {
             onSave={handleSaveCurso}
             showConfirmModal={showConfirmModal}
             showToast={showToast}
+          />
+        )}
+
+        {/* Modal de Calificación de Alumnos */}
+        {vistaCalificacionVisible && cursoSeleccionado && (
+          <VistaCalificacion
+            curso={cursoSeleccionado}
+            onClose={() => setVistaCalificacionVisible(false)}
           />
         )}
 
