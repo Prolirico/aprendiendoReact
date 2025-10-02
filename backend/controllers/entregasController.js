@@ -685,13 +685,20 @@ const descargarArchivoEntrega = async (req, res) => {
 
     const archivo = archivoRows[0];
 
-    // Verificar permisos: debe ser el alumno propietario o el maestro del curso
+    // Verificar permisos: debe ser el alumno propietario, el maestro del curso o un admin
+    const esPropietario = id_usuario === archivo.alumno_usuario_id;
+    const esMaestroDelCurso = id_usuario === archivo.maestro_usuario_id;
+    const esAdmin =
+      req.user.tipo_usuario === "admin_sedeq" ||
+      req.user.tipo_usuario === "admin_universidad";
+
     if (
-      id_usuario !== archivo.alumno_usuario_id &&
-      id_usuario !== archivo.maestro_usuario_id
+      !esPropietario &&
+      !esMaestroDelCurso &&
+      !esAdmin
     ) {
       return res.status(403).json({
-        error: "No tienes permisos para descargar este archivo.",
+        error: "No tienes permisos para descargar este archivo. Se requiere ser el alumno, el maestro del curso o un administrador.",
       });
     }
 

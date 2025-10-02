@@ -1,4 +1,3 @@
-// VistaCalificacion.jsx
 import React, { useState, useEffect } from "react";
 import styles from "./vistaCalificado.module.css";
 import { useAuth } from "../../../hooks/useAuth";
@@ -21,11 +20,13 @@ export default function VistaCalificacion({ curso, onClose }) {
   // Para manejar calificaciones y feedback localmente antes de guardar
   const [calificacionesLocales, setCalificacionesLocales] = useState({});
 
+  // Estado para controlar qué actividades están expandidas
+  const [expandedActividades, setExpandedActividades] = useState({});
+
   // Cargar lista de alumnos al montar
   useEffect(() => {
     if (!curso?.id_curso) return;
 
-    // Debug del token
     console.log("Token disponible:", token ? "Sí" : "No");
     console.log("Token length:", token ? token.length : 0);
     console.log(
@@ -90,7 +91,6 @@ export default function VistaCalificacion({ curso, onClose }) {
         return res.json();
       })
       .then((data) => {
-        // Agrupar entregas por actividad
         const entregasAgrupadas = {};
         data.forEach((entrega) => {
           if (!entregasAgrupadas[entrega.id_actividad]) {
@@ -107,7 +107,6 @@ export default function VistaCalificacion({ curso, onClose }) {
         const actividadesConEntregas = Object.values(entregasAgrupadas);
         setEntregas(actividadesConEntregas);
 
-        // Inicializar calificacionesLocales con datos existentes
         const califInit = {};
         data.forEach((entrega) => {
           if (entrega.id_entrega) {
@@ -124,17 +123,30 @@ export default function VistaCalificacion({ curso, onClose }) {
           }
         });
         setCalificacionesLocales(califInit);
+
+        // Inicializar todas las actividades como colapsadas
+        const expandedInit = {};
+        actividadesConEntregas.forEach((actividad) => {
+          expandedInit[actividad.id_actividad] = false;
+        });
+        setExpandedActividades(expandedInit);
       })
       .catch((e) => setErrorEntregas(e.message))
       .finally(() => setLoadingEntregas(false));
   }, [idAlumnoSeleccionado, curso.id_curso, token]);
 
-  // Obtener índice del alumno seleccionado para navegación
+  // Función para alternar expandir/colapsar una actividad
+  const toggleActividad = (id_actividad) => {
+    setExpandedActividades((prev) => ({
+      ...prev,
+      [id_actividad]: !prev[id_actividad],
+    }));
+  };
+
   const indiceAlumnoSeleccionado = alumnos.findIndex(
     (a) => a.id_alumno === idAlumnoSeleccionado,
   );
 
-  // Navegación entre alumnos
   const handleAnterior = () => {
     if (indiceAlumnoSeleccionado > 0) {
       setIdAlumnoSeleccionado(alumnos[indiceAlumnoSeleccionado - 1].id_alumno);
@@ -146,7 +158,6 @@ export default function VistaCalificacion({ curso, onClose }) {
     }
   };
 
-  // Manejo de inputs para calificación y feedback
   const handleCalificacionChange = (id_entrega, value) => {
     setCalificacionesLocales((prev) => ({
       ...prev,
@@ -166,14 +177,12 @@ export default function VistaCalificacion({ curso, onClose }) {
     }));
   };
 
-  // Guardar calificación y feedback
   const handleGuardarCalificacion = (id_entrega) => {
     const { calificacion, feedback } = calificacionesLocales[id_entrega];
     if (calificacion === "" || calificacion === null) {
       alert("La calificación no puede estar vacía");
       return;
     }
-    // Validar que calificación sea número y no negativa
     const calNum = Number(calificacion);
     if (isNaN(calNum) || calNum < 0) {
       alert("La calificación debe ser un número válido y no negativa");
@@ -208,7 +217,6 @@ export default function VistaCalificacion({ curso, onClose }) {
           ...prev,
           [id_entrega]: { ...prev[id_entrega], guardando: false, error: null },
         }));
-        // Actualizar entregas localmente para reflejar cambios
         setEntregas((prev) =>
           prev.map((ent) =>
             ent.id_entrega === id_entrega
@@ -229,7 +237,38 @@ export default function VistaCalificacion({ curso, onClose }) {
       });
   };
 
-  // Obtener nombre del alumno seleccionado
+  const handleDownload = (id_archivo, nombre_original) => {
+    fetch(`${API_BASE_URL}/api/entregas/download/${id_archivo}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const errorData = await res
+            .json()
+            .catch(() => ({ error: "Error desconocido al descargar" }));
+          throw new Error(errorData.error || "Error al descargar el archivo");
+        }
+        return res.blob();
+      })
+      .then((blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.style.display = "none";
+        a.href = url;
+        a.download = nombre_original;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        a.remove();
+      })
+      .catch((error) => {
+        console.error("Error en la descarga:", error);
+        alert(`No se pudo descargar el archivo: ${error.message}`);
+      });
+  };
+
   const alumnoSeleccionado = alumnos.find(
     (a) => a.id_alumno === idAlumnoSeleccionado,
   );
@@ -357,142 +396,173 @@ export default function VistaCalificacion({ curso, onClose }) {
                     {entregas.map((actividad) => (
                       <article
                         key={`actividad-${actividad.id_actividad}`}
-                        className={styles.actividadCard}
+                        className={`${styles.actividadCard} ${
+                          expandedActividades[actividad.id_actividad]
+                            ? styles.expanded
+                            : ""
+                        }`}
                         aria-label={`Actividad ${actividad.nombre_actividad}`}
                       >
-                        <h4>
-                          {actividad.nombre_actividad} - {actividad.ponderacion}
-                          %
-                        </h4>
+                        <div className={styles.actividadHeader}>
+                          <h4>
+                            {actividad.nombre_actividad} -{" "}
+                            {actividad.ponderacion}%
+                          </h4>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              toggleActividad(actividad.id_actividad)
+                            }
+                            className={styles.btnToggle}
+                            aria-label={
+                              expandedActividades[actividad.id_actividad]
+                                ? `Colapsar ${actividad.nombre_actividad}`
+                                : `Expandir ${actividad.nombre_actividad}`
+                            }
+                          >
+                            {expandedActividades[actividad.id_actividad]
+                              ? "−"
+                              : "+"}
+                          </button>
+                        </div>
+                        <div className={styles.actividadContent}>
+                          {actividad.entregas &&
+                          actividad.entregas.length > 0 ? (
+                            (() => {
+                              const entregasConArchivos =
+                                actividad.entregas.filter(
+                                  (entrega) =>
+                                    entrega.archivos &&
+                                    entrega.archivos.length > 0,
+                                );
 
-                        {actividad.entregas && actividad.entregas.length > 0 ? (
-                          (() => {
-                            const entregasConArchivos =
-                              actividad.entregas.filter(
-                                (entrega) =>
-                                  entrega.archivos &&
-                                  entrega.archivos.length > 0,
-                              );
+                              if (entregasConArchivos.length > 0) {
+                                return entregasConArchivos.map(
+                                  (entrega, entregaIndex) => (
+                                    <div
+                                      key={`entrega-${entrega.id_entrega || entregaIndex}`}
+                                      className={styles.entregaSection}
+                                    >
+                                      <div
+                                        className={styles.archivosEntregados}
+                                      >
+                                        <strong>Archivos entregados:</strong>
+                                        <ul>
+                                          {entrega.archivos.map((archivo) => (
+                                            <li key={archivo.id_archivo}>
+                                              <a
+                                                href="#"
+                                                onClick={(e) => {
+                                                  e.preventDefault();
+                                                  handleDownload(
+                                                    archivo.id_archivo,
+                                                    archivo.nombre_original,
+                                                  );
+                                                }}
+                                              >
+                                                {archivo.nombre_original}
+                                              </a>
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      </div>
 
-                            if (entregasConArchivos.length > 0) {
-                              return entregasConArchivos.map(
-                                (entrega, entregaIndex) => (
-                                  <div
-                                    key={`entrega-${entrega.id_entrega || entregaIndex}`}
-                                    className={styles.entregaSection}
-                                  >
-                                    <div className={styles.archivosEntregados}>
-                                      <strong>Archivos entregados:</strong>
-                                      <ul>
-                                        {entrega.archivos.map((archivo) => (
-                                          <li key={archivo.id_archivo}>
-                                            <a
-                                              href={`${API_BASE_URL}/api/entregas/download/${archivo.id_archivo}`}
-                                              target="_blank"
-                                              rel="noopener noreferrer"
-                                            >
-                                              {archivo.nombre_original}
-                                            </a>
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    </div>
-
-                                    {entrega.id_entrega && (
-                                      <>
-                                        <label
-                                          htmlFor={`calificacion-${entrega.id_entrega}`}
-                                        >
-                                          Calificación:
-                                        </label>
-                                        <input
-                                          id={`calificacion-${entrega.id_entrega}`}
-                                          type="number"
-                                          min="0"
-                                          step="any"
-                                          className={styles.campoCalificacion}
-                                          value={
-                                            calificacionesLocales[
-                                              entrega.id_entrega
-                                            ]?.calificacion ?? ""
-                                          }
-                                          onChange={(e) =>
-                                            handleCalificacionChange(
-                                              entrega.id_entrega,
-                                              e.target.value,
-                                            )
-                                          }
-                                        />
-
-                                        <label
-                                          htmlFor={`feedback-${entrega.id_entrega}`}
-                                        >
-                                          Retroalimentación:
-                                        </label>
-                                        <textarea
-                                          id={`feedback-${entrega.id_entrega}`}
-                                          className={styles.campoFeedback}
-                                          rows={3}
-                                          value={
-                                            calificacionesLocales[
-                                              entrega.id_entrega
-                                            ]?.feedback ?? ""
-                                          }
-                                          onChange={(e) =>
-                                            handleFeedbackChange(
-                                              entrega.id_entrega,
-                                              e.target.value,
-                                            )
-                                          }
-                                        />
-
-                                        <button
-                                          type="button"
-                                          onClick={() =>
-                                            handleGuardarCalificacion(
-                                              entrega.id_entrega,
-                                            )
-                                          }
-                                          disabled={
-                                            calificacionesLocales[
-                                              entrega.id_entrega
-                                            ]?.guardando
-                                          }
-                                          aria-label={`Guardar calificación para ${actividad.nombre_actividad}`}
-                                        >
-                                          {calificacionesLocales[
-                                            entrega.id_entrega
-                                          ]?.guardando
-                                            ? "Guardando..."
-                                            : "Guardar Calificación"}
-                                        </button>
-
-                                        {calificacionesLocales[
-                                          entrega.id_entrega
-                                        ]?.error && (
-                                          <p
-                                            role="alert"
-                                            style={{ color: "red" }}
+                                      {entrega.id_entrega && (
+                                        <>
+                                          <label
+                                            htmlFor={`calificacion-${entrega.id_entrega}`}
                                           >
-                                            {
+                                            Calificación:
+                                          </label>
+                                          <input
+                                            id={`calificacion-${entrega.id_entrega}`}
+                                            type="number"
+                                            min="0"
+                                            step="any"
+                                            className={styles.campoCalificacion}
+                                            value={
                                               calificacionesLocales[
                                                 entrega.id_entrega
-                                              ].error
+                                              ]?.calificacion ?? ""
                                             }
-                                          </p>
-                                        )}
-                                      </>
-                                    )}
-                                  </div>
-                                ),
-                              );
-                            } else {
-                              return <p>Sin entregas para esta actividad</p>;
-                            }
-                          })()
-                        ) : (
-                          <p>Sin entregas para esta actividad</p>
-                        )}
+                                            onChange={(e) =>
+                                              handleCalificacionChange(
+                                                entrega.id_entrega,
+                                                e.target.value,
+                                              )
+                                            }
+                                          />
+
+                                          <label
+                                            htmlFor={`feedback-${entrega.id_entrega}`}
+                                          >
+                                            Retroalimentación:
+                                          </label>
+                                          <textarea
+                                            id={`feedback-${entrega.id_entrega}`}
+                                            className={styles.campoFeedback}
+                                            rows={3}
+                                            value={
+                                              calificacionesLocales[
+                                                entrega.id_entrega
+                                              ]?.feedback ?? ""
+                                            }
+                                            onChange={(e) =>
+                                              handleFeedbackChange(
+                                                entrega.id_entrega,
+                                                e.target.value,
+                                              )
+                                            }
+                                          />
+
+                                          <button
+                                            type="button"
+                                            onClick={() =>
+                                              handleGuardarCalificacion(
+                                                entrega.id_entrega,
+                                              )
+                                            }
+                                            disabled={
+                                              calificacionesLocales[
+                                                entrega.id_entrega
+                                              ]?.guardando
+                                            }
+                                            aria-label={`Guardar calificación para ${actividad.nombre_actividad}`}
+                                          >
+                                            {calificacionesLocales[
+                                              entrega.id_entrega
+                                            ]?.guardando
+                                              ? "Guardando..."
+                                              : "Guardar Calificación"}
+                                          </button>
+
+                                          {calificacionesLocales[
+                                            entrega.id_entrega
+                                          ]?.error && (
+                                            <p
+                                              role="alert"
+                                              style={{ color: "red" }}
+                                            >
+                                              {
+                                                calificacionesLocales[
+                                                  entrega.id_entrega
+                                                ].error
+                                              }
+                                            </p>
+                                          )}
+                                        </>
+                                      )}
+                                    </div>
+                                  ),
+                                );
+                              } else {
+                                return <p>Sin entregas para esta actividad</p>;
+                              }
+                            })()
+                          ) : (
+                            <p>Sin entregas para esta actividad</p>
+                          )}
+                        </div>
                       </article>
                     ))}
                   </div>
