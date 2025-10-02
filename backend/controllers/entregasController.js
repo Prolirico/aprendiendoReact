@@ -598,12 +598,6 @@ const calificarEntrega = async (req, res) => {
       });
     }
 
-    if (calificacion < 0 || calificacion > 100) {
-      return res.status(400).json({
-        error: "La calificación debe estar entre 0 y 100.",
-      });
-    }
-
     // Verificar permisos: debe ser el maestro del curso o un admin
     const esAdmin =
       req.user.tipo_usuario === "admin_sedeq" ||

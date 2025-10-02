@@ -135,6 +135,7 @@ const upsertCalificacionCurso = async (req, res) => {
 // @access  Private (Alumno/Maestro)
 const getCalificacionCurso = async (req, res) => {
   const { id_curso } = req.params;
+  const { id_usuario, tipo_usuario } = req.user; // Obtenemos el usuario de la sesión
 
   if (!id_curso) {
     return res.status(400).json({ error: "El ID del curso es obligatorio." });
@@ -155,24 +156,78 @@ const getCalificacionCurso = async (req, res) => {
 
     const califCurso = califCursoRows[0];
 
-    // Obtener las actividades del curso
+    // Obtener las actividades configuradas para el curso
     const [actividadesRows] = await pool.query(
       "SELECT * FROM calificaciones_actividades WHERE id_calificaciones_curso = ?",
       [califCurso.id_calificaciones],
     );
 
-    // Procesar las actividades para parsear el JSON de tipos_archivo_permitidos
-    const actividades = actividadesRows.map((actividad) => ({
-      ...actividad,
-      tipos_permitidos: JSON.parse(actividad.tipos_archivo_permitidos || "[]"),
-    }));
+    let calificacionFinal = 0;
+    const actividadesConCalificacion = [];
+
+    // Si el usuario es un alumno, buscamos sus calificaciones específicas
+    if (tipo_usuario === "alumno") {
+      const [inscripcionRows] = await pool.query(
+        `SELECT id_inscripcion FROM inscripcion i
+         JOIN alumno a ON i.id_alumno = a.id_alumno
+         WHERE i.id_curso = ? AND a.id_usuario = ?`,
+        [id_curso, id_usuario],
+      );
+
+      if (inscripcionRows.length > 0) {
+        const id_inscripcion = inscripcionRows[0].id_inscripcion;
+
+        for (const actividad of actividadesRows) {
+          // Para cada actividad, buscamos la entrega y calificación del alumno
+          const [entregaRows] = await pool.query(
+            `SELECT ee.calificacion, ee.comentario_profesor as feedback
+             FROM entregas_estudiantes ee
+             JOIN material_curso mc ON ee.id_material = mc.id_material
+             WHERE mc.id_actividad = ? AND ee.id_inscripcion = ?
+             ORDER BY ee.fecha_calificacion DESC
+             LIMIT 1`,
+            [actividad.id_actividad, id_inscripcion],
+          );
+
+          const calificacionObtenida =
+            entregaRows.length > 0 ? entregaRows[0].calificacion : null;
+          const feedback =
+            entregaRows.length > 0 ? entregaRows[0].feedback : null;
+
+          actividadesConCalificacion.push({
+            ...actividad,
+            calificacion_obtenida: calificacionObtenida,
+            feedback: feedback,
+            tipos_permitidos: JSON.parse(
+              actividad.tipos_archivo_permitidos || "[]",
+            ),
+          });
+
+          // Sumar a la calificación final si hay nota
+          if (calificacionObtenida !== null) {
+            calificacionFinal += parseFloat(calificacionObtenida);
+          }
+        }
+      } else {
+        // El alumno no está inscrito, devolver actividades sin calificación
+        actividadesRows.forEach((act) => actividadesConCalificacion.push(act));
+      }
+    } else {
+      // Para maestros o admins, devolvemos las actividades sin calificación de alumno
+      actividadesRows.forEach((act) =>
+        actividadesConCalificacion.push({
+          ...act,
+          tipos_permitidos: JSON.parse(act.tipos_archivo_permitidos || "[]"),
+        }),
+      );
+    }
 
     const response = {
       id_curso: califCurso.id_curso,
       umbral_aprobatorio: califCurso.umbral_aprobatorio,
-      actividades: actividades,
-      calificacion_final: 0, // Placeholder - se calculará cuando haya calificaciones reales
-      aprobado: false, // Placeholder - se calculará cuando haya calificaciones reales
+      actividades: actividadesConCalificacion,
+      calificacion_final: parseFloat(calificacionFinal.toFixed(2)),
+      aprobado: calificacionFinal >= califCurso.umbral_aprobatorio,
     };
 
     res.status(200).json(response);

@@ -1377,7 +1377,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
               className={`${styles.tab} ${activeTab === "calificaciones" ? styles.active : ""}`}
               onClick={() => setActiveTab("calificaciones")}
             >
-              <i className="fas fa-trophy"></i> Calificaciones
+              <i className="fas fa-trophy"></i> Creditos
             </div>
           </div>
         </>
@@ -1412,11 +1412,17 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                             </div>
                           )}
                         </div>
-                        <div
-                          className={`${styles.gradeValue} ${evaluacion.calificacion >= evaluacion.porcentaje * 0.7 ? styles.good : styles.bad}`}
-                        >
-                          {evaluacion.calificacion || "Pendiente"}
-                        </div>
+                        {evaluacion.calificacion !== null ? (
+                          <div className={styles.gradeValueContainer}>
+                            <span className={`${styles.gradeValue} ${evaluacion.calificacion >= 70 ? styles.good : styles.bad}`}>
+                              {evaluacion.calificacion}/100
+                            </span>
+                          </div>
+                        ) : (
+                          <div className={`${styles.gradeValue} ${styles.pending}`}>
+                            Pendiente
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -1424,7 +1430,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                   <div className={styles.totalGrade}>
                     <div>
                       <div className={styles.totalLabel}>
-                        Calificación final
+                        Creditos finales
                       </div>
                       <div className={styles.totalValue}>
                         {calificaciones.total}
@@ -1460,9 +1466,9 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                   <div className={styles.messageIcon}>
                     <i className="fas fa-chart-line"></i>
                   </div>
-                  <h3>📊 Calificaciones en preparación</h3>
+                  <h3> Creditos en preparación</h3>
                   <p>
-                    Tus calificaciones aparecerán aquí una vez que el profesor
+                    Tus creditos aparecerán aquí una vez que el profesor
                     configure las actividades y publique las evaluaciones.
                   </p>
                   <div className={styles.gradeInfo}>
@@ -1480,7 +1486,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                     </div>
                   </div>
                   <small>
-                    🎯 Mantente al día con las entregas para obtener la mejor
+                    Mantente al día con las entregas para obtener la mejor
                     calificación.
                   </small>
                 </div>
