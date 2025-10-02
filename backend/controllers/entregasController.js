@@ -604,18 +604,27 @@ const calificarEntrega = async (req, res) => {
       });
     }
 
-    // Verificar permisos del maestro
-    const [permisoRows] = await pool.query(
-      `SELECT e.id_entrega
-       FROM entregas_estudiantes e
-       INNER JOIN material_curso m ON e.id_material = m.id_material
-       INNER JOIN curso c ON m.id_curso = c.id_curso
-       INNER JOIN maestro ma ON c.id_maestro = ma.id_maestro
-       WHERE e.id_entrega = ? AND ma.id_usuario = ?`,
-      [id_entrega, id_usuario],
-    );
+    // Verificar permisos: debe ser el maestro del curso o un admin
+    const esAdmin =
+      req.user.tipo_usuario === "admin_sedeq" ||
+      req.user.tipo_usuario === "admin_universidad";
 
-    if (permisoRows.length === 0) {
+    let tienePermisos = esAdmin;
+
+    if (!esAdmin) {
+      const [permisoRows] = await pool.query(
+        `SELECT e.id_entrega
+         FROM entregas_estudiantes e
+         INNER JOIN material_curso m ON e.id_material = m.id_material
+         INNER JOIN curso c ON m.id_curso = c.id_curso
+         INNER JOIN maestro ma ON c.id_maestro = ma.id_maestro
+         WHERE e.id_entrega = ? AND ma.id_usuario = ?`,
+        [id_entrega, id_usuario],
+      );
+      tienePermisos = permisoRows.length > 0;
+    }
+
+    if (!tienePermisos) {
       return res.status(403).json({
         error: "No tienes permisos para calificar esta entrega.",
       });

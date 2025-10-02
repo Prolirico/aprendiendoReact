@@ -178,12 +178,33 @@ export default function VistaCalificacion({ curso, onClose }) {
   };
 
   const handleGuardarCalificacion = (id_entrega) => {
+    // 1. Encontrar la actividad y la ponderación máxima para esta entrega.
+    let actividadDeLaEntrega = null;
+    for (const actividad of entregas) {
+      const entregaEncontrada = actividad.entregas.find(
+        (e) => e.id_entrega === id_entrega,
+      );
+      if (entregaEncontrada) {
+        actividadDeLaEntrega = actividad;
+        break;
+      }
+    }
+
+    if (!actividadDeLaEntrega) {
+      alert("Error: No se pudo encontrar la actividad para esta entrega.");
+      return;
+    }
+
     const { calificacion, feedback } = calificacionesLocales[id_entrega];
     if (calificacion === "" || calificacion === null) {
       alert("La calificación no puede estar vacía");
       return;
     }
     const calNum = Number(calificacion);
+    if (calNum > actividadDeLaEntrega.ponderacion) {
+      alert(`La calificación (${calNum}) no puede ser mayor que la ponderación máxima de la actividad (${actividadDeLaEntrega.ponderacion}%).`);
+      return;
+    }
     if (isNaN(calNum) || calNum < 0) {
       alert("La calificación debe ser un número válido y no negativa");
       return;
@@ -490,6 +511,9 @@ export default function VistaCalificacion({ curso, onClose }) {
                                                 entrega.id_entrega,
                                                 e.target.value,
                                               )
+                                            }
+                                            onWheel={(e) =>
+                                              e.target.blur()
                                             }
                                           />
 
