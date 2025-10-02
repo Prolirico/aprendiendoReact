@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
 import styles from "./vistaCalificado.module.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faExclamationTriangle,
+} from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "../../../hooks/useAuth";
 
 const API_BASE_URL = "http://localhost:5000";
@@ -19,6 +23,9 @@ export default function VistaCalificacion({ curso, onClose }) {
 
   // Para manejar calificaciones y feedback localmente antes de guardar
   const [calificacionesLocales, setCalificacionesLocales] = useState({});
+
+  // Estado para el modal de alerta personalizado
+  const [alertModal, setAlertModal] = useState({ show: false, message: "" });
 
   // Estado para controlar qué actividades están expandidas
   const [expandedActividades, setExpandedActividades] = useState({});
@@ -191,22 +198,22 @@ export default function VistaCalificacion({ curso, onClose }) {
     }
 
     if (!actividadDeLaEntrega) {
-      alert("Error: No se pudo encontrar la actividad para esta entrega.");
+      setAlertModal({ show: true, message: "Error: No se pudo encontrar la actividad para esta entrega." });
       return;
     }
 
     const { calificacion, feedback } = calificacionesLocales[id_entrega];
     if (calificacion === "" || calificacion === null) {
-      alert("La calificación no puede estar vacía");
+      setAlertModal({ show: true, message: "La calificación no puede estar vacía." });
       return;
     }
     const calNum = Number(calificacion);
     if (calNum > actividadDeLaEntrega.ponderacion) {
-      alert(`La calificación (${calNum}) no puede ser mayor que la ponderación máxima de la actividad (${actividadDeLaEntrega.ponderacion}%).`);
+      setAlertModal({ show: true, message: `La calificación (${calNum}) no puede ser mayor que la ponderación máxima de la actividad (${actividadDeLaEntrega.ponderacion}%).` });
       return;
     }
     if (isNaN(calNum) || calNum < 0) {
-      alert("La calificación debe ser un número válido y no negativa");
+      setAlertModal({ show: true, message: "La calificación debe ser un número válido y no negativa." });
       return;
     }
 
@@ -286,7 +293,7 @@ export default function VistaCalificacion({ curso, onClose }) {
       })
       .catch((error) => {
         console.error("Error en la descarga:", error);
-        alert(`No se pudo descargar el archivo: ${error.message}`);
+        setAlertModal({ show: true, message: `No se pudo descargar el archivo: ${error.message}` });
       });
   };
 
@@ -297,10 +304,11 @@ export default function VistaCalificacion({ curso, onClose }) {
   return (
     <div
       className={styles.vistaCalificacionBackdrop}
+      onClick={onClose}
       role="dialog"
       aria-modal="true"
     >
-      <div className={styles.vistaCalificacionContent}>
+      <div className={styles.vistaCalificacionContent} onClick={(e) => e.stopPropagation()}>
         <header className={styles.header}>
           <h2>Calificar tareas - {curso.nombre_curso || "Curso sin nombre"}</h2>
           <button
@@ -596,6 +604,35 @@ export default function VistaCalificacion({ curso, onClose }) {
           </section>
         </main>
       </div>
+
+      {/* Modal de Alerta Personalizado */}
+      {alertModal.show && (
+        <div
+          className={styles.alertModalBackdrop}
+          onClick={() => setAlertModal({ show: false, message: "" })}
+        >
+          <div
+            className={styles.alertModal}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={styles.alertModalContent}>
+              <div className={styles.alertIcon}>
+                <FontAwesomeIcon icon={faExclamationTriangle} />
+              </div>
+              <h3>Alerta de Calificación</h3>
+              <p>{alertModal.message}</p>
+            </div>
+            <div className={styles.alertActions}>
+              <button
+                onClick={() => setAlertModal({ show: false, message: "" })}
+                className={styles.confirmAlertButton}
+              >
+                Entendido
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
