@@ -576,9 +576,10 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
         formDataToSend.append("archivos", file);
       });
 
-      links.forEach((link) => {
-        formDataToSend.append("links[]", link);
-      });
+      // Enviar el array de enlaces como JSON una sola vez
+      if (links.length > 0) {
+        formDataToSend.append("links", JSON.stringify(links));
+      }
 
       const response = await fetch(`${API_BASE_URL}/api/entregas`, {
         method: "POST",
@@ -752,10 +753,26 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
     const isSubmitted = entrega?.estatus_entrega === "entregada";
     const isDraft = entrega?.estatus_entrega === "no_entregada";
 
+    // Debug: Ver el estado actual
+    console.log(`[DEBUG] Tarea ${tareaId}:`, {
+      estatus: entrega?.estatus_entrega,
+      isGraded,
+      isSubmitted,
+      isDraft,
+      isOverdue,
+      archivos: entrega?.archivos?.length || 0
+    });
+
     const canSubmit =
       entrega &&
       (entrega.archivos?.length > 0 || entrega.links?.length > 0);
     const canModify = !isGraded && (!isOverdue || isDraft || isSubmitted);
+    
+    console.log(`[DEBUG] Tarea ${tareaId} - Permisos:`, {
+      canSubmit,
+      canModify,
+      formula: `!${isGraded} && (!${isOverdue} || ${isDraft} || ${isSubmitted})`
+    });
 
     // 1. Vista de Tarea Calificada (Estado final)
     if (isGraded) {
@@ -776,34 +793,47 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
               )}
               {entrega.archivos && entrega.archivos.length > 0 && (
                 <div className={styles.entregaFiles}>
-                  <strong>Archivos entregados:</strong>
+                  <strong>Archivos y enlaces entregados:</strong>
                   <div className={styles.archivosEntregadosList}>
-                    {entrega.archivos.map((archivo) => (
-                      <div
-                        key={archivo.id_archivo_entrega}
-                        className={styles.archivoEntregadoItem}
-                      >
-                        <div className={styles.archivoInfo}>
-                          <i className="fas fa-file-alt"></i>
-                          <span className={styles.archivoNombre}>
-                            {archivo.nombre_archivo_original}
-                          </span>
+                    {entrega.archivos.map((archivo) => {
+                      const esEnlace = archivo.tipo_archivo === 'link';
+                      return (
+                        <div
+                          key={archivo.id_archivo_entrega}
+                          className={styles.archivoEntregadoItem}
+                        >
+                          <div className={styles.archivoInfo}>
+                            <i className={esEnlace ? "fas fa-link" : "fas fa-file-alt"}></i>
+                            <span className={styles.archivoNombre}>
+                              {archivo.nombre_archivo_original}
+                            </span>
+                          </div>
+                          <div className={styles.archivoAcciones}>
+                            {esEnlace ? (
+                              <button
+                                onClick={() => window.open(archivo.nombre_archivo_original, '_blank', 'noopener,noreferrer')}
+                                className={styles.btnArchivoAction}
+                                title="Abrir enlace"
+                              >
+                                <i className="fas fa-external-link-alt"></i>
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() =>
+                                  handleDownloadWithAuth(
+                                    `${API_BASE_URL}/api/entregas/download/${archivo.id_archivo_entrega}`,
+                                  )
+                                }
+                                className={styles.btnArchivoAction}
+                                title="Descargar archivo"
+                              >
+                                <i className="fas fa-download"></i>
+                              </button>
+                            )}
+                          </div>
                         </div>
-                        <div className={styles.archivoAcciones}>
-                          <button
-                            onClick={() =>
-                              handleDownloadWithAuth(
-                                `${API_BASE_URL}/api/entregas/download/${archivo.id_archivo_entrega}`,
-                              )
-                            }
-                            className={styles.btnArchivoAction}
-                            title="Ver archivo"
-                          >
-                            <i className="fas fa-eye"></i>
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -833,34 +863,47 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
               )}
               {entrega.archivos && entrega.archivos.length > 0 && (
                 <div className={styles.entregaFiles}>
-                  <strong>Archivos entregados:</strong>
+                  <strong>Archivos y enlaces entregados:</strong>
                   <div className={styles.archivosEntregadosList}>
-                    {entrega.archivos.map((archivo) => (
-                      <div
-                        key={archivo.id_archivo_entrega}
-                        className={styles.archivoEntregadoItem}
-                      >
-                        <div className={styles.archivoInfo}>
-                          <i className="fas fa-file-alt"></i>
-                          <span className={styles.archivoNombre}>
-                            {archivo.nombre_archivo_original}
-                          </span>
+                    {entrega.archivos.map((archivo) => {
+                      const esEnlace = archivo.tipo_archivo === 'link';
+                      return (
+                        <div
+                          key={archivo.id_archivo_entrega}
+                          className={styles.archivoEntregadoItem}
+                        >
+                          <div className={styles.archivoInfo}>
+                            <i className={esEnlace ? "fas fa-link" : "fas fa-file-alt"}></i>
+                            <span className={styles.archivoNombre}>
+                              {archivo.nombre_archivo_original}
+                            </span>
+                          </div>
+                          <div className={styles.archivoAcciones}>
+                            {esEnlace ? (
+                              <button
+                                onClick={() => window.open(archivo.nombre_archivo_original, '_blank', 'noopener,noreferrer')}
+                                className={styles.btnArchivoAction}
+                                title="Abrir enlace"
+                              >
+                                <i className="fas fa-external-link-alt"></i>
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() =>
+                                  handleDownloadWithAuth(
+                                    `${API_BASE_URL}/api/entregas/download/${archivo.id_archivo_entrega}`,
+                                  )
+                                }
+                                className={styles.btnArchivoAction}
+                                title="Descargar archivo"
+                              >
+                                <i className="fas fa-download"></i>
+                              </button>
+                            )}
+                          </div>
                         </div>
-                        <div className={styles.archivoAcciones}>
-                          <button
-                            onClick={() =>
-                              handleDownloadWithAuth(
-                                `${API_BASE_URL}/api/entregas/download/${archivo.id_archivo_entrega}`,
-                              )
-                            }
-                            className={styles.btnArchivoAction}
-                            title="Ver archivo"
-                          >
-                            <i className="fas fa-eye"></i>
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -894,45 +937,58 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
       <div className={styles.uploadSection}>
         {entrega && entrega.archivos && entrega.archivos.length > 0 && (
           <div className={styles.entregaFiles}>
-            <strong>Archivos subidos:</strong>
+            <strong>Archivos y enlaces subidos:</strong>
             <div className={styles.archivosEntregadosList}>
-              {entrega.archivos.map((archivo) => (
-                <div
-                  key={archivo.id_archivo_entrega}
-                  className={styles.archivoEntregadoItem}
-                >
-                  <div className={styles.archivoInfo}>
-                    <i className="fas fa-file-alt"></i>
-                    <span className={styles.archivoNombre}>
-                      {archivo.nombre_archivo_original}
-                    </span>
-                  </div>
-                  {canModify && (
-                    <div className={styles.archivoAcciones}>
-                      <button
-                        onClick={() =>
-                          handleDownloadWithAuth(
-                            `${API_BASE_URL}/api/entregas/download/${archivo.id_archivo_entrega}`,
-                          )
-                        }
-                        className={styles.btnArchivoAction}
-                        title="Ver archivo"
-                      >
-                        <i className="fas fa-eye"></i>
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleEliminarEntrega(archivo.id_archivo_entrega)
-                        }
-                        className={styles.btnArchivoDelete}
-                        title="Eliminar archivo"
-                      >
-                        <i className="fas fa-trash"></i>
-                      </button>
+              {entrega.archivos.map((archivo) => {
+                const esEnlace = archivo.tipo_archivo === 'link';
+                return (
+                  <div
+                    key={archivo.id_archivo_entrega}
+                    className={styles.archivoEntregadoItem}
+                  >
+                    <div className={styles.archivoInfo}>
+                      <i className={esEnlace ? "fas fa-link" : "fas fa-file-alt"}></i>
+                      <span className={styles.archivoNombre}>
+                        {archivo.nombre_archivo_original}
+                      </span>
                     </div>
-                  )}
-                </div>
-              ))}
+                    {canModify && (
+                      <div className={styles.archivoAcciones}>
+                        {esEnlace ? (
+                          <button
+                            onClick={() => window.open(archivo.nombre_archivo_original, '_blank', 'noopener,noreferrer')}
+                            className={styles.btnArchivoAction}
+                            title="Abrir enlace"
+                          >
+                            <i className="fas fa-external-link-alt"></i>
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() =>
+                              handleDownloadWithAuth(
+                                `${API_BASE_URL}/api/entregas/download/${archivo.id_archivo_entrega}`,
+                              )
+                            }
+                            className={styles.btnArchivoAction}
+                            title="Descargar archivo"
+                          >
+                            <i className="fas fa-download"></i>
+                          </button>
+                        )}
+                        <button
+                          onClick={() =>
+                            handleEliminarEntrega(archivo.id_archivo_entrega)
+                          }
+                          className={styles.btnArchivoDelete}
+                          title={esEnlace ? "Eliminar enlace" : "Eliminar archivo"}
+                        >
+                          <i className="fas fa-trash-alt"></i>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

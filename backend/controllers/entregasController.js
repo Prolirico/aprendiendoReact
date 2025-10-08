@@ -42,6 +42,7 @@ const crearEntrega = async (req, res) => {
   try {
     const { id_actividad, comentario_estudiante } = req.body;
     const { id_usuario } = req.user;
+    const links = req.body.links ? JSON.parse(req.body.links) : [];
 
     if (!id_actividad) {
       return res.status(400).json({ error: "El ID de la actividad es obligatorio." });
@@ -108,6 +109,9 @@ const crearEntrega = async (req, res) => {
     }
 
     const archivosSubidos = [];
+    const enlacesSubidos = [];
+
+    // Procesar archivos PDF
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
         const fileBuffer = fs.readFileSync(file.path);
@@ -119,6 +123,24 @@ const crearEntrega = async (req, res) => {
         );
         archivosSubidos.push({ id_archivo: archivoResult.insertId, nombre_original: file.originalname });
       }
+    }
+
+    // Procesar enlaces
+    if (links && Array.isArray(links) && links.length > 0) {
+      for (const link of links) {
+        if (link && link.trim().startsWith('http')) {
+          const [enlaceResult] = await connection.query(
+            `INSERT INTO archivos_entrega (id_entrega, nombre_archivo_original, nombre_archivo_sistema, ruta_archivo, tipo_archivo, tamano_archivo, hash_archivo)
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [id_entrega, link, 'enlace', link, 'link', 0, null]
+          );
+          enlacesSubidos.push({ id_enlace: enlaceResult.insertId, url: link });
+        }
+      }
+    }
+
+    // Actualizar estado si se subieron archivos o enlaces
+    if ((req.files && req.files.length > 0) || (links && links.length > 0)) {
       await connection.query(
         "UPDATE entregas_estudiantes SET estatus_entrega = 'no_entregada', fecha_entrega = NOW() WHERE id_entrega = ?",
         [id_entrega]
@@ -131,6 +153,7 @@ const crearEntrega = async (req, res) => {
       message: `Entrega ${es_nueva_entrega ? "enviada" : "actualizada"} con éxito.`,
       id_entrega,
       archivos_subidos: archivosSubidos,
+      enlaces_subidos: enlacesSubidos,
     });
 
   } catch (error) {
@@ -333,7 +356,8 @@ const descargarArchivoEntrega = async (req, res) => {
   }
 };
 
-// @desc    Eliminar archivo individual de una entrega
+
+// @desc    Eliminar archivo o enlace individual de una entrega
 // @route   DELETE /api/entregas/archivo/:id_archivo
 // @access  Private (Alumno propietario)
 const eliminarArchivoEntrega = async (req, res) => {
@@ -364,11 +388,15 @@ const eliminarArchivoEntrega = async (req, res) => {
       return res.status(400).json({ error: "No puedes eliminar archivos de una entrega calificada." });
     }
 
-    fs.existsSync(archivo.ruta_archivo) && fs.unlinkSync(archivo.ruta_archivo);
+    // Si es un archivo físico, eliminarlo del sistema
+    if (archivo.tipo_archivo !== 'link' && fs.existsSync(archivo.ruta_archivo)) {
+      fs.unlinkSync(archivo.ruta_archivo);
+    }
+    
     await pool.query("DELETE FROM archivos_entrega WHERE id_archivo_entrega = ?", [id_archivo]);
 
-    logger.info(`Archivo eliminado: ${archivo.nombre_archivo_original} por usuario ${id_usuario}`);
-    res.json({ message: "Archivo eliminado exitosamente." });
+    logger.info(`${archivo.tipo_archivo === 'link' ? 'Enlace' : 'Archivo'} eliminado: ${archivo.nombre_archivo_original} por usuario ${id_usuario}`);
+    res.json({ message: `${archivo.tipo_archivo === 'link' ? 'Enlace' : 'Archivo'} eliminado exitosamente.` });
   } catch (error) {
     logger.error(`Error al eliminar archivo: ${error.message}`);
     res.status(500).json({ error: "Error interno del servidor." });
