@@ -30,6 +30,17 @@ export default function VistaCalificacion({ curso, onClose }) {
   // Estado para controlar qué actividades están expandidas
   const [expandedActividades, setExpandedActividades] = useState({});
 
+  // Estado para notificaciones toast
+  const [toast, setToast] = useState({ show: false, message: "", type: "success" });
+
+  // Función para mostrar notificaciones toast
+  const showToast = (message, type = "success") => {
+    setToast({ show: true, message, type });
+    setTimeout(() => {
+      setToast({ show: false, message: "", type: "" });
+    }, 3000);
+  };
+
   // Cargar lista de alumnos al montar
   useEffect(() => {
     if (!curso?.id_curso) return;
@@ -82,8 +93,9 @@ export default function VistaCalificacion({ curso, onClose }) {
     }
     setLoadingEntregas(true);
     setErrorEntregas(null);
+    // La nueva ruta unificada para obtener actividades y la entrega de un alumno específico.
     fetch(
-      `${API_BASE_URL}/api/entregas/curso/${curso.id_curso}/alumno/${idAlumnoSeleccionado}`,
+      `${API_BASE_URL}/api/calificaciones/${curso.id_curso}?id_alumno=${idAlumnoSeleccionado}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -93,47 +105,44 @@ export default function VistaCalificacion({ curso, onClose }) {
       .then(async (res) => {
         if (!res.ok) {
           const text = await res.text();
-          throw new Error(text || "Error al obtener entregas");
+          throw new Error(text || "Error al obtener las actividades del alumno.");
         }
         return res.json();
       })
       .then((data) => {
-        const entregasAgrupadas = {};
-        data.forEach((entrega) => {
-          if (!entregasAgrupadas[entrega.id_actividad]) {
-            entregasAgrupadas[entrega.id_actividad] = {
-              id_actividad: entrega.id_actividad,
-              nombre_actividad: entrega.nombre_actividad,
-              ponderacion: entrega.ponderacion,
-              entregas: [],
-            };
-          }
-          entregasAgrupadas[entrega.id_actividad].entregas.push(entrega);
-        });
+        const actividadesFromApi = data.actividades || [];
 
-        const actividadesConEntregas = Object.values(entregasAgrupadas);
-        setEntregas(actividadesConEntregas);
+        // Adaptar la respuesta de la API a la estructura que el componente espera
+        const actividadesParaVista = actividadesFromApi.map(actividad => ({
+          id_actividad: actividad.id_actividad,
+          nombre_actividad: actividad.nombre, // Mapeo de campos
+          ponderacion: actividad.porcentaje, // Mapeo de campos
+          // La vista espera un array de entregas, así que envolvemos la entrega (si existe) en un array.
+          entregas: actividad.entrega ? [actividad.entrega] : []
+        }));
 
+        setEntregas(actividadesParaVista);
+
+        // Inicializar las calificaciones locales para la edición
         const califInit = {};
-        data.forEach((entrega) => {
-          if (entrega.id_entrega) {
-            califInit[entrega.id_entrega] = {
-              calificacion:
-                entrega.calificacion !== null &&
-                entrega.calificacion !== undefined
-                  ? entrega.calificacion
-                  : "",
-              feedback: entrega.feedback || "",
-              guardando: false,
-              error: null,
-            };
+        actividadesParaVista.forEach(actividad => {
+          if (actividad.entregas.length > 0) {
+            const entrega = actividad.entregas[0];
+            if (entrega.id_entrega) {
+              califInit[entrega.id_entrega] = {
+                calificacion: entrega.calificacion ?? "",
+                feedback: entrega.comentario_profesor || "", // Mapeo de campos
+                guardando: false,
+                error: null,
+              };
+            }
           }
         });
         setCalificacionesLocales(califInit);
 
-        // Inicializar todas las actividades como colapsadas
+        // Inicializar el estado de expansión de las actividades
         const expandedInit = {};
-        actividadesConEntregas.forEach((actividad) => {
+        actividadesParaVista.forEach((actividad) => {
           expandedInit[actividad.id_actividad] = false;
         });
         setExpandedActividades(expandedInit);
@@ -241,19 +250,25 @@ export default function VistaCalificacion({ curso, onClose }) {
         return res.json();
       })
       .then(() => {
+        showToast("La calificación fue guardada exitosamente.", "success");
         setCalificacionesLocales((prev) => ({
           ...prev,
           [id_entrega]: { ...prev[id_entrega], guardando: false, error: null },
         }));
-        setEntregas((prev) =>
-          prev.map((ent) =>
-            ent.id_entrega === id_entrega
-              ? { ...ent, calificacion: calNum, feedback }
-              : ent,
-          ),
-        );
+        
+        // Actualizar la UI de la entrega con la nueva calificación y feedback
+        setEntregas(prevEntregas => prevEntregas.map(actividad => ({
+          ...actividad,
+          entregas: actividad.entregas.map(entrega => {
+            if (entrega.id_entrega === id_entrega) {
+              return { ...entrega, calificacion: calNum, comentario_profesor: feedback };
+            }
+            return entrega;
+          })
+        })));
       })
       .catch((e) => {
+        showToast(`Error al guardar: ${e.message}`, "error");
         setCalificacionesLocales((prev) => ({
           ...prev,
           [id_entrega]: {
@@ -478,18 +493,18 @@ export default function VistaCalificacion({ curso, onClose }) {
                                         <strong>Archivos entregados:</strong>
                                         <ul>
                                           {entrega.archivos.map((archivo) => (
-                                            <li key={archivo.id_archivo}>
+                                            <li key={archivo.id_archivo_entrega}>
                                               <a
                                                 href="#"
                                                 onClick={(e) => {
                                                   e.preventDefault();
                                                   handleDownload(
-                                                    archivo.id_archivo,
-                                                    archivo.nombre_original,
+                                                    archivo.id_archivo_entrega,
+                                                    archivo.nombre_archivo_original
                                                   );
                                                 }}
                                               >
-                                                {archivo.nombre_original}
+                                                {archivo.nombre_archivo_original}
                                               </a>
                                             </li>
                                           ))}
@@ -604,6 +619,13 @@ export default function VistaCalificacion({ curso, onClose }) {
           </section>
         </main>
       </div>
+
+      {/* Notificación Toast */}
+      {toast.show && (
+        <div className={`${styles.toast} ${styles[toast.type]}`}>
+          {toast.message}
+        </div>
+      )}
 
       {/* Modal de Alerta Personalizado */}
       {alertModal.show && (

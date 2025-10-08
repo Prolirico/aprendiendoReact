@@ -7,7 +7,6 @@ const {
   getEntregasActividad,
   calificarEntrega,
   descargarArchivoEntrega,
-  getEntregasPorAlumnoYCurso,
   eliminarArchivoEntrega,
 } = require("../controllers/entregasController");
 const { protect } = require("../middleware/authMiddleware.js");
@@ -22,17 +21,10 @@ router.route("/").post(protect, upload.array("archivos", 10), crearEntrega);
 // @access  Private (Alumno)
 router.route("/alumno/:id_curso").get(protect, getEntregasAlumno);
 
-// @route   GET /api/entregas/curso/:id_curso/alumno/:id_alumno
-// @desc    Obtener actividades y entregas de un alumno para un curso
-// @access  Private (Maestro/Admin)
-router
-  .route("/curso/:id_curso/alumno/:id_alumno")
-  .get(protect, getEntregasPorAlumnoYCurso);
-
-// @route   GET /api/entregas/actividad/:id_material
+// @route   GET /api/entregas/actividad/:id_actividad
 // @desc    Obtener todas las entregas de una actividad específica
 // @access  Private (Maestro)
-router.route("/actividad/:id_material").get(protect, getEntregasActividad);
+router.route("/actividad/:id_actividad").get(protect, getEntregasActividad);
 
 // @route   PUT /api/entregas/:id_entrega/calificar
 // @desc    Calificar una entrega específica

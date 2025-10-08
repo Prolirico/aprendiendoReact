@@ -253,7 +253,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
         "Content-Type": "application/json",
       };
 
-      // Obtener actividades configuradas desde el backend de calificaciones
+      // 1. Obtener actividades configuradas desde el backend de calificaciones
       const actividadesResponse = await fetch(
         `${API_BASE_URL}/api/calificaciones/${cursoSeleccionado.id}`,
         { headers },
@@ -265,7 +265,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
         actividadesConfiguradas = actividadesData.actividades || [];
       }
 
-      // Obtener material de actividad (recursos de apoyo)
+      // 2. Obtener material de actividad (recursos de apoyo)
       const materialResponse = await fetch(
         `${API_BASE_URL}/api/material/curso/${cursoSeleccionado.id}`,
         { headers },
@@ -277,7 +277,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
         materialesActividad = materialData.material?.actividad || [];
       }
 
-      // Fetch existing submissions (entregas)
+      // 3. Fetch existing submissions (entregas) for the student in this course
       const entregasResponse = await fetch(
         `${API_BASE_URL}/api/entregas/alumno/${cursoSeleccionado.id}`,
         { headers },
@@ -287,33 +287,24 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
       if (entregasResponse.ok) {
         const entregasData = await entregasResponse.json();
         entregasExistentes = entregasData.entregas || [];
-        console.log("=== DEBUG ENTREGAS EXISTENTES ===");
-        console.log("Entregas encontradas:", entregasExistentes.length);
-        console.log("Datos de entregas:", entregasExistentes);
-        console.log("=== FIN DEBUG ENTREGAS ===");
       } else {
         console.error("Error cargando entregas:", entregasResponse.status);
       }
 
-      // Combinar actividades con material de apoyo y entregas
+      // 4. Combinar actividades con material y entregas
       const tareasFormateadas = actividadesConfiguradas.map((actividad) => {
-        // Buscar recursos de apoyo para esta actividad específica
         const recursosActividad = materialesActividad.filter(
           (material) => material.id_actividad === actividad.id_actividad,
         );
 
-        // Encontrar el primer material de esta actividad para usar como id_material
         const materialPrincipal =
           recursosActividad.find((material) => !material.es_enlace) ||
           recursosActividad[0];
 
-        // Buscar entregas existentes usando id_material si existe
-        const entregaExistente = materialPrincipal
-          ? entregasExistentes.find(
-              (entrega) =>
-                entrega.id_material === materialPrincipal.id_material,
-            )
-          : null;
+        // Buscar entrega existente por id_actividad
+        const entregaExistente = entregasExistentes.find(
+          (entrega) => entrega.id_actividad === actividad.id_actividad,
+        );
 
         const recursos = recursosActividad.map((material) => ({
           nombre:
@@ -324,15 +315,9 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
           tipo: material.es_enlace ? "enlace" : "archivo",
         }));
 
-        console.log(`=== DEBUG ACTIVIDAD: ${actividad.nombre} ===`);
-        console.log("Material principal:", materialPrincipal);
-        console.log("Entrega encontrada:", entregaExistente);
-        console.log("=== FIN DEBUG ACTIVIDAD ===");
-
         return {
-          id: materialPrincipal
-            ? materialPrincipal.id_material
-            : actividad.id_actividad,
+          // Usar una combinación única para el ID del componente para evitar colisiones
+          id: `tarea-${actividad.id_actividad}`,
           id_actividad: actividad.id_actividad,
           nombre: actividad.nombre,
           descripcion: actividad.descripcion || "",
@@ -355,7 +340,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
         };
       });
 
-      console.log("Tareas formateadas:", tareasFormateadas);
+      console.log("Tareas formateadas (lógica corregida):", tareasFormateadas);
       setTareas(tareasFormateadas);
 
       if (tareasFormateadas.length === 0) {
@@ -422,8 +407,9 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
             `act_${actividad.nombre.replace(/\s+/g, "_")}`,
           nombre: actividad.nombre,
           porcentaje: actividad.porcentaje,
-          calificacion: actividad.calificacion_obtenida || null,
-          feedback: actividad.feedback || null,
+          // Usar la calificación y el feedback desde el objeto 'entrega' anidado
+          calificacion: actividad.entrega?.calificacion ?? null,
+          feedback: actividad.entrega?.comentario_profesor || null,
           valor_minimo: Math.floor(actividad.porcentaje * 0.6), // 60% para aprobar cada actividad
         })),
         total: data.calificacion_final || 0,
@@ -533,8 +519,15 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
     const files = fileUploads[tareaId]?.files || [];
     if (files.length === 0) return;
 
+    const tarea = tareas.find((t) => t.id === tareaId);
+    if (!tarea) {
+      showToast("Error: No se pudo encontrar la tarea.", "error");
+      return;
+    }
+
     console.log("=== DEBUG UPLOAD ===");
-    console.log("Tarea ID:", tareaId);
+    console.log("Tarea ID (componente):", tareaId);
+    console.log("ID Actividad (para backend):", tarea.id_actividad);
     console.log("Número de archivos:", files.length);
 
     setFileUploads((prev) => ({
@@ -544,40 +537,23 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
 
     try {
       const token = localStorage.getItem("token");
-      console.log("Token disponible:", token ? "Sí" : "No");
-      console.log("Token length:", token ? token.length : 0);
-
       if (!token) {
         showToast("Debes iniciar sesión para enviar entregas.", "error");
+        setFileUploads((prev) => ({ ...prev, [tareaId]: { ...prev[tareaId], uploading: false } }));
         return;
       }
 
-      // Preparar FormData para envío al backend
       const formDataToSend = new FormData();
-
-      // Verificar que tareaId es realmente un id_material válido
-      const tarea = tareas.find((t) => t.id === tareaId);
-      const id_material =
-        tarea && tarea.id !== tarea.id_actividad ? tareaId : null;
-
-      if (!id_material) {
-        showToast(
-          "No hay material asociado a esta actividad para recibir entregas.",
-          "error",
-        );
-        return;
-      }
-
-      formDataToSend.append("id_material", id_material);
+      // Adjuntar el ID de la actividad, que es lo que el backend espera ahora.
+      formDataToSend.append("id_actividad", tarea.id_actividad);
       formDataToSend.append("comentario_estudiante", "Entrega de actividad");
 
       files.forEach((file, index) => {
-        console.log(`Archivo ${index + 1}:`, file.name, file.size, "bytes");
+        console.log(`Adjuntando archivo ${index + 1}:`, file.name);
         formDataToSend.append("archivos", file);
       });
 
-      console.log("URL de subida:", `${API_BASE_URL}/api/entregas`);
-      console.log("Enviando FormData con", files.length, "archivos");
+      console.log("Enviando entrega para actividad:", tarea.id_actividad);
 
       const response = await fetch(`${API_BASE_URL}/api/entregas`, {
         method: "POST",
@@ -587,9 +563,6 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
         body: formDataToSend,
       });
 
-      console.log("Response status:", response.status);
-      console.log("Response ok:", response.ok);
-
       if (response.ok) {
         const responseData = await response.json();
         console.log("Upload exitoso:", responseData);
@@ -597,33 +570,19 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
           "Tu entrega ha sido enviada con éxito. ¡Estás un paso más cerca!",
           "success",
         );
-
-        // Recargar tareas para mostrar la entrega actualizada
-        loadTareas();
-
-        // Clear file uploads for this task
-        setFileUploads((prev) => ({
-          ...prev,
-          [tareaId]: { files: [] },
-        }));
+        loadTareas(); // Recargar tareas para mostrar la entrega actualizada
+        setFileUploads((prev) => ({ ...prev, [tareaId]: { files: [] } }));
       } else {
-        // Handle error
-        const errorText = await response.text();
-        console.error("Error response status:", response.status);
-        console.error("Error response text:", errorText);
+        const errorData = await response.json();
+        console.error("Error al enviar entrega:", errorData);
         showToast(
-          `Error al enviar entrega: ${response.status} ${response.statusText}`,
+          `Error al enviar entrega: ${errorData.error || response.statusText}`,
           "error",
         );
       }
     } catch (error) {
       console.error("Error durante upload:", error);
-      console.error("Error completo:", error);
-      showToast(`Error de conexión: ${error.message}`, "error");
-      showToast(
-        "No se pudo enviar la entrega. Por favor, inténtalo de nuevo.",
-        "error",
-      );
+      showToast(`Error de conexión al subir: ${error.message}`, "error");
     } finally {
       console.log("=== FIN DEBUG UPLOAD ===");
       setFileUploads((prev) => ({
