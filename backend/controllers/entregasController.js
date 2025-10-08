@@ -120,7 +120,7 @@ const crearEntrega = async (req, res) => {
         archivosSubidos.push({ id_archivo: archivoResult.insertId, nombre_original: file.originalname });
       }
       await connection.query(
-        "UPDATE entregas_estudiantes SET estatus_entrega = 'entregada', fecha_entrega = NOW() WHERE id_entrega = ?",
+        "UPDATE entregas_estudiantes SET estatus_entrega = 'no_entregada', fecha_entrega = NOW() WHERE id_entrega = ?",
         [id_entrega]
       );
     }
@@ -367,11 +367,6 @@ const eliminarArchivoEntrega = async (req, res) => {
     fs.existsSync(archivo.ruta_archivo) && fs.unlinkSync(archivo.ruta_archivo);
     await pool.query("DELETE FROM archivos_entrega WHERE id_archivo_entrega = ?", [id_archivo]);
 
-    const [archivosRestantes] = await pool.query("SELECT COUNT(*) as total FROM archivos_entrega WHERE id_entrega = ?", [archivo.id_entrega]);
-    if (archivosRestantes[0].total === 0) {
-      await pool.query("UPDATE entregas_estudiantes SET estatus_entrega = 'no_entregada' WHERE id_entrega = ?", [archivo.id_entrega]);
-    }
-
     logger.info(`Archivo eliminado: ${archivo.nombre_archivo_original} por usuario ${id_usuario}`);
     res.json({ message: "Archivo eliminado exitosamente." });
   } catch (error) {
@@ -385,12 +380,110 @@ const getEntregasPorAlumnoYCurso = async (req, res) => {
     res.status(404).json({ message: "This endpoint is deprecated." });
 }
 
+// @desc    Marcar una entrega como finalizada
+// @route   PUT /api/entregas/:id_entrega/submit
+// @access  Private (Alumno)
+const submitEntrega = async (req, res) => {
+  const { id_entrega } = req.params;
+  const { id_usuario } = req.user;
+
+  try {
+    // Primero, verificar que el usuario es el propietario de la entrega y que no está calificada
+    const [entregaRows] = await pool.query(
+      `SELECT e.id_entrega, e.estatus_entrega, a.id_usuario
+       FROM entregas_estudiantes e
+       JOIN inscripcion i ON e.id_inscripcion = i.id_inscripcion
+       JOIN alumno a ON i.id_alumno = a.id_alumno
+       WHERE e.id_entrega = ?`,
+      [id_entrega]
+    );
+
+    if (entregaRows.length === 0) {
+      return res.status(404).json({ error: "Entrega no encontrada." });
+    }
+
+    const entrega = entregaRows[0];
+    if (entrega.id_usuario !== id_usuario) {
+      return res.status(403).json({ error: "No tienes permisos para modificar esta entrega." });
+    }
+
+    if (entrega.estatus_entrega === 'calificada') {
+      return res.status(400).json({ error: "No puedes modificar una entrega que ya ha sido calificada." });
+    }
+
+    // Actualizar el estado a 'entregada'
+    await pool.query(
+      "UPDATE entregas_estudiantes SET estatus_entrega = 'entregada', fecha_entrega = NOW() WHERE id_entrega = ?",
+      [id_entrega]
+    );
+
+    logger.info(`Entrega marcada como finalizada: ID ${id_entrega}`);
+    res.status(200).json({ message: "Tarea entregada exitosamente." });
+
+  } catch (error) {
+    logger.error(`Error al finalizar entrega: ${error.message}`);
+    res.status(500).json({ error: "Error interno del servidor." });
+  }
+};
+
+// @desc    Anular la entrega de una tarea (volver a borrador)
+// @route   PUT /api/entregas/:id_entrega/unsubmit
+// @access  Private (Alumno)
+const unsubmitEntrega = async (req, res) => {
+  const { id_entrega } = req.params;
+  const { id_usuario } = req.user;
+
+  try {
+    // Verificar que el usuario es el propietario y que la tarea no está calificada
+    const [entregaRows] = await pool.query(
+      `SELECT e.id_entrega, e.estatus_entrega, a.id_usuario
+       FROM entregas_estudiantes e
+       JOIN inscripcion i ON e.id_inscripcion = i.id_inscripcion
+       JOIN alumno a ON i.id_alumno = a.id_alumno
+       WHERE e.id_entrega = ?`,
+      [id_entrega]
+    );
+
+    if (entregaRows.length === 0) {
+      return res.status(404).json({ error: "Entrega no encontrada." });
+    }
+
+    const entrega = entregaRows[0];
+    if (entrega.id_usuario !== id_usuario) {
+      return res.status(403).json({ error: "No tienes permisos para modificar esta entrega." });
+    }
+
+    if (entrega.estatus_entrega === 'calificada') {
+      return res.status(400).json({ error: "No puedes anular una entrega que ya ha sido calificada." });
+    }
+    
+    if (entrega.estatus_entrega !== 'entregada') {
+        return res.status(400).json({ error: "Esta entrega no se puede anular porque no ha sido entregada." });
+    }
+
+    // Actualizar el estado a 'no_entregada' (borrador)
+    await pool.query(
+      "UPDATE entregas_estudiantes SET estatus_entrega = 'no_entregada' WHERE id_entrega = ?",
+      [id_entrega]
+    );
+
+    logger.info(`Entrega anulada: ID ${id_entrega}`);
+    res.status(200).json({ message: "Entrega anulada. Ahora puedes hacer cambios." });
+
+  } catch (error) {
+    logger.error(`Error al anular entrega: ${error.message}`);
+    res.status(500).json({ error: "Error interno del servidor." });
+  }
+};
+
 module.exports = {
   upload,
   crearEntrega,
   getEntregasAlumno,
   getEntregasActividad,
   calificarEntrega,
+  submitEntrega,
+  unsubmitEntrega,
   descargarArchivoEntrega,
   eliminarArchivoEntrega,
   getEntregasPorAlumnoYCurso, // Kept for now to avoid breaking routes, but deprecated

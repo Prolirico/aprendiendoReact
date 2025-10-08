@@ -6,6 +6,8 @@ const {
   getEntregasAlumno,
   getEntregasActividad,
   calificarEntrega,
+  submitEntrega,
+  unsubmitEntrega,
   descargarArchivoEntrega,
   eliminarArchivoEntrega,
 } = require("../controllers/entregasController");
@@ -30,6 +32,16 @@ router.route("/actividad/:id_actividad").get(protect, getEntregasActividad);
 // @desc    Calificar una entrega específica
 // @access  Private (Maestro)
 router.route("/:id_entrega/calificar").put(protect, calificarEntrega);
+
+// @route   PUT /api/entregas/:id_entrega/submit
+// @desc    Marcar una entrega como finalizada (enviada)
+// @access  Private (Alumno)
+router.route("/:id_entrega/submit").put(protect, submitEntrega);
+
+// @route   PUT /api/entregas/:id_entrega/unsubmit
+// @desc    Anular una entrega (volver a borrador)
+// @access  Private (Alumno)
+router.route("/:id_entrega/unsubmit").put(protect, unsubmitEntrega);
 
 // @route   GET /api/entregas/download/:id_archivo
 // @desc    Descargar archivo de entrega

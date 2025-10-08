@@ -23,11 +23,36 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
   });
   const [openAccordions, setOpenAccordions] = useState({});
   const [fileUploads, setFileUploads] = useState({});
+  const [linkInputs, setLinkInputs] = useState({});
+  const [linksToSubmit, setLinksToSubmit] = useState({});
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
 
   const showToast = (message, type = "success") => {
     setToast({ show: true, message, type });
     setTimeout(() => setToast({ show: false, message: "", type: "" }), 3000);
+  };
+
+  const handleAddLink = (tareaId) => {
+    const link = linkInputs[tareaId];
+    if (!link || !link.startsWith("http")) {
+      showToast(
+        "Por favor, introduce un enlace válido (debe empezar con http o https).",
+        "error",
+      );
+      return;
+    }
+    setLinksToSubmit((prev) => ({
+      ...prev,
+      [tareaId]: [...(prev[tareaId] || []), link],
+    }));
+    setLinkInputs((prev) => ({ ...prev, [tareaId]: "" })); // Clear input
+  };
+
+  const handleRemoveLink = (tareaId, linkIndex) => {
+    setLinksToSubmit((prev) => ({
+      ...prev,
+      [tareaId]: prev[tareaId].filter((_, index) => index !== linkIndex),
+    }));
   };
 
   // Función de diagnóstico para verificar conectividad
@@ -516,19 +541,19 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
   };
 
   const handleUpload = async (tareaId) => {
-    const files = fileUploads[tareaId]?.files || [];
-    if (files.length === 0) return;
-
     const tarea = tareas.find((t) => t.id === tareaId);
     if (!tarea) {
       showToast("Error: No se pudo encontrar la tarea.", "error");
       return;
     }
 
-    console.log("=== DEBUG UPLOAD ===");
-    console.log("Tarea ID (componente):", tareaId);
-    console.log("ID Actividad (para backend):", tarea.id_actividad);
-    console.log("Número de archivos:", files.length);
+    const files = fileUploads[tareaId]?.files || [];
+    const links = linksToSubmit[tareaId] || [];
+
+    if (files.length === 0 && links.length === 0) {
+      showToast("No hay archivos ni enlaces para adjuntar.", "info");
+      return;
+    }
 
     setFileUploads((prev) => ({
       ...prev,
@@ -544,16 +569,16 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
       }
 
       const formDataToSend = new FormData();
-      // Adjuntar el ID de la actividad, que es lo que el backend espera ahora.
       formDataToSend.append("id_actividad", tarea.id_actividad);
       formDataToSend.append("comentario_estudiante", "Entrega de actividad");
 
-      files.forEach((file, index) => {
-        console.log(`Adjuntando archivo ${index + 1}:`, file.name);
+      files.forEach((file) => {
         formDataToSend.append("archivos", file);
       });
 
-      console.log("Enviando entrega para actividad:", tarea.id_actividad);
+      links.forEach((link) => {
+        formDataToSend.append("links[]", link);
+      });
 
       const response = await fetch(`${API_BASE_URL}/api/entregas`, {
         method: "POST",
@@ -564,27 +589,17 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
       });
 
       if (response.ok) {
-        const responseData = await response.json();
-        console.log("Upload exitoso:", responseData);
-        showToast(
-          "Tu entrega ha sido enviada con éxito. ¡Estás un paso más cerca!",
-          "success",
-        );
-        loadTareas(); // Recargar tareas para mostrar la entrega actualizada
+        showToast("Archivos y/o enlaces adjuntados con éxito.", "success");
+        loadTareas();
         setFileUploads((prev) => ({ ...prev, [tareaId]: { files: [] } }));
+        setLinksToSubmit((prev) => ({ ...prev, [tareaId]: [] }));
       } else {
         const errorData = await response.json();
-        console.error("Error al enviar entrega:", errorData);
-        showToast(
-          `Error al enviar entrega: ${errorData.error || response.statusText}`,
-          "error",
-        );
+        showToast(`Error al adjuntar: ${errorData.error || response.statusText}`, "error");
       }
     } catch (error) {
-      console.error("Error durante upload:", error);
       showToast(`Error de conexión al subir: ${error.message}`, "error");
     } finally {
-      console.log("=== FIN DEBUG UPLOAD ===");
       setFileUploads((prev) => ({
         ...prev,
         [tareaId]: { ...prev[tareaId], uploading: false },
@@ -677,47 +692,99 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
     }
   };
 
-  // New FileUploadComponent adapted for the updated Tareas tab structure
-  const FileUploadComponent = ({ tareaId, onUploadSuccess }) => {
+  const handleSubmitEntrega = async (id_entrega) => {
+    if (!confirm("¿Estás seguro de que quieres entregar esta tarea? Una vez entregada, solo podrás anular la entrega si el profesor no la ha calificado.")) {
+      return;
+    }
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_BASE_URL}/api/entregas/${id_entrega}/submit`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.ok) {
+        showToast("Tarea entregada exitosamente.", "success");
+        loadTareas();
+      } else {
+        const error = await response.json();
+        showToast(`Error al entregar: ${error.error || 'Error desconocido'}`, "error");
+      }
+    } catch (error) {
+      showToast(`Error de conexión: ${error.message}`, "error");
+    }
+  };
+
+  const handleUnsubmitEntrega = async (id_entrega) => {
+    if (!confirm("¿Estás seguro de que quieres anular la entrega? Podrás volver a subir archivos y entregar de nuevo.")) {
+      return;
+    }
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_BASE_URL}/api/entregas/${id_entrega}/unsubmit`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.ok) {
+        showToast("Entrega anulada. Ahora puedes hacer cambios.", "info");
+        loadTareas();
+      } else {
+        const error = await response.json();
+        showToast(`Error al anular: ${error.error || 'Error desconocido'}`, "error");
+      }
+    } catch (error) {
+      showToast(`Error de conexión: ${error.message}`, "error");
+    }
+  };
+
+  // Componente refactorizado para manejar la lógica de entrega de tareas
+  const FileUploadComponent = ({ tareaId }) => {
     const tarea = tareas.find((t) => t.id === tareaId);
     if (!tarea) return null;
 
-    const files = fileUploads[tareaId]?.files || [];
-    const uploading = fileUploads[tareaId]?.uploading || false;
+    const { entrega } = tarea;
+    const filesToUpload = fileUploads[tareaId]?.files || [];
+    const linksToSubmitList = linksToSubmit[tareaId] || [];
+    const isUploading = fileUploads[tareaId]?.uploading || false;
+
     const isOverdue =
       tarea.fecha_limite && new Date(tarea.fecha_limite) < new Date();
+    const isGraded = entrega?.estatus_entrega === "calificada";
+    const isSubmitted = entrega?.estatus_entrega === "entregada";
+    const isDraft = entrega?.estatus_entrega === "no_entregada";
 
-    // If already delivered, show success message
-    if (tarea.entregada && tarea.entrega) {
+    const canSubmit =
+      entrega &&
+      (entrega.archivos?.length > 0 || entrega.links?.length > 0);
+    const canModify = !isGraded && (!isOverdue || isDraft || isSubmitted);
+
+    // 1. Vista de Tarea Calificada (Estado final)
+    if (isGraded) {
       return (
         <div className={styles.taskResult}>
           <div className={styles.successMessage}>
             <i className="fas fa-check-circle"></i>
             <div>
-              <strong>¡Entrega enviada!</strong>
-              <p>Enviada el: {formatDate(tarea.entrega.fecha_entrega)}</p>
-              {tarea.entrega.calificacion && (
-                <p>
-                  Calificación: <strong>{tarea.entrega.calificacion}</strong>
-                </p>
-              )}
-              {tarea.entrega.comentario_profesor && (
+              <strong>¡Tarea calificada!</strong>
+              <p>
+                Calificación: <strong>{entrega.calificacion} / 100</strong>
+              </p>
+              {entrega.comentario_profesor && (
                 <div className={styles.professorComment}>
                   <strong>Comentario del profesor:</strong>
-                  <p>{tarea.entrega.comentario_profesor}</p>
+                  <p>{entrega.comentario_profesor}</p>
                 </div>
               )}
-              {tarea.entrega.archivos && tarea.entrega.archivos.length > 0 && (
+              {entrega.archivos && entrega.archivos.length > 0 && (
                 <div className={styles.entregaFiles}>
                   <strong>Archivos entregados:</strong>
                   <div className={styles.archivosEntregadosList}>
-                    {tarea.entrega.archivos.map((archivo) => (
+                    {entrega.archivos.map((archivo) => (
                       <div
                         key={archivo.id_archivo_entrega}
                         className={styles.archivoEntregadoItem}
                       >
                         <div className={styles.archivoInfo}>
-                          <i className="fas fa-file-pdf"></i>
+                          <i className="fas fa-file-alt"></i>
                           <span className={styles.archivoNombre}>
                             {archivo.nombre_archivo_original}
                           </span>
@@ -734,14 +801,62 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                           >
                             <i className="fas fa-eye"></i>
                           </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // 2. Vista de Tarea Entregada (Esperando calificación)
+    if (isSubmitted) {
+      return (
+        <div className={styles.taskResult}>
+          <div className={styles.successMessage}>
+            <i className="fas fa-check-double"></i>
+            <div>
+              <strong>¡Entrega enviada!</strong>
+              <p>Enviada el: {formatDate(entrega.fecha_entrega)}</p>
+              <p>Esperando calificación del profesor.</p>
+              {canModify && (
+                <button
+                  onClick={() => handleUnsubmitEntrega(entrega.id_entrega)}
+                  className={styles.btnSecondary}
+                >
+                  <i className="fas fa-undo"></i> Anular Entrega
+                </button>
+              )}
+              {entrega.archivos && entrega.archivos.length > 0 && (
+                <div className={styles.entregaFiles}>
+                  <strong>Archivos entregados:</strong>
+                  <div className={styles.archivosEntregadosList}>
+                    {entrega.archivos.map((archivo) => (
+                      <div
+                        key={archivo.id_archivo_entrega}
+                        className={styles.archivoEntregadoItem}
+                      >
+                        <div className={styles.archivoInfo}>
+                          <i className="fas fa-file-alt"></i>
+                          <span className={styles.archivoNombre}>
+                            {archivo.nombre_archivo_original}
+                          </span>
+                        </div>
+                        <div className={styles.archivoAcciones}>
                           <button
                             onClick={() =>
-                              handleEliminarEntrega(archivo.id_archivo_entrega)
+                              handleDownloadWithAuth(
+                                `${API_BASE_URL}/api/entregas/download/${archivo.id_archivo_entrega}`,
+                              )
                             }
-                            className={styles.btnArchivoDelete}
-                            title="Eliminar archivo"
+                            className={styles.btnArchivoAction}
+                            title="Ver archivo"
                           >
-                            <i className="fas fa-trash"></i>
+                            <i className="fas fa-eye"></i>
                           </button>
                         </div>
                       </div>
@@ -755,8 +870,8 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
       );
     }
 
-    // If overdue, show overdue message
-    if (isOverdue) {
+    // 3. Vista de Plazo Vencido (sin entrega)
+    if (isOverdue && !entrega) {
       return (
         <div className={styles.taskResult}>
           <div className={styles.errorMessage}>
@@ -770,88 +885,193 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
       );
     }
 
-    // Otherwise, show the upload form
+    // 4. Vista de Borrador (Subiendo archivos o listo para entregar)
+    const filesCount = filesToUpload.length;
+    const linksCount = linksToSubmitList.length;
+    const totalItemsToUpload = filesCount + linksCount;
+
     return (
       <div className={styles.uploadSection}>
-        <h4>Subir entrega:</h4>
-        <div
-          className={styles.uploadContainer}
-          onDrop={(e) => {
-            e.preventDefault();
-            handleFileSelect(tareaId, e.dataTransfer.files);
-          }}
-          onDragOver={(e) => e.preventDefault()}
-        >
-          <i className="fas fa-cloud-upload-alt"></i>
-          <p>Arrastra archivos aquí o haz clic para seleccionar</p>
-          <p className={styles.uploadHint}>
-            Máximo {tarea.max_archivos} archivos, {tarea.max_tamano_mb}MB c/u.
-            Formatos: {tarea.tipos_archivo_permitidos.join(", ")}
-          </p>
-          <input
-            type="file"
-            multiple
-            accept={tarea.tipos_archivo_permitidos
-              .map((ext) => `.${ext}`)
-              .join(",")}
-            onChange={(e) => handleFileSelect(tareaId, e.target.files)}
-            style={{ display: "none" }}
-            id={`file-input-${tareaId}`}
-          />
-          <button
-            className={styles.btnOutline}
-            onClick={() =>
-              document.getElementById(`file-input-${tareaId}`).click()
-            }
-          >
-            Seleccionar archivos
-          </button>
-        </div>
-
-        {files.length > 0 && (
-          <div className={styles.fileList}>
-            {files.map((file, index) => (
-              <div key={index} className={styles.fileItem}>
-                <span>{file.name}</span>
-                <button
-                  onClick={() => handleFileRemove(tareaId, index)}
-                  className={styles.removeFileBtn}
+        {entrega && entrega.archivos && entrega.archivos.length > 0 && (
+          <div className={styles.entregaFiles}>
+            <strong>Archivos subidos:</strong>
+            <div className={styles.archivosEntregadosList}>
+              {entrega.archivos.map((archivo) => (
+                <div
+                  key={archivo.id_archivo_entrega}
+                  className={styles.archivoEntregadoItem}
                 >
-                  <i className="fas fa-times"></i>
-                </button>
-              </div>
-            ))}
+                  <div className={styles.archivoInfo}>
+                    <i className="fas fa-file-alt"></i>
+                    <span className={styles.archivoNombre}>
+                      {archivo.nombre_archivo_original}
+                    </span>
+                  </div>
+                  {canModify && (
+                    <div className={styles.archivoAcciones}>
+                      <button
+                        onClick={() =>
+                          handleDownloadWithAuth(
+                            `${API_BASE_URL}/api/entregas/download/${archivo.id_archivo_entrega}`,
+                          )
+                        }
+                        className={styles.btnArchivoAction}
+                        title="Ver archivo"
+                      >
+                        <i className="fas fa-eye"></i>
+                      </button>
+                      <button
+                        onClick={() =>
+                          handleEliminarEntrega(archivo.id_archivo_entrega)
+                        }
+                        className={styles.btnArchivoDelete}
+                        title="Eliminar archivo"
+                      >
+                        <i className="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
-        <button
-          className={styles.btnPrimary}
-          disabled={files.length === 0 || uploading}
-          onClick={async () => {
-            await handleUpload(tareaId);
-            if (onUploadSuccess) onUploadSuccess(); // Call the success callback
-          }}
-        >
-          {uploading ? (
-            <>
-              <i className="fas fa-spinner fa-spin"></i>
-              Enviando...
-            </>
-          ) : (
-            <>
-              <i className="fas fa-paper-plane"></i>
-              Enviar entrega
-            </>
-          )}
-        </button>
+        {canModify && (
+          <>
+            {/* File Upload */}
+            <div
+              className={styles.uploadContainer}
+              onDrop={(e) => {
+                e.preventDefault();
+                handleFileSelect(tareaId, e.dataTransfer.files);
+              }}
+              onDragOver={(e) => e.preventDefault()}
+            >
+              <i className="fas fa-cloud-upload-alt"></i>
+              <p>Arrastra archivos aquí o haz clic para seleccionar</p>
+              <p className={styles.uploadHint}>
+                Máximo {tarea.max_archivos} archivos, {tarea.max_tamano_mb}MB
+                c/u.
+              </p>
+              <input
+                type="file"
+                multiple
+                accept={tarea.tipos_archivo_permitidos
+                  .map((ext) => `.${ext}`)
+                  .join(",")}
+                onChange={(e) => handleFileSelect(tareaId, e.target.files)}
+                style={{ display: "none" }}
+                id={`file-input-${tareaId}`}
+              />
+              <button
+                className={styles.btnOutline}
+                onClick={() =>
+                  document.getElementById(`file-input-${tareaId}`).click()
+                }
+              >
+                Seleccionar archivos
+              </button>
+            </div>
+
+            {/* Link Input */}
+            <div className={styles.linkInputSection}>
+              <div className={styles.linkInputContainer}>
+                <i className="fas fa-link"></i>
+                <input
+                  type="url"
+                  placeholder="Pega un enlace aquí (ej. https://...)"
+                  value={linkInputs[tareaId] || ""}
+                  onChange={(e) =>
+                    setLinkInputs((prev) => ({
+                      ...prev,
+                      [tareaId]: e.target.value,
+                    }))
+                  }
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddLink(tareaId);
+                    }
+                  }}
+                />
+                <button
+                  onClick={() => handleAddLink(tareaId)}
+                  className={styles.btnOutline}
+                >
+                  Añadir Enlace
+                </button>
+              </div>
+            </div>
+
+            {/* Staged Files and Links */}
+            {(filesToUpload.length > 0 || linksToSubmitList.length > 0) && (
+              <div className={styles.fileList}>
+                <strong>Archivos y enlaces para adjuntar:</strong>
+                {filesToUpload.map((file, index) => (
+                  <div key={`file-${index}`} className={styles.fileItem}>
+                    <span>
+                      <i className="fas fa-file-alt"></i> {file.name}
+                    </span>
+                    <button
+                      onClick={() => handleFileRemove(tareaId, index)}
+                      className={styles.removeFileBtn}
+                    >
+                      <i className="fas fa-times"></i>
+                    </button>
+                  </div>
+                ))}
+                {linksToSubmitList.map((link, index) => (
+                  <div key={`link-${index}`} className={styles.fileItem}>
+                    <span>
+                      <i className="fas fa-link"></i> {link}
+                    </span>
+                    <button
+                      onClick={() => handleRemoveLink(tareaId, index)}
+                      className={styles.removeFileBtn}
+                    >
+                      <i className="fas fa-times"></i>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Submission Actions */}
+            <div className={styles.submissionActions}>
+              {totalItemsToUpload > 0 && (
+                <button
+                  className={styles.btnSecondary}
+                  disabled={isUploading}
+                  onClick={() => handleUpload(tareaId)}
+                >
+                  {isUploading ? (
+                    <>
+                      <i className="fas fa-spinner fa-spin"></i> Adjuntando...
+                    </>
+                  ) : (
+                    <>
+                      <i className="fas fa-upload"></i> Adjuntar{" "}
+                      {totalItemsToUpload} elemento(s)
+                    </>
+                  )}
+                </button>
+              )}
+
+              {canSubmit && (
+                <button
+                  className={styles.btnPrimary}
+                  disabled={isUploading}
+                  onClick={() => handleSubmitEntrega(entrega.id_entrega)}
+                >
+                  <i className="fas fa-paper-plane"></i> Marcar como Entregada
+                </button>
+              )}
+            </div>
+          </>
+        )}
       </div>
     );
-  };
-
-  // Handler for successful upload to refresh the task list
-  const handleUploadSuccess = (taskIndex) => {
-    // Reload tasks to reflect the new submission status
-    loadTareas();
   };
 
   const renderMaterialTab = () => {
@@ -1061,7 +1281,12 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
           {tareas.map((tarea, index) => (
             <div
               key={index}
-              className={`${styles.taskAccordion} ${tarea.entregada ? styles.taskCompleted : styles.taskPending}`}
+              className={`${styles.taskAccordion} ${
+                tarea.entrega?.estatus_entrega === "entregada" ||
+                tarea.entrega?.estatus_entrega === "calificada"
+                  ? styles.taskCompleted
+                  : styles.taskPending
+              }`}
             >
               <div
                 className={styles.taskAccordionHeader}
@@ -1071,29 +1296,57 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                   <div className={styles.taskTitle}>
                     <i
                       className={
-                        tarea.entregada ? "fas fa-check-circle" : "fas fa-clock"
+                        tarea.entrega?.estatus_entrega === "calificada"
+                          ? "fas fa-check-double"
+                          : tarea.entrega?.estatus_entrega === "entregada"
+                          ? "fas fa-check-circle"
+                          : tarea.entrega?.estatus_entrega === "no_entregada"
+                          ? "fas fa-pencil-alt"
+                          : "fas fa-clock"
                       }
                     ></i>
                     <span>{tarea.nombre}</span>
                   </div>
                   <div className={styles.taskStatus}>
-                    {tarea.entregada ? (
-                      <span
-                        className={styles.statusBadge + " " + styles.completed}
-                      >
-                        ✓ Entregada
-                      </span>
-                    ) : (
-                      <span
-                        className={styles.statusBadge + " " + styles.pending}
-                      >
-                        ⏳ Pendiente
-                      </span>
-                    )}
+                    {(() => {
+                      const estatus = tarea.entrega?.estatus_entrega;
+                      if (estatus === "calificada") {
+                        return (
+                          <span
+                            className={`${styles.statusBadge} ${styles.completed}`}>
+                            <i className="fas fa-check-double"></i> Calificada
+                          </span>
+                        );
+                      }
+                      if (estatus === "entregada") {
+                        return (
+                          <span
+                            className={`${styles.statusBadge} ${styles.completed}`}>
+                            <i className="fas fa-check-circle"></i> Entregada
+                          </span>
+                        );
+                      }
+                      if (estatus === "no_entregada") {
+                        return (
+                          <span
+                            className={`${styles.statusBadge} ${styles.inProgress}`}>
+                            <i className="fas fa-pencil-alt"></i> En Progreso
+                          </span>
+                        );
+                      }
+                      return (
+                        <span
+                          className={`${styles.statusBadge} ${styles.pending}`}>
+                          <i className="fas fa-clock"></i> Pendiente
+                        </span>
+                      );
+                    })()}
                   </div>
                 </div>
                 <i
-                  className={`fas fa-chevron-${openAccordions[index] ? "up" : "down"} ${styles.chevronIcon}`}
+                  className={`fas fa-chevron-${openAccordions[index] ? "up" : "down"} ${
+                    styles.chevronIcon
+                  }`}
                 ></i>
               </div>
 
@@ -1192,7 +1445,6 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                     </h4>
                     <FileUploadComponent
                       tareaId={tarea.id}
-                      onUploadSuccess={() => handleUploadSuccess(index)}
                     />
                   </div>
                 </div>
