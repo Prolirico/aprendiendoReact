@@ -889,7 +889,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                                 className={styles.btnArchivoAction}
                                 title="Abrir enlace"
                               >
-                                <i className="fas fa-external-link-alt"></i>
+                                <FontAwesomeIcon icon={faExternalLinkAlt} />
                               </button>
                             ) : (
                               <button
@@ -901,7 +901,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                                 className={styles.btnArchivoAction}
                                 title="Descargar archivo"
                               >
-                                <i className="fas fa-download"></i>
+                                <FontAwesomeIcon icon={faDownload} />
                               </button>
                             )}
                           </div>
@@ -959,7 +959,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                                 className={styles.btnArchivoAction}
                                 title="Abrir enlace"
                               >
-                                <i className="fas fa-external-link-alt"></i>
+                                <FontAwesomeIcon icon={faExternalLinkAlt} />
                               </button>
                             ) : (
                               <button
@@ -971,7 +971,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                                 className={styles.btnArchivoAction}
                                 title="Descargar archivo"
                               >
-                                <i className="fas fa-download"></i>
+                                <FontAwesomeIcon icon={faDownload} />
                               </button>
                             )}
                           </div>
@@ -1261,7 +1261,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                           rel="noopener noreferrer"
                           className={`${styles.materialBtn} ${styles.primary}`}
                         >
-                          <i className="fas fa-external-link-alt"></i>
+                          <FontAwesomeIcon icon={faExternalLinkAlt} />
                           Ver
                         </a>
                       ) : (
@@ -1269,7 +1269,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                           onClick={() => handleDownloadWithAuth(url, item.nombre_archivo)}
                           className={`${styles.materialBtn} ${styles.primary}`}
                         >
-                          <i className="fas fa-download"></i>
+                          <FontAwesomeIcon icon={faDownload} />
                           Descargar PDF
                         </button>
                       )}
@@ -1329,7 +1329,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                             rel="noopener noreferrer"
                             className={`${styles.materialBtn} ${styles.primary}`}
                           >
-                            <i className="fas fa-external-link-alt"></i>
+                            <FontAwesomeIcon icon={faExternalLinkAlt} />
                             Ver
                           </a>
                         ) : (
@@ -1337,7 +1337,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                             onClick={() => handleDownloadWithAuth(url, item.nombre_archivo)}
                             className={`${styles.materialBtn} ${styles.primary}`}
                           >
-                            <i className="fas fa-download"></i>
+                            <FontAwesomeIcon icon={faDownload} />
                             Descargar
                           </button>
                         )}
@@ -1547,17 +1547,17 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                                   rel="noopener noreferrer"
                                   className={`${styles.taskResourceBtn} ${styles.linkBtn}`}
                                 >
-                                  <i className="fas fa-external-link-alt"></i>
+                                  <FontAwesomeIcon icon={faExternalLinkAlt} />
                                   Ver
                                 </a>
                               ) : (
                                 <button
                                   onClick={() =>
-                                    handleDownloadRecurso(recurso.url)
+                                    handleDownloadWithAuth(recurso.url, recurso.nombre)
                                   }
                                   className={`${styles.taskResourceBtn} ${styles.downloadBtn}`}
                                 >
-                                  <i className="fas fa-download"></i>
+                                  <FontAwesomeIcon icon={faDownload} />
                                   Descargar
                                 </button>
                               )}
