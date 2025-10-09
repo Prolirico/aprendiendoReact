@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import styles from "./AlumnoTareaYCalificaciones.module.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash, faExternalLinkAlt, faDownload } from "@fortawesome/free-solid-svg-icons";
 
 const API_BASE_URL = "http://localhost:5000";
 
@@ -960,7 +962,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                             className={styles.btnArchivoAction}
                             title="Abrir enlace"
                           >
-                            <i className="fas fa-external-link-alt"></i>
+                            <FontAwesomeIcon icon={faExternalLinkAlt} />
                           </button>
                         ) : (
                           <button
@@ -972,7 +974,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                             className={styles.btnArchivoAction}
                             title="Descargar archivo"
                           >
-                            <i className="fas fa-download"></i>
+                            <FontAwesomeIcon icon={faDownload} />
                           </button>
                         )}
                         <button
@@ -982,7 +984,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                           className={styles.btnArchivoDelete}
                           title={esEnlace ? "Eliminar enlace" : "Eliminar archivo"}
                         >
-                          <i className="fas fa-trash-alt"></i>
+                          <FontAwesomeIcon icon={faTrash} />
                         </button>
                       </div>
                     )}
