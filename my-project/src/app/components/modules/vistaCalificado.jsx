@@ -3,6 +3,8 @@ import styles from "./vistaCalificado.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faExclamationTriangle,
+  faExternalLinkAlt,
+  faFileAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "../../../hooks/useAuth";
 
@@ -280,7 +282,14 @@ export default function VistaCalificacion({ curso, onClose }) {
       });
   };
 
-  const handleDownload = (id_archivo, nombre_original) => {
+  const handleDownload = (id_archivo, nombre_original, tipo_archivo) => {
+    // Si es un enlace, abrirlo directamente
+    if (tipo_archivo === 'link') {
+      window.open(nombre_original, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    // Si es un archivo físico, obtener la URL y descargarlo
     fetch(`${API_BASE_URL}/api/entregas/download/${id_archivo}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -288,23 +297,23 @@ export default function VistaCalificacion({ curso, onClose }) {
     })
       .then(async (res) => {
         if (!res.ok) {
-          const errorData = await res
-            .json()
-            .catch(() => ({ error: "Error desconocido al descargar" }));
+          const errorData = await res.json().catch(() => ({ error: "Error desconocido al descargar" }));
           throw new Error(errorData.error || "Error al descargar el archivo");
         }
-        return res.blob();
+        return res.json();
       })
-      .then((blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.style.display = "none";
-        a.href = url;
-        a.download = nombre_original;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        a.remove();
+      .then((data) => {
+        if (data.tipo === 'link') {
+          window.open(data.url, '_blank', 'noopener,noreferrer');
+        } else if (data.tipo === 'file') {
+          // Crear enlace temporal para descargar
+          const link = document.createElement('a');
+          link.href = data.url;
+          link.download = data.filename || nombre_original;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
       })
       .catch((error) => {
         console.error("Error en la descarga:", error);
@@ -494,13 +503,22 @@ export default function VistaCalificacion({ curso, onClose }) {
                                         <ul>
                                           {entrega.archivos.map((archivo) => (
                                             <li key={archivo.id_archivo_entrega}>
+                                              <FontAwesomeIcon
+                                                icon={
+                                                  archivo.tipo_archivo === 'link'
+                                                    ? faExternalLinkAlt
+                                                    : faFileAlt
+                                                }
+                                                style={{ marginRight: '8px' }}
+                                              />
                                               <a
                                                 href="#"
                                                 onClick={(e) => {
                                                   e.preventDefault();
                                                   handleDownload(
                                                     archivo.id_archivo_entrega,
-                                                    archivo.nombre_archivo_original
+                                                    archivo.nombre_archivo_original,
+                                                    archivo.tipo_archivo
                                                   );
                                                 }}
                                               >

@@ -345,13 +345,28 @@ const descargarArchivoEntrega = async (req, res) => {
       return res.status(403).json({ error: "No tienes permisos para descargar este archivo." });
     }
 
+    // Si es un enlace, devolver la URL directamente
+    if (archivo.tipo_archivo === 'link') {
+      return res.json({ url: archivo.nombre_archivo_original, tipo: 'link' });
+    }
+
+    // Si es un archivo físico, verificar que existe y servirlo
     if (!fs.existsSync(archivo.ruta_archivo)) {
       return res.status(404).json({ error: "El archivo no se encuentra en el servidor." });
     }
 
-    res.download(path.resolve(archivo.ruta_archivo), archivo.nombre_archivo_original);
+    // Generar URL relativa para servir el archivo estáticamente
+    const relativePath = path.relative(path.join(__dirname, '../'), archivo.ruta_archivo);
+    const fileUrl = `/${relativePath.replace(/\\/g, '/')}`;
+
+    res.json({
+      url: fileUrl,
+      filename: archivo.nombre_archivo_original,
+      tipo: 'file'
+    });
+
   } catch (error) {
-    logger.error(`Error al descargar archivo: ${error.message}`);
+    logger.error(`Error al obtener información del archivo: ${error.message}`);
     res.status(500).json({ error: "Error interno del servidor." });
   }
 };

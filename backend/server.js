@@ -79,6 +79,10 @@ app.use((req, res, next) => {
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 log(`📁 Servicio de archivos estáticos configurado en /uploads`);
 
+// Servir archivos de entregas de alumnos específicamente
+app.use("/uploads/material/entregas_Alumno", express.static(path.join(__dirname, "uploads/material/entregas_Alumno")));
+log(`📁 Servicio de archivos de entregas configurado en /uploads/material/entregas_Alumno`);
+
 // Health check endpoint
 app.get("/health", (req, res) => {
   log(`🏥 Health check solicitado`);

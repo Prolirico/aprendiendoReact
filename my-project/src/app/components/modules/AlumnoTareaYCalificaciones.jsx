@@ -610,8 +610,59 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
     }
   };
 
-  // Función para manejar descargas con autenticación
-  const handleDownloadWithAuth = async (url) => {
+  // Función para manejar descargas con autenticación (para entregas)
+  const handleDownloadEntrega = async (url) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        showToast("Debes iniciar sesión para descargar archivos.", "error");
+        return;
+      }
+
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+
+        if (data.tipo === 'link') {
+          window.open(data.url, '_blank', 'noopener,noreferrer');
+        } else if (data.tipo === 'file') {
+          // Crear enlace temporal para descargar
+          const link = document.createElement('a');
+          link.href = data.url;
+
+          // Usar el filename del JSON si está disponible, sino usar un nombre por defecto
+          let filename = data.filename || 'archivo';
+
+          // Asegurar que tenga la extensión correcta
+          if (data.url && data.url.includes('.pdf') && !filename.toLowerCase().endsWith('.pdf')) {
+            filename += '.pdf';
+          } else if (data.url && (data.url.includes('.docx') || data.url.includes('.doc')) &&
+                     !filename.toLowerCase().endsWith('.docx') && !filename.toLowerCase().endsWith('.doc')) {
+            filename += '.docx';
+          }
+
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+      } else {
+        const errorData = await response.json();
+        showToast(`Error al descargar: ${errorData.error || response.statusText}`, "error");
+      }
+    } catch (error) {
+      console.error("Error downloading entrega:", error);
+      showToast("Error al descargar el archivo.", "error");
+    }
+  };
+
+  // Función para manejar descargas con autenticación (para material del curso)
+  const handleDownloadWithAuth = async (url, filename = null) => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -633,18 +684,39 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
 
         // Obtener el nombre del archivo desde los headers de la respuesta
         const contentDisposition = response.headers.get("content-disposition");
-        let filename = "archivo";
+        let finalFilename = filename; // Usar el nombre proporcionado como prioridad
+
         if (contentDisposition && contentDisposition.includes("filename=")) {
-          filename = contentDisposition
-            .split("filename=")[1]
-            .replace(/"/g, "")
-            .trim();
-        } else {
-          // Fallback: usar el último segmento de la URL si no hay header
-          filename = url.split("/").pop() || "archivo";
+          // Extraer el nombre del archivo del header content-disposition
+          const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+          if (filenameMatch && filenameMatch[1]) {
+            finalFilename = filenameMatch[1].replace(/['"]/g, '');
+          }
         }
 
-        a.download = filename;
+        // Si no se pudo obtener el nombre del header Y no tenemos filename proporcionado, usar fallback
+        if (!finalFilename) {
+          const urlParts = url.split('/');
+          finalFilename = urlParts[urlParts.length - 1] || "archivo";
+        }
+
+        // Asegurar que tenga la extensión correcta basada en el tipo de contenido
+        const blobType = blob.type || "";
+
+        if (blobType.includes("pdf") && !finalFilename.toLowerCase().endsWith('.pdf')) {
+          finalFilename += '.pdf';
+        } else if (blobType.includes("image") && !finalFilename.includes('.')) {
+          if (blobType.includes("png")) finalFilename += '.png';
+          else if (blobType.includes("jpeg") || blobType.includes("jpg")) finalFilename += '.jpg';
+          else if (blobType.includes("gif")) finalFilename += '.gif';
+          else finalFilename += '.jpg'; // fallback
+        } else if (blobType.includes("document") || blobType.includes("word")) {
+          if (!finalFilename.toLowerCase().endsWith('.docx') && !finalFilename.toLowerCase().endsWith('.doc')) {
+            finalFilename += '.docx';
+          }
+        }
+
+        a.download = finalFilename;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -822,7 +894,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                             ) : (
                               <button
                                 onClick={() =>
-                                  handleDownloadWithAuth(
+                                  handleDownloadEntrega(
                                     `${API_BASE_URL}/api/entregas/download/${archivo.id_archivo_entrega}`,
                                   )
                                 }
@@ -892,7 +964,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                             ) : (
                               <button
                                 onClick={() =>
-                                  handleDownloadWithAuth(
+                                  handleDownloadEntrega(
                                     `${API_BASE_URL}/api/entregas/download/${archivo.id_archivo_entrega}`,
                                   )
                                 }
@@ -967,7 +1039,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                         ) : (
                           <button
                             onClick={() =>
-                              handleDownloadWithAuth(
+                              handleDownloadEntrega(
                                 `${API_BASE_URL}/api/entregas/download/${archivo.id_archivo_entrega}`,
                               )
                             }
@@ -1194,7 +1266,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                         </a>
                       ) : (
                         <button
-                          onClick={() => handleDownloadWithAuth(url)}
+                          onClick={() => handleDownloadWithAuth(url, item.nombre_archivo)}
                           className={`${styles.materialBtn} ${styles.primary}`}
                         >
                           <i className="fas fa-download"></i>
@@ -1262,7 +1334,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                           </a>
                         ) : (
                           <button
-                            onClick={() => handleDownloadWithAuth(url)}
+                            onClick={() => handleDownloadWithAuth(url, item.nombre_archivo)}
                             className={`${styles.materialBtn} ${styles.primary}`}
                           >
                             <i className="fas fa-download"></i>
@@ -1481,7 +1553,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                               ) : (
                                 <button
                                   onClick={() =>
-                                    handleDownloadWithAuth(recurso.url)
+                                    handleDownloadRecurso(recurso.url)
                                   }
                                   className={`${styles.taskResourceBtn} ${styles.downloadBtn}`}
                                 >

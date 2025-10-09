@@ -401,26 +401,36 @@ const descargarMaterial = async (req, res) => {
       });
     }
 
-    // Verificar que el archivo existe
-    if (!fs.existsSync(material.ruta_archivo)) {
+    // Usar res.download() para mejor manejo de headers y nombres de archivo
+    const filePath = path.resolve(material.ruta_archivo);
+
+    // Verificar que el archivo existe antes de intentar descargarlo
+    if (!fs.existsSync(filePath)) {
       return res.status(404).json({
         error: "El archivo no se encuentra en el servidor.",
       });
     }
 
-    // Configurar headers para descarga
-    res.setHeader("Content-Type", "application/octet-stream");
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename="${material.nombre_archivo}"`,
-    );
+    // Headers para prevenir caché del navegador
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
 
-    // Enviar archivo
-    res.sendFile(path.resolve(material.ruta_archivo));
-
-    logger.info(
-      `Archivo descargado: ${material.nombre_archivo} por usuario ${id_usuario}`,
-    );
+    res.download(filePath, material.nombre_archivo, (err) => {
+      if (err) {
+        console.error("Error al descargar archivo:", err);
+        logger.error(`Error al descargar material: ${err.message}`);
+        if (!res.headersSent) {
+          res.status(500).json({
+            error: "Error interno del servidor al descargar el material.",
+          });
+        }
+      } else {
+        logger.info(
+          `Archivo descargado: ${material.nombre_archivo} por usuario ${id_usuario}`,
+        );
+      }
+    });
   } catch (error) {
     logger.error(`Error al descargar material: ${error.message}`);
     res.status(500).json({
