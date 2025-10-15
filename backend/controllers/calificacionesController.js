@@ -214,10 +214,9 @@ const getCalificacionCurso = async (req, res) => {
         if (entregaRows.length > 0) {
           const entregaBase = entregaRows[0];
           const [archivosRows] = await connection.query(
-            "SELECT id_archivo_entrega, nombre_archivo_original, ruta_archivo FROM archivos_entrega WHERE id_entrega = ?",
+            "SELECT id_archivo_entrega, nombre_archivo_original, ruta_archivo, tipo_archivo FROM archivos_entrega WHERE id_entrega = ?",
             [entregaBase.id_entrega]
           );
-
           console.log(`📎 DEBUG: Archivos para entrega ${entregaBase.id_entrega}:`, archivosRows.length);
 
           entregaCompleta = { ...entregaBase, archivos: archivosRows };

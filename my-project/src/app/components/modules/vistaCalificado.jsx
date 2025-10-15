@@ -5,6 +5,7 @@ import {
   faExclamationTriangle,
   faExternalLinkAlt,
   faFileAlt,
+  faLink,
 } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "../../../hooks/useAuth";
 
@@ -506,7 +507,7 @@ export default function VistaCalificacion({ curso, onClose }) {
                                               <FontAwesomeIcon
                                                 icon={
                                                   archivo.tipo_archivo === 'link'
-                                                    ? faExternalLinkAlt
+                                                    ? faLink
                                                     : faFileAlt
                                                 }
                                                 style={{ marginRight: '8px' }}
