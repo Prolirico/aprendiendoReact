@@ -1157,6 +1157,39 @@
     transform: none;
     box-shadow: none;
 }
+/* Botón secundario para acciones de anulación */
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  margin-top: 0.75rem;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.btnSecondary:hover {
+  background: #dc2626;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btnSecondary:active {
+  transform: scale(0.98);
+}
+
+.btnSecondary i {
+  font-size: 0.875rem;
+}
+
 
 .btnOutline {
     background: white;
@@ -1177,6 +1210,76 @@
     color: white;
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(79, 70, 229, 0.25);
+}
+/* Contenedor del input de enlaces */
+.linkInputContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.linkInputContainer:focus-within {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.linkInputContainer i {
+  color: #6b7280;
+  font-size: 1.1rem;
+  transition: color 0.3s ease;
+}
+
+.linkInputContainer:focus-within i {
+  color: #3b82f6;
+}
+
+.linkInputContainer input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 0.95rem;
+  color: #1f2937;
+  background: transparent;
+}
+
+.linkInputContainer input::placeholder {
+  color: #9ca3af;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.linkInputContainer input:focus::placeholder {
+  color: #bfdbfe;
+}
+
+/* Botón outline para añadir enlace */
+.btnOutline {
+  padding: 0.5rem 1rem;
+  background: white;
+  border: 2px solid #3b82f6;
+  border-radius: 6px;
+  color: #3b82f6;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.btnOutline:hover {
+  background: #3b82f6;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btnOutline:active {
+  transform: translateY(0);
 }
 
 .fileList {

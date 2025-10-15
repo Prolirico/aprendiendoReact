@@ -166,11 +166,11 @@ const getCalificacionCurso = async (req, res) => {
 
     // ====== AQUÍ ESTÁ EL CAMBIO IMPORTANTE ======
     let id_alumno_para_buscar = null;
-    
+
     // Si es alumno, usa su propio id
     if (tipo_usuario === 'alumno') {
       id_alumno_para_buscar = id_alumno_sesion;
-    } 
+    }
     // Si es maestro/admin Y viene id_alumno en query, úsalo
     else if (['maestro', 'admin_sedeq', 'admin_universidad', 'SEDEQ'].includes(tipo_usuario) && id_alumno_query) {
       id_alumno_para_buscar = parseInt(id_alumno_query); // <-- Asegurar que sea número
@@ -185,9 +185,9 @@ const getCalificacionCurso = async (req, res) => {
         "SELECT id_inscripcion FROM inscripcion WHERE id_alumno = ? AND id_curso = ? AND estatus_inscripcion = 'aprobada'",
         [id_alumno_para_buscar, id_curso]
       );
-      
+
       console.log('📋 DEBUG: Inscripciones encontradas:', inscripcionRows.length);
-      
+
       if (inscripcionRows.length > 0) {
         id_inscripcion_objetivo = inscripcionRows[0].id_inscripcion;
         console.log('✅ DEBUG: id_inscripcion encontrado:', id_inscripcion_objetivo);
@@ -217,9 +217,9 @@ const getCalificacionCurso = async (req, res) => {
             "SELECT id_archivo_entrega, nombre_archivo_original, ruta_archivo FROM archivos_entrega WHERE id_entrega = ?",
             [entregaBase.id_entrega]
           );
-          
+
           console.log(`📎 DEBUG: Archivos para entrega ${entregaBase.id_entrega}:`, archivosRows.length);
-          
+
           entregaCompleta = { ...entregaBase, archivos: archivosRows };
         }
       }
@@ -231,8 +231,8 @@ const getCalificacionCurso = async (req, res) => {
 
     let calificacionFinal = 0;
     for (const act of actividadesConEntregas) {
-      if (act.entrega && act.entrega.calificacion !== null && act.porcentaje > 0) {
-        calificacionFinal += (parseFloat(act.entrega.calificacion) * parseFloat(act.porcentaje)) / 100;
+      if (act.entrega && act.entrega.calificacion !== null) {
+        calificacionFinal += parseFloat(act.entrega.calificacion);
       }
     }
 

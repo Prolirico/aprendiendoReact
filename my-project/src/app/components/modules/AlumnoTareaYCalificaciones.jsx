@@ -1756,7 +1756,7 @@ const AlumnoTareaYCalificaciones = ({ userId }) => {
                         {evaluacion.calificacion !== null ? (
                           <div className={styles.gradeValueContainer}>
                             <span className={`${styles.gradeValue} ${evaluacion.calificacion >= 70 ? styles.good : styles.bad}`}>
-                              {evaluacion.calificacion}/100
+                              {evaluacion.calificacion}/{evaluacion.porcentaje}
                             </span>
                           </div>
                         ) : (
