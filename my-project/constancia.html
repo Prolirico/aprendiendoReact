@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,24 +32,24 @@
         .certificate-container {
             width: 1123px;
             height: 794px;
-            max-width: 100%;
-            background: white;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            background-color: #ffffff;
         }
 
-        .certificate-container::before {
+        .certificate-container::after {
             content: '';
             position: absolute;
-            left: -150px;
-            top: -10%;
-            width: 450px;
-            height: 120%;
-            background: linear-gradient(135deg, #1A2F4B 0%, #294262 100%);
-            border-radius: 0 50% 50% 0;
-            z-index: 1;
-            transform: rotate(-10deg);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url(/my-project/public/assets/wallpaperCertificadoConstancia.jpeg);
+            background-size: cover;
+            background-position: center;
+            opacity: 0.4;
+            z-index: 0;
         }
 
         .content-wrapper {
@@ -61,173 +62,248 @@
         }
 
         .header-logos {
-            position: absolute;
-            top: 40px;
-            left: 280px;
-            right: 60px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            width: 100%;
+            margin-bottom: 30px; /* Espacio antes del contenido principal */
         }
 
-        .logo-placeholder { height: 85px; display: flex; align-items: center; justify-content: center; }
-        .logo-secretaria img { filter: drop-shadow(0px 0px 4px rgba(255, 255, 255, 0.8)); }
-        .logo-placeholder img { max-height: 100%; max-width: 100%; object-fit: contain; }
+        .logo-placeholder {
+            height: 85px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-placeholder img {
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: contain;
+        }
+
         .logo-secretaria { flex-basis: 170px; }
         .logo-gobierno { flex-basis: 190px; }
         .logo-contigo { flex-basis: 190px; }
-        
+
+        /* --- INICIO DE NUEVA ESTRUCTURA --- */
         .main-content {
-            flex: 1;
+            flex: 1; /* Ocupa el espacio disponible, empujando el footer hacia abajo */
             display: flex;
-            flex-direction: column;
-            padding-top: 100px;
+            gap: 50px; /* Espacio entre la columna izquierda y derecha */
         }
 
-        .title-section { text-align: center; margin-bottom: 30px; }
-        .title-text { font-size: 18px; color: #4A5C70; line-height: 1.6; }
-        .constancia-title { font-family: 'Montserrat', sans-serif; font-size: 78px; font-weight: 700; color: #D6008E; margin: 20px 0; letter-spacing: 3px; }
-
-        .certificate-body {
-            flex: 1;
+        .left-column {
+            flex-basis: 35%; /* Ancho de la columna izquierda */
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            text-align: center;
-            gap: 25px;
-            padding-bottom: 50px;
+            align-items: center; /* Centra el contenido de la columna */
         }
 
-        .student-name { font-family: 'Montserrat', sans-serif; font-size: 32px; font-weight: 700; color: #1A2F4B; text-transform: uppercase; }
-        .completion-text { font-size: 20px; color: #4A5C70; }
-        .microcredential-name { font-family: 'Montserrat', sans-serif; font-size: 28px; font-weight: 700; color: #1A2F4B; }
+        .right-column {
+            flex-basis: 65%; /* Ancho de la columna derecha */
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Centra el contenido verticalmente */
+        }
         
-        /* --- AJUSTES FINALES EN EL PIE DE PÁGINA --- */
-        .footer-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-top: auto;
-            padding-top: 20px;
-        }
-
-        .university-logo {
-            width: 250px;
-            height: 110px;
+        .university-logo-main {
+            width: 280px;
+            height: 120px;
+            margin-bottom: 30px;
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
         }
-        .university-logo img {
+
+        .university-logo-main img {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
         }
 
-        .signatures-and-date-wrapper {
+        .info-block {
             display: flex;
             flex-direction: column;
-            flex-grow: 1;
-            /* Se ajusta el espaciado a 10px */
-            padding-left: 40px; 
+            gap: 20px;
+            width: 100%;
+            padding-left: 20px;
+        }
+
+        .info-item {
+            font-size: 16px;
+            color: #4A5C70;
+        }
+
+        .info-item span {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 20px;
+            color: #1A2F4B;
+            text-transform: uppercase;
+            display: block;
+            margin-top: 4px;
+        }
+
+        .constancia-header {
+            text-align: left;
+        }
+
+        .constancia-header-text {
+            font-size: 18px;
+            color: #4A5C70;
+            line-height: 1.6;
+        }
+        
+        .constancia-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 78px;
+            font-weight: 700;
+            color: #D6008E;
+            margin: 15px 0;
+            letter-spacing: 3px;
+        }
+
+        .logo-ceatycc {
+            width: 180px;
+            margin-top: 20px;
+            align-self: center;
+        }
+
+        .logo-ceatycc img {
+            width: 100%;
+        }
+        /* --- FIN DE NUEVA ESTRUCTURA --- */
+
+        .footer-section {
+            display: flex;
+            justify-content: space-between; /* Ajuste para espacio entre firmas y fecha */
+            align-items: flex-end;
+            padding-top: 20px;
         }
         
         .signatures-container {
             display: flex;
-            justify-content: space-between;
-            width: 100%;
-            margin-bottom: 20px;
+            gap: 40px; /* Espacio entre cada bloque de firma */
         }
 
         .signature-block {
-            /* Se restaura un ancho fijo para que la línea no se encoja */
-            width: 180px; 
+            width: 180px;
             text-align: center;
             color: #1A2F4B;
         }
-        
+
         .signature-placeholder {
-            height: 60px; /* Espacio consistente para el PNG de la firma */
+            height: 60px;
             margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .signature-placeholder img {
-            max-height: 100%;
-            max-width: 100%;
-            object-fit: contain;
         }
 
-        .signature-line { border-bottom: 1px solid #4A5C70; margin-bottom: 8px; }
-        .signature-title { font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 600; }
+        .signature-line {
+            border-bottom: 1px solid #4A5C70;
+            margin-bottom: 8px;
+        }
+
+        .signature-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+        }
 
         .date-section {
-            width: 100%;
-            text-align: right;
             color: #4A5C70;
             font-size: 18px;
+            text-align: right;
+            flex-shrink: 0; /* Evita que la fecha se encoja */
         }
-
+        
         /* Estilos de Impresión */
         @media print {
             body { background: none; padding: 0; }
-            .certificate-container { width: 297mm; height: 210mm; box-shadow: none; page-break-after: always; }
-            .logo-secretaria img { filter: none; }
-            .certificate-container::before { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .certificate-container {
+                width: 297mm;
+                height: 210mm;
+                box-shadow: none;
+                page-break-after: always;
+            }
+            .certificate-container::after {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="certificate-container">
         <div class="content-wrapper">
             <div class="header-logos">
-                <div class="logo-placeholder logo-secretaria"><img src="/my-project/public/assets/SecretariaDeEducacion.png" alt="Logo Secretaría de Educación de Querétaro"></div>
-                <div class="logo-placeholder logo-gobierno"><img src="/my-project/public/assets/Secretaria-de-Turismo-del-Estado-de-Queretaro.png" alt="Logo Secretaría de Turismo del Estado de Querétaro"></div>
-                <div class="logo-placeholder logo-contigo"><img src="/my-project/public/assets/Secretaria-de-Turismo-del-Estado-de-Queretaro-Contigo.png" alt="Logo Contigo, Gobierno del Estado de Querétaro"></div>
+                <div class="logo-placeholder logo-secretaria"><img
+                        src="/my-project/public/assets/SecretariaDeEducacion.png"
+                        alt="Logo Secretaría De Educación De Querétaro"></div>
+                <div class="logo-placeholder logo-gobierno"><img
+                        src="/my-project/public/assets/QueretaroGobiernoDelEstadoJuntosAdelante.png"
+                        alt="Juntos Adelante Gobierno Del Estado"></div>
+                <div class="logo-placeholder logo-contigo"><img
+                        src="/my-project/public/assets/contigoTodosAvanzamos.png" alt="Contigo Todos Avanzamos"></div>
             </div>
 
             <div class="main-content">
-                <div class="title-section">
-                    <p class="title-text">La Secretaría de Educación del Poder Ejecutivo del Estado de Querétaro<br>otorga el presente</p>
-                    <h1 class="constancia-title">CONSTANCIA</h1>
+                <div class="left-column">
+                    <div class="university-logo-main">
+                        <img src="RUTA_LOGO_UNIVERSIDAD" alt="Logo de la Universidad Asociada">
+                    </div>
+                    <div class="info-block">
+                        <div class="info-item">
+                            Nombre del Alumno:
+                            <span>nombreAlumno</span>
+                        </div>
+                        <div class="info-item">
+                            Microcredencial:
+                            <span>NOMBRE_MICROCREDENCIAL</span>
+                        </div>
+                        <div class="info-item">
+                            Total de Créditos:
+                            <span>TOTAL_CREDITOS</span>
+                        </div>
+                        <div class="info-item">
+                            Credencial Asociada:
+                            <span>CREDENCIAL_ASOCIADA</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="certificate-body">
-                    <div class="student-name">nombreAlumno</div>
-                    <p class="completion-text">Por haber concluido la microcredencial:</p>
-                    <div class="microcredential-name">NOMBRE_MICROCREDENCIAL</div>
+                <div class="right-column">
+                    <div class="constancia-header">
+                        <p class="constancia-header-text">La Secretaría de Educación del Poder Ejecutivo del Estado de
+                            Querétaro<br>otorga la presente</p>
+                        <h1 class="constancia-title">CONSTANCIA</h1>
+                    </div>
+                    <div class="logo-ceatycc">
+                        <img src="/my-project/public/assets/LOGOCEATYCCUno.png" alt="Logo CEATyCC">
+                    </div>
                 </div>
             </div>
 
             <div class="footer-section">
-                <div class="university-logo">
-                    <img src="RUTA_LOGO_UNIVERSIDAD" alt="Logo de la Universidad Asociada">
+                <div class="signatures-container">
+                    <div class="signature-block">
+                        <div class="signature-placeholder"></div>
+                        <div class="signature-line"></div>
+                        <p class="signature-title">SEDEQ</p>
+                    </div>
+                    <div class="signature-block">
+                        <div class="signature-placeholder"></div>
+                        <div class="signature-line"></div>
+                        <p class="signature-title">Universidad</p>
+                    </div>
+                    <div class="signature-block">
+                        <div class="signature-placeholder"></div>
+                        <div class="signature-line"></div>
+                        <p class="signature-title">Coordinador</p>
+                    </div>
                 </div>
-
-                <div class="signatures-and-date-wrapper">
-                    <div class="signatures-container">
-                        <div class="signature-block">
-                            <div class="signature-placeholder">
-                                </div>
-                            <div class="signature-line"></div>
-                            <p class="signature-title">SEDEQ</p>
-                        </div>
-                        <div class="signature-block">
-                            <div class="signature-placeholder"></div>
-                            <div class="signature-line"></div>
-                            <p class="signature-title">Universidad</p>
-                        </div>
-                        <div class="signature-block">
-                            <div class="signature-placeholder"></div>
-                            <div class="signature-line"></div>
-                            <p class="signature-title">Coordinador</p>
-                        </div>
-                    </div>
-                    <div class="date-section">
-                        Querétaro, Qro. 16 de Octubre, 2025
-                    </div>
+                <div class="date-section">
+                    Verificar en "LinkHome"
                 </div>
             </div>
         </div>
