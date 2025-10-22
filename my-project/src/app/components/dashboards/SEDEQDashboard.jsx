@@ -10,6 +10,7 @@ import Inscripciones from "../modules/Inscripciones";
 import Dominios from "../modules/Dominios";
 import Convocatorias from "../modules/Convocatorias";
 import CalificacionCurso from "../modules/CalificacionCurso";
+import CertificadosYConstancia from "../modules/CertificadosYConstancias";
 
 function SEDEQDashboard({ userId }) {
   const [data, setData] = useState({
@@ -19,7 +20,7 @@ function SEDEQDashboard({ userId }) {
     universities: [],
   });
 
-  useEffect(() => {}, [userId]);
+  useEffect(() => { }, [userId]);
 
   return (
     <div className={styles.todo}>
@@ -85,6 +86,12 @@ function SEDEQDashboard({ userId }) {
         <h1>Gestión de Calificaciones de Cursos</h1>
         <section>
           <CalificacionCurso rol="sedeq" />
+        </section>
+      </div>
+      <div className={styles.modulos}>
+        <h1>Gestión de Calificaciones de Cursos</h1>
+        <section>
+          <CertificadosYConstancia rol="sedeq" />
         </section>
       </div>
     </div>
