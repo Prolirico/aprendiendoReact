@@ -121,4 +121,19 @@ const isUniversityAdmin = (req, res, next) => {
   }
 };
 
-module.exports = { protect, isAdmin, isSedeqAdmin, isUniversityAdmin };
+// Nuevo middleware combinado para ambos tipos de administradores
+const admin = (req, res, next) => {
+  if (
+    req.user &&
+    (req.user.tipo_usuario === "admin_sedeq" ||
+      req.user.tipo_usuario === "admin_universidad")
+  ) {
+    next();
+  } else {
+    res
+      .status(403)
+      .json({ error: "Acceso denegado. Se requiere rol de administrador." });
+  }
+};
+
+module.exports = { protect, isAdmin, isSedeqAdmin, isUniversityAdmin, admin };

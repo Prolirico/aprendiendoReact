@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Constancia - Secretaría de Educación</title>
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap");
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            @page {
+                size: A4 landscape;
+                margin: 0;
+            }
+
+            body {
+                font-family: "Open Sans", sans-serif;
+                background: #e0e0e0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                padding: 20px;
+            }
+
+            .certificate-container {
+                width: 1123px;
+                height: 794px;
+                position: relative;
+                overflow: hidden;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+                background-color: #ffffff;
+            }
+
+            .certificate-container::after {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-image: url(/assets/wallpaperCertificadoConstancia.jpeg);
+                background-size: cover;
+                background-position: center;
+                opacity: 0.4;
+                z-index: 0;
+            }
+
+            .content-wrapper {
+                position: relative;
+                z-index: 2;
+                padding: 40px 60px;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .header-logos {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                width: 100%;
+                margin-bottom: 30px; /* Espacio antes del contenido principal */
+            }
+
+            .logo-placeholder {
+                height: 85px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .logo-placeholder img {
+                max-height: 100%;
+                max-width: 100%;
+                object-fit: contain;
+            }
+
+            .logo-secretaria {
+                flex-basis: 170px;
+            }
+            .logo-gobierno {
+                flex-basis: 190px;
+            }
+            .logo-contigo {
+                flex-basis: 190px;
+            }
+
+            /* --- INICIO DE NUEVA ESTRUCTURA --- */
+            .main-content {
+                flex: 1; /* Ocupa el espacio disponible, empujando el footer hacia abajo */
+                display: flex;
+                gap: 50px; /* Espacio entre la columna izquierda y derecha */
+            }
+
+            .left-column {
+                flex-basis: 35%; /* Ancho de la columna izquierda */
+                display: flex;
+                flex-direction: column;
+                align-items: center; /* Centra el contenido de la columna */
+            }
+
+            .right-column {
+                flex-basis: 65%; /* Ancho de la columna derecha */
+                display: flex;
+                flex-direction: column;
+                justify-content: center; /* Centra el contenido verticalmente */
+            }
+
+            .university-logo-main {
+                width: 280px;
+                height: 120px;
+                margin-bottom: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .university-logo-main img {
+                max-width: 100%;
+                max-height: 100%;
+                object-fit: contain;
+            }
+
+            .info-block {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+                width: 100%;
+                padding-left: 20px;
+            }
+
+            .info-item {
+                font-size: 16px;
+                color: #4a5c70;
+            }
+
+            .info-item span {
+                font-family: "Montserrat", sans-serif;
+                font-weight: 700;
+                font-size: 20px;
+                color: #1a2f4b;
+                text-transform: uppercase;
+                display: block;
+                margin-top: 4px;
+            }
+
+            .constancia-header {
+                text-align: left;
+            }
+
+            .constancia-header-text {
+                font-size: 18px;
+                color: #4a5c70;
+                line-height: 1.6;
+            }
+
+            .constancia-title {
+                font-family: "Montserrat", sans-serif;
+                font-size: 78px;
+                font-weight: 700;
+                color: #d6008e;
+                margin: 15px 0;
+                letter-spacing: 3px;
+            }
+
+            .logo-ceatycc {
+                width: 180px;
+                margin-top: 20px;
+                align-self: center;
+            }
+
+            .logo-ceatycc img {
+                width: 100%;
+            }
+            /* --- FIN DE NUEVA ESTRUCTURA --- */
+
+            .footer-section {
+                display: flex;
+                justify-content: space-between; /* Ajuste para espacio entre firmas y fecha */
+                align-items: flex-end;
+                padding-top: 20px;
+            }
+
+            .signatures-container {
+                display: flex;
+                gap: 40px; /* Espacio entre cada bloque de firma */
+            }
+
+            .signature-block {
+                width: 180px;
+                text-align: center;
+                color: #1a2f4b;
+            }
+
+            .signature-placeholder {
+                height: 60px;
+                margin-bottom: 10px;
+            }
+
+            .signature-line {
+                border-bottom: 1px solid #4a5c70;
+                margin-bottom: 8px;
+            }
+
+            .signature-title {
+                font-family: "Montserrat", sans-serif;
+                font-size: 14px;
+                font-weight: 600;
+            }
+
+            .date-section {
+                color: #4a5c70;
+                font-size: 18px;
+                text-align: right;
+                flex-shrink: 0; /* Evita que la fecha se encoja */
+            }
+
+            /* Estilos de Impresión */
+            @media print {
+                body {
+                    background: none;
+                    padding: 0;
+                }
+                .certificate-container {
+                    width: 297mm;
+                    height: 210mm;
+                    box-shadow: none;
+                    page-break-after: always;
+                }
+                .certificate-container::after {
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="certificate-container">
+            <div class="content-wrapper">
+                <div class="header-logos">
+                    <div class="logo-placeholder logo-secretaria">
+                        <img
+                            src="/assets/SecretariaDeEducacion.png"
+                            alt="Logo Secretaría De Educación De Querétaro"
+                        />
+                    </div>
+                    <div class="logo-placeholder logo-gobierno">
+                        <img
+                            src="/assets/QueretaroGobiernoDelEstadoJuntosAdelante.png"
+                            alt="Juntos Adelante Gobierno Del Estado"
+                        />
+                    </div>
+                    <div class="logo-placeholder logo-contigo">
+                        <img
+                            src="/assets/contigoTodosAvanzamos.png"
+                            alt="Contigo Todos Avanzamos"
+                        />
+                    </div>
+                </div>
+
+                <div class="main-content">
+                    <div class="left-column">
+                        <div class="university-logo-main">
+                            <img
+                                src="/assets/logo-ceatycc-02.png"
+                                alt="Logo de la Universidad Asociada"
+                                data-field="logoUniversidad"
+                            />
+                        </div>
+                        <div class="info-block">
+                            <div class="info-item">
+                                Nombre del Alumno:
+                                <span data-field="nombreAlumno"
+                                    >nombreAlumno</span
+                                >
+                            </div>
+                            <div class="info-item">
+                                Microcredencial:
+                                <span data-field="nombreMicrocredencial"
+                                    >NOMBRE_MICROCREDENCIAL</span
+                                >
+                            </div>
+                            <div class="info-item">
+                                Total de Créditos:
+                                <span data-field="totalCreditos"
+                                    >TOTAL_CREDITOS</span
+                                >
+                            </div>
+                            <div class="info-item">
+                                Credencial Asociada:
+                                <span data-field="credencialAsociada"
+                                    >CREDENCIAL_ASOCIADA</span
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="right-column">
+                        <div class="constancia-header">
+                            <p class="constancia-header-text">
+                                La Secretaría de Educación del Poder Ejecutivo
+                                del Estado de Querétaro<br />otorga la presente
+                            </p>
+                            <h1 class="constancia-title">CONSTANCIA</h1>
+                        </div>
+                        <div class="logo-ceatycc">
+                            <img
+                                src="/assets/LOGOCEATYCCUno.png"
+                                alt="Logo CEATyCC"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <div class="signatures-container">
+                        <div class="signature-block">
+                            <div
+                                class="signature-placeholder"
+                                data-field="firmaSEDEQ"
+                            >
+                                <img
+                                    src=""
+                                    alt="Firma SEDEQ"
+                                    style="
+                                        width: 100%;
+                                        height: 100%;
+                                        object-fit: contain;
+                                        display: none;
+                                    "
+                                    data-firma="sedeq"
+                                />
+                            </div>
+                            <div class="signature-line"></div>
+                            <p class="signature-title">SEDEQ</p>
+                        </div>
+                        <div class="signature-block">
+                            <div
+                                class="signature-placeholder"
+                                data-field="firmaUniversidad"
+                            >
+                                <img
+                                    src=""
+                                    alt="Firma Universidad"
+                                    style="
+                                        width: 100%;
+                                        height: 100%;
+                                        object-fit: contain;
+                                        display: none;
+                                    "
+                                    data-firma="universidad"
+                                />
+                            </div>
+                            <div class="signature-line"></div>
+                            <p
+                                class="signature-title"
+                                data-field="nombreUniversidad"
+                            >
+                                Universidad
+                            </p>
+                        </div>
+                        <div class="signature-block">
+                            <div
+                                class="signature-placeholder"
+                                data-field="firmaCoordinador"
+                            >
+                                <img
+                                    src=""
+                                    alt="Firma Coordinador"
+                                    style="
+                                        width: 100%;
+                                        height: 100%;
+                                        object-fit: contain;
+                                        display: none;
+                                    "
+                                    data-firma="coordinador"
+                                />
+                            </div>
+                            <div class="signature-line"></div>
+                            <p class="signature-title">Coordinador</p>
+                        </div>
+                    </div>
+                    <div class="date-section" data-field="fechaEmision">
+                        Verificar en "LinkHome"
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

@@ -80,8 +80,13 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 log(`📁 Servicio de archivos estáticos configurado en /uploads`);
 
 // Servir archivos de entregas de alumnos específicamente
-app.use("/uploads/material/entregas_Alumno", express.static(path.join(__dirname, "uploads/material/entregas_Alumno")));
-log(`📁 Servicio de archivos de entregas configurado en /uploads/material/entregas_Alumno`);
+app.use(
+  "/uploads/material/entregas_Alumno",
+  express.static(path.join(__dirname, "uploads/material/entregas_Alumno")),
+);
+log(
+  `📁 Servicio de archivos de entregas configurado en /uploads/material/entregas_Alumno`,
+);
 
 // Health check endpoint
 app.get("/health", (req, res) => {
@@ -113,6 +118,7 @@ const unidadesRoutes = require("./routes/unidadesRoutes");
 const calificacionesRoutes = require("./routes/calificacionesRoutes");
 const entregasRoutes = require("./routes/entregasRoutes");
 const materialRoutes = require("./routes/materialRoutes");
+const firmasRoutes = require("./routes/firmasRoutes");
 
 log(`✅ Rutas importadas correctamente`);
 
@@ -134,6 +140,7 @@ app.use("/api/unidades", unidadesRoutes);
 app.use("/api/calificaciones", calificacionesRoutes);
 app.use("/api/entregas", entregasRoutes);
 app.use("/api/material", materialRoutes);
+app.use("/api/firmas", firmasRoutes);
 log(`🔌 Rutas configuradas en la aplicación`);
 
 log(`💾 Conectando a la base de datos...`);

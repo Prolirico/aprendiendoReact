@@ -1,7 +1,10 @@
-import { useState, useEffect } from 'react';
-import styles from './CertificadosYConstancias.module.css';
-// 1. Importamos FontAwesome para coherencia de iconos
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useState, useEffect, useCallback } from "react";
+import styles from "./CertificadosYConstancias.module.css";
+import { useAuth } from "@/hooks/useAuth"; // Importamos el hook de autenticación
+import axios from "axios";
+
+// Iconos de FontAwesome
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUpload,
   faCheck,
@@ -9,287 +12,393 @@ import {
   faTimes,
   faFileAlt,
   faSpinner,
-} from '@fortawesome/free-solid-svg-icons';
+  faSignature,
+} from "@fortawesome/free-solid-svg-icons";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const SERVER_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 const CertificadosYConstancias = () => {
-  const [userData] = useState({
-    id: 1,
-    name: 'Administrador SEDEQ',
-    role: 'sedeq',
-    universidadId: null,
-  });
+  const { user } = useAuth(); // Obtenemos el usuario del hook
 
+  // Estados del componente
   const [selectedFile, setSelectedFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
   const [signatures, setSignatures] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedSignature, setSelectedSignature] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [signatureToDelete, setSignatureToDelete] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isApplying, setIsApplying] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false); // Unifica isUploading y isApplying
+  const [toast, setToast] = useState({ show: false, message: "", type: "" });
 
-  const [filters, setFilters] = useState({
-    universidad: 'all',
-    tipo: 'all',
-  });
-
+  const [universidades, setUniversidades] = useState([]);
   const [formData, setFormData] = useState({
-    tipo: '',
-    universidad: '',
+    tipo_firma: "",
+    id_universidad: "",
   });
 
-  const [activeTab, setActiveTab] = useState('certificado');
-  
-  // 2. Reemplazamos el sistema de 'alerts' por el de 'toast' de Dominios
-  const [toast, setToast] = useState({ show: false, message: '', type: '' });
+  const [activeTab, setActiveTab] = useState("constancia");
+  const [certificadoHTML, setCertificadoHTML] = useState("");
+  const [constanciaHTML, setConstanciaHTML] = useState("");
+  const [selectedUniversidadPreview, setSelectedUniversidadPreview] =
+    useState("");
 
-  const universidades = [
-    { id: '1', name: 'Universidad Autónoma de Querétaro' },
-    { id: '2', name: 'Instituto Tecnológico de Querétaro' },
-    { id: '3', name: 'Universidad Politécnica de Querétaro' },
-  ];
-
-  const mockSignatures = [
-    {
-      id: 1,
-      tipo: 'rector',
-      url: 'https://cdn.pixabay.com/photo/2017/03/07/11/16/signature-2123763_960_720.png',
-      universidadId: 1,
-      universidadNombre: 'Universidad Autónoma de Querétaro',
-      fechaCreacion: '2025-03-15T10:30:00',
-    },
-    {
-      id: 2,
-      tipo: 'director',
-      url: 'https://cdn.pixabay.com/photo/2017/01/13/01/22/signature-1976296_960_720.png',
-      universidadId: 1,
-      universidadNombre: 'Universidad Autónoma de Querétaro',
-      fechaCreacion: '2025-03-10T14:20:00',
-    },
-  ];
-
-  useEffect(() => {
-    fetchSignatures();
-  }, [filters]);
-
-  // 3. Reemplazamos la función de 'alerts' por la de 'toast'
+  // Función para mostrar notificaciones
   const showAlert = (type, message) => {
     setToast({ show: true, message, type });
-    setTimeout(() => {
-      setToast({ show: false, message: '', type: '' });
-    }, 3000);
+    setTimeout(() => setToast({ show: false, message: "", type: "" }), 3000);
   };
 
-  const fetchSignatures = async () => {
+  // Cargar las plantillas HTML
+  useEffect(() => {
+    fetch("/constancia.html")
+      .then((res) => res.text())
+      .then((text) => setConstanciaHTML(text))
+      .catch((err) => console.error("Error cargando constancia.html", err));
+
+    fetch("/certificado.html")
+      .then((res) => res.text())
+      .then((text) => setCertificadoHTML(text))
+      .catch((err) => console.error("Error cargando certificado.html", err));
+  }, []);
+
+  // Cargar universidades para los selectores
+  useEffect(() => {
+    const fetchUniversidades = async () => {
+      try {
+        console.log("Fetching universidades from: /api/universidades");
+        const response = await axios.get("/api/universidades");
+        console.log("Universidades response:", response.data);
+
+        // La respuesta puede ser un objeto con universidades o un array directo
+        const universidadesData = response.data.universities || response.data;
+        setUniversidades(
+          Array.isArray(universidadesData) ? universidadesData : [],
+        );
+        console.log("Universidades cargadas:", universidadesData);
+      } catch (error) {
+        console.error("Error al cargar universidades:", error);
+        console.error("Error details:", error.response?.data || error.message);
+        showAlert("error", "No se pudieron cargar las universidades.");
+        setUniversidades([]);
+      }
+    };
+    fetchUniversidades();
+  }, []);
+
+  // Cargar las firmas desde la API
+  const fetchSignatures = useCallback(async () => {
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    let filtered = [...mockSignatures];
-
-    if (userData.role === 'universidad') {
-      filtered = filtered.filter(
-        (s) => s.universidadId === userData.universidadId
-      );
+    try {
+      const token = localStorage.getItem("token");
+      const { data } = await axios.get("/api/firmas", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setSignatures(data);
+    } catch (error) {
+      showAlert("error", "Error al cargar las firmas.");
+      console.error("Error al cargar firmas:", error);
+    } finally {
+      setIsLoading(false);
     }
+  }, []);
 
-    if (filters.universidad !== 'all') {
-      filtered = filtered.filter(
-        (s) => s.universidadId === parseInt(filters.universidad)
-      );
+  useEffect(() => {
+    if (user) {
+      // Solo buscar firmas si el usuario está cargado
+      fetchSignatures();
     }
+  }, [user, fetchSignatures]);
 
-    if (filters.tipo !== 'all') {
-      filtered = filtered.filter((s) => s.tipo === filters.tipo);
+  // Configurar el formulario basado en el rol del usuario
+  useEffect(() => {
+    if (user && user.role === "admin_universidad") {
+      setFormData((prev) => ({ ...prev, id_universidad: user.id_universidad }));
     }
+  }, [user]);
 
-    setSignatures(filtered);
-    setIsLoading(false);
-  };
-
-  // --- El resto de tus funciones de lógica se mantienen idénticas ---
   const handleFileSelection = (file) => {
     if (!file) return;
-
-    if (file.type !== 'image/png') {
-      showAlert('error', 'Error: Solo se permiten archivos PNG.');
+    if (file.type !== "image/png") {
+      showAlert("error", "Error: Solo se permiten archivos PNG.");
       return;
     }
-
     if (file.size > 2 * 1024 * 1024) {
-      showAlert('error', 'Error: El tamaño máximo permitido es 2MB.');
+      showAlert("error", "Error: El tamaño máximo del archivo es 2MB.");
       return;
     }
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = (e) =>
       setFilePreview({
         url: e.target.result,
         name: file.name,
         size: formatBytes(file.size),
       });
-    };
     reader.readAsDataURL(file);
     setSelectedFile(file);
   };
 
   const formatBytes = (bytes, decimals = 2) => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return "0 Bytes";
     const k = 1024;
     const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
   };
 
+  // Manejar la subida de una nueva firma
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!formData.tipo || !formData.universidad || !selectedFile) {
-      showAlert('error', 'Por favor complete todos los campos y seleccione un archivo.');
+    if (
+      !formData.tipo_firma ||
+      !selectedFile ||
+      (formData.tipo_firma !== "sedeq" && !formData.id_universidad)
+    ) {
+      showAlert("error", "Por favor complete todos los campos requeridos.");
       return;
     }
 
-    setIsUploading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    const uploadData = new FormData();
+    uploadData.append("tipo_firma", formData.tipo_firma);
+    uploadData.append("firma", selectedFile);
+    if (formData.tipo_firma !== "sedeq") {
+      uploadData.append("id_universidad", formData.id_universidad);
+    }
 
-    setFormData({ tipo: '', universidad: '' });
-    setSelectedFile(null);
-    setFilePreview(null);
-    setIsUploading(false);
+    setIsProcessing(true);
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post("/api/firmas", uploadData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    showAlert('success', 'Firma subida correctamente.');
-    fetchSignatures();
+      showAlert("success", "Firma subida correctamente.");
+      // Resetear formulario
+      setFormData((prev) => ({ ...prev, tipo_firma: "" }));
+      setSelectedFile(null);
+      setFilePreview(null);
+      fetchSignatures(); // Recargar la lista de firmas
+    } catch (error) {
+      showAlert("error", "Error al subir la firma.");
+      console.error("Error al subir firma:", error);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
+  // Manejar la eliminación de una firma
   const handleDelete = async () => {
-    setIsUploading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    if (!signatureToDelete) return;
+    setIsProcessing(true);
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`/api/firmas/${signatureToDelete.id_firma}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    setSignatures((prev) => prev.filter((s) => s.id !== signatureToDelete));
-    setShowDeleteModal(false);
-    setSignatureToDelete(null);
-    setIsUploading(false);
-
-    showAlert('success', 'Firma eliminada correctamente.');
+      showAlert("success", "Firma eliminada correctamente.");
+      setShowDeleteModal(false);
+      setSignatureToDelete(null);
+      fetchSignatures(); // Recargar la lista
+    } catch (error) {
+      showAlert("error", "Error al eliminar la firma.");
+      console.error("Error al eliminar firma:", error);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
-  const applySignatures = async () => {
-    if (!selectedSignature) return;
-
-    setIsApplying(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsApplying(false);
-
-    showAlert('success', 'Firma aplicada correctamente a los documentos.');
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const getTipoBadgeClass = (tipo) => {
-    // El CSS se encargará de estilizar estas clases
-    if (tipo === 'rector') return styles.statusRector;
-    if (tipo === 'director') return styles.statusDirector;
-    return styles.statusCoordinador;
-  };
+  // Función para actualizar la vista previa con datos dinámicos
+  const updateIframePreview = useCallback(() => {
+    if (!selectedUniversidadPreview) return;
 
-  const certificadoHTML = `...`; // (Contenido HTML omitido por brevedad)
-  const constanciaHTML = `...`; // (Contenido HTML omitido por brevedad)
-  // --- Fin de tus funciones de lógica ---
+    const iframe = document.querySelector("iframe.previewDocument");
+    if (!iframe || !iframe.contentDocument) return;
+
+    const iframeDoc = iframe.contentDocument;
+    const universidad = universidades.find(
+      (u) => String(u.id_universidad) === String(selectedUniversidadPreview),
+    );
+
+    if (!universidad) return;
+
+    // Actualizar logo de universidad
+    const logoImgs = iframeDoc.querySelectorAll(
+      '[data-field="logoUniversidad"]',
+    );
+    logoImgs.forEach((img) => {
+      if (universidad.logo_url) {
+        img.src = `${SERVER_URL}${universidad.logo_url}`;
+      }
+    });
+
+    // Actualizar nombre de universidad
+    const nombreUnivElements = iframeDoc.querySelectorAll(
+      '[data-field="nombreUniversidad"]',
+    );
+    nombreUnivElements.forEach((el) => {
+      el.textContent = universidad.nombre;
+    });
+
+    // Obtener firmas de la universidad seleccionada
+    const firmaSedeq = signatures.find((s) => s.tipo_firma === "sedeq");
+    const firmaUniversidad = signatures.find(
+      (s) =>
+        s.tipo_firma === "universidad" &&
+        String(s.id_universidad) === String(selectedUniversidadPreview),
+    );
+    const firmaCoordinador = signatures.find(
+      (s) =>
+        s.tipo_firma === "coordinador" &&
+        String(s.id_universidad) === String(selectedUniversidadPreview),
+    );
+
+    // Actualizar firma SEDEQ
+    if (firmaSedeq && firmaSedeq.imagen_url) {
+      const firmaSedeqImgs = iframeDoc.querySelectorAll('[data-firma="sedeq"]');
+      firmaSedeqImgs.forEach((img) => {
+        img.src = firmaSedeq.imagen_url;
+        img.style.display = "block";
+      });
+    }
+
+    // Actualizar firma Universidad
+    if (firmaUniversidad && firmaUniversidad.imagen_url) {
+      const firmaUnivImgs = iframeDoc.querySelectorAll(
+        '[data-firma="universidad"]',
+      );
+      firmaUnivImgs.forEach((img) => {
+        img.src = firmaUniversidad.imagen_url;
+        img.style.display = "block";
+      });
+    }
+
+    // Actualizar firma Coordinador
+    if (firmaCoordinador && firmaCoordinador.imagen_url) {
+      const firmaCoordImgs = iframeDoc.querySelectorAll(
+        '[data-firma="coordinador"]',
+      );
+      firmaCoordImgs.forEach((img) => {
+        img.src = firmaCoordinador.imagen_url;
+        img.style.display = "block";
+      });
+    }
+  }, [selectedUniversidadPreview, universidades, signatures]);
+
+  // Ejecutar actualización cuando cambie la selección o se carguen datos
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      updateIframePreview();
+    }, 500); // Esperar a que el iframe cargue completamente
+
+    return () => clearTimeout(timer);
+  }, [updateIframePreview]);
+
+  // Renderizado del componente
+  if (!user) {
+    return (
+      <div className={styles.loading}>
+        <div className={styles.spinner}></div>
+        <p>Cargando datos de usuario...</p>
+      </div>
+    );
+  }
 
   return (
-    // 4. Contenedor principal de Dominios
     <div className={styles.container}>
-      
-      {/* 5. Header de Dominios (azul con letras blancas) */}
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <h1 className={styles.title}>Gestión de Firmas Digitales</h1>
+          {/* Debug info - remover después */}
+          <small style={{ fontSize: "12px", opacity: 0.8 }}>
+            Universidades cargadas: {universidades.length}
+          </small>
         </div>
       </header>
 
-      {/* 6. Envoltura de contenido principal de Dominios */}
       <main className={styles.main}>
-        
-        {/* 7. Tu div de 'grid' que mantendrá el layout 2+1 */}
         <div className={styles.grid}>
-          
-          {/* Tarjeta 1: Carga Firmas (Clase genérica + específica) */}
+          {/* Tarjeta de Carga de Firmas */}
           <div className={`${styles.contentCard} ${styles.uploadCard}`}>
             <div className={styles.cardHeader}>
-              <span>Cargar Firmas</span>
+              <span>Cargar Nueva Firma</span>
               <span className={styles.badge}>
-                {userData.role === 'sedeq' ? 'SEDEQ' : 'UNIVERSIDAD'}
+                {user.role === "admin_sedeq" ? "SEDEQ" : "UNIVERSIDAD"}
               </span>
             </div>
             <div className={styles.cardBody}>
-              {/* Tu formulario (solo se cambian clases de botones) */}
-              <div onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit}>
                 <div className={styles.formGroup}>
-                  {/* ... (inputs sin cambios) ... */}
                   <label>Tipo de Firma</label>
                   <select
-                    value={formData.tipo}
-                    onChange={(e) =>
-                      setFormData({ ...formData, tipo: e.target.value })
-                    }
+                    name="tipo_firma"
+                    value={formData.tipo_firma}
+                    onChange={handleFormChange}
                     required
                   >
                     <option value="">Seleccionar tipo...</option>
-                    <option value="rector">Rector</option>
-                    <option value="director">Director</option>
+                    {user.role === "admin_sedeq" && (
+                      <option value="sedeq">SEDEQ</option>
+                    )}
+                    <option value="universidad">Universidad</option>
                     <option value="coordinador">Coordinador</option>
                   </select>
                 </div>
 
-                <div className={styles.formGroup}>
-                  <label>Universidad</label>
-                  <select
-                    value={formData.universidad}
-                    onChange={(e) =>
-                      setFormData({ ...formData, universidad: e.target.value })
-                    }
-                    disabled={userData.role === 'universidad'}
-                    required
-                  >
-                    <option value="">Seleccionar universidad...</option>
-                    {universidades.map((u) => (
-                      <option key={u.id} value={u.id}>
-                        {u.name}
+                {formData.tipo_firma !== "sedeq" && (
+                  <div className={styles.formGroup}>
+                    <label>
+                      Universidad{" "}
+                      {universidades.length === 0 && "(Cargando...)"}
+                    </label>
+                    <select
+                      name="id_universidad"
+                      value={formData.id_universidad}
+                      onChange={handleFormChange}
+                      disabled={user.role === "admin_universidad"}
+                      required
+                    >
+                      <option value="">
+                        {universidades.length === 0
+                          ? "Cargando universidades..."
+                          : "Seleccionar universidad..."}
                       </option>
-                    ))}
-                  </select>
-                </div>
+                      {universidades.map((u) => (
+                        <option key={u.id_universidad} value={u.id_universidad}>
+                          {u.nombre || `Universidad ${u.id_universidad}`}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 <div className={styles.formGroup}>
-                  <label>Archivo de Firma (PNG con transparencia)</label>
+                  <label>Archivo de Firma (PNG)</label>
                   <div
                     className={styles.dropzone}
-                    onClick={() => document.getElementById('fileInput').click()}
-                    onDragOver={(e) => {
-                      e.preventDefault();
-                      e.currentTarget.classList.add(styles.active);
-                    }}
-                    onDragLeave={(e) =>
-                      e.currentTarget.classList.remove(styles.active)
-                    }
-                    onDrop={(e) => {
-                      e.preventDefault();
-                      e.currentTarget.classList.remove(styles.active);
-                      if (e.dataTransfer.files.length) {
-                        handleFileSelection(e.dataTransfer.files[0]);
-                      }
-                    }}
+                    onClick={() => document.getElementById("fileInput").click()}
                   >
                     <FontAwesomeIcon icon={faUpload} size="2x" />
-                    <p>Arrastra y suelta o haz clic para seleccionar</p>
+                    <p>Arrastra o haz clic para seleccionar</p>
                     <p className={styles.dropzoneHint}>
-                      PNG con transparencia, máximo 2MB
+                      PNG con transparencia, máx 2MB
                     </p>
                   </div>
                   <input
                     id="fileInput"
                     type="file"
                     accept="image/png"
-                    style={{ display: 'none' }}
+                    style={{ display: "none" }}
                     onChange={(e) => handleFileSelection(e.target.files[0])}
                   />
                   {filePreview && (
@@ -311,119 +420,69 @@ const CertificadosYConstancias = () => {
                     </div>
                   )}
                 </div>
-                
-                {/* 8. Botón adaptado a Dominios (azul) */}
+
                 <button
-                  type="button"
-                  onClick={handleSubmit}
-                  className={styles.addButton} 
-                  disabled={isUploading}
+                  type="submit"
+                  className={styles.addButton}
+                  disabled={isProcessing}
                 >
-                  <FontAwesomeIcon icon={faUpload} />{' '}
-                  {isUploading ? 'Subiendo...' : 'Subir Firma'}
+                  <FontAwesomeIcon
+                    icon={isProcessing ? faSpinner : faUpload}
+                    spin={isProcessing}
+                  />
+                  {isProcessing ? "Subiendo..." : "Subir Firma"}
                 </button>
-              </div>
+              </form>
             </div>
           </div>
 
-          {/* Tarjeta 2: Galería Firmas (Clase genérica + específica) */}
+          {/* Galería de Firmas */}
           <div className={`${styles.contentCard} ${styles.galleryCard}`}>
             <div className={styles.cardHeader}>
               <span>Galería de Firmas</span>
-              <div className={styles.filters}>
-                {/* ... (selects de filtros sin cambios) ... */}
-                <select
-                  value={filters.universidad}
-                  onChange={(e) =>
-                    setFilters({ ...filters, universidad: e.target.value })
-                  }
-                  disabled={userData.role === 'universidad'}
-                >
-                  <option value="all">Todas las universidades</option>
-                  {universidades.map((u) => (
-                    <option key={u.id} value={u.id}>
-                      {u.name}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={filters.tipo}
-                  onChange={(e) =>
-                    setFilters({ ...filters, tipo: e.target.value })
-                  }
-                >
-                  <option value="all">Todos los tipos</option>
-                  <option value="rector">Rector</option>
-                  <option value="director">Director</option>
-                  <option value="coordinador">Coordinador</option>
-                </select>
-              </div>
             </div>
             <div className={styles.cardBody}>
               {isLoading ? (
-                // 9. Spinner estilo Dominios
                 <div className={styles.loading}>
                   <div className={styles.spinner}></div>
                   <p>Cargando firmas...</p>
                 </div>
               ) : signatures.length === 0 ? (
-                // 10. Empty state estilo Dominios
                 <div className={styles.emptyState}>
-                  <FontAwesomeIcon icon={faFileAlt} size="3x" />
+                  <FontAwesomeIcon icon={faSignature} size="3x" />
                   <h3>No hay firmas</h3>
                   <p>Las firmas que subas aparecerán aquí.</p>
                 </div>
               ) : (
                 <div className={styles.signatureGallery}>
                   {signatures.map((sig) => (
-                    <div
-                      key={sig.id}
-                      className={`${styles.signatureItem} ${
-                        selectedSignature === sig.id
-                          ? styles.selectedSignature
-                          : ''
-                      }`}
-                    >
+                    <div key={sig.id_firma} className={styles.signatureItem}>
                       <span
-                        className={`${styles.statusBadge} ${getTipoBadgeClass(
-                          sig.tipo
-                        )}`}
+                        className={`${styles.statusBadge} ${styles[`status${sig.tipo_firma.charAt(0).toUpperCase() + sig.tipo_firma.slice(1)}`]}`}
                       >
-                        {sig.tipo}
+                        {sig.tipo_firma}
                       </span>
                       <img
-                        src={sig.url}
-                        alt={`Firma ${sig.tipo}`}
+                        src={sig.imagen_url}
+                        alt={`Firma ${sig.tipo_firma}`}
                         className={styles.signatureImg}
                       />
                       <div className={styles.signatureInfo}>
                         <p>
-                          <strong>{sig.universidadNombre}</strong>
+                          <strong>{sig.nombre_universidad || "SEDEQ"}</strong>
                         </p>
                         <p className={styles.signatureDate}>
-                          Subida:{' '}
-                          {new Date(sig.fechaCreacion).toLocaleDateString(
-                            'es-MX',
-                            { year: 'numeric', month: 'short', day: 'numeric' }
+                          Subida:{" "}
+                          {new Date(sig.fecha_subida).toLocaleDateString(
+                            "es-MX",
                           )}
                         </p>
                       </div>
                       <div className={styles.signatureActions}>
-                        {/* 11. Botones adaptados a Dominios (verde y rojo) */}
                         <button
-                          className={styles.editButton} 
-                          onClick={() =>
-                            setSelectedSignature(
-                              selectedSignature === sig.id ? null : sig.id
-                            )
-                          }
-                        >
-                          <FontAwesomeIcon icon={faCheck} /> Seleccionar
-                        </button>
-                        <button
-                          className={styles.deleteButton} 
+                          className={styles.deleteButton}
                           onClick={() => {
-                            setSignatureToDelete(sig.id);
+                            setSignatureToDelete(sig);
                             setShowDeleteModal(true);
                           }}
                         >
@@ -437,57 +496,64 @@ const CertificadosYConstancias = () => {
             </div>
           </div>
 
-          {/* Tarjeta 3: Vista Previa (Clase genérica + específica) */}
+          {/* Vista Previa */}
           <div className={`${styles.contentCard} ${styles.previewCard}`}>
             <div className={styles.cardHeader}>
               <span>Vista Previa de Documentos</span>
-              {/* 12. Botón adaptado a Dominios (azul) */}
-              <button
-                className={styles.saveButton} 
-                disabled={!selectedSignature || isApplying}
-                onClick={applySignatures}
-              >
-                <FontAwesomeIcon icon={faCheck} />{' '}
-                {isApplying ? 'Aplicando...' : 'Aplicar Firmas'}
-              </button>
             </div>
             <div className={styles.cardBody}>
-              {/* Tu lógica de tabs se mantiene idéntica */}
+              <div className={styles.formGroup}>
+                <label>Seleccionar Universidad para Vista Previa</label>
+                <select
+                  value={selectedUniversidadPreview}
+                  onChange={(e) =>
+                    setSelectedUniversidadPreview(e.target.value)
+                  }
+                >
+                  <option value="">Seleccionar universidad...</option>
+                  {universidades.map((u) => (
+                    <option key={u.id_universidad} value={u.id_universidad}>
+                      {u.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div className={styles.tabs}>
                 <button
-                  className={activeTab === 'certificado' ? styles.tabActive : ''}
-                  onClick={() => setActiveTab('certificado')}
-                >
-                  Certificado
-                </button>
-                <button
-                  className={activeTab === 'constancia' ? styles.tabActive : ''}
-                  onClick={() => setActiveTab('constancia')}
+                  className={activeTab === "constancia" ? styles.tabActive : ""}
+                  onClick={() => setActiveTab("constancia")}
                 >
                   Constancia
                 </button>
+                <button
+                  className={
+                    activeTab === "certificado" ? styles.tabActive : ""
+                  }
+                  onClick={() => setActiveTab("certificado")}
+                >
+                  Certificado
+                </button>
               </div>
               <div className={styles.tabContent}>
-                {activeTab === 'certificado' ? (
-                  <iframe
-                    srcDoc={certificadoHTML}
-                    className={styles.previewDocument}
-                    title="Certificado"
-                  />
-                ) : (
-                  <iframe
-                    srcDoc={constanciaHTML}
-                    className={styles.previewDocument}
-                    title="Constancia"
-                  />
-                )}
+                <iframe
+                  src={
+                    activeTab === "constancia"
+                      ? "/constancia.html"
+                      : "/certificado.html"
+                  }
+                  className={styles.previewDocument}
+                  title={
+                    activeTab === "constancia" ? "Constancia" : "Certificado"
+                  }
+                />
               </div>
             </div>
           </div>
         </div>
       </main>
 
-      {/* 13. Modal de Eliminación (estructura de Dominios) */}
+      {/* Modal de Eliminación */}
       {showDeleteModal && (
         <div
           className={styles.modalBackdrop}
@@ -517,16 +583,16 @@ const CertificadosYConstancias = () => {
               <button
                 className={styles.confirmDeleteButton}
                 onClick={handleDelete}
-                disabled={isUploading}
+                disabled={isProcessing}
               >
-                {isUploading ? 'Eliminando...' : 'Eliminar'}
+                {isProcessing ? "Eliminando..." : "Eliminar"}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* 14. Toast Notification (estructura de Dominios) */}
+      {/* Notificación Toast */}
       {toast.show && (
         <div className={styles.toast}>
           <div className={`${styles.toastContent} ${styles[toast.type]}`}>
@@ -534,11 +600,6 @@ const CertificadosYConstancias = () => {
           </div>
         </div>
       )}
-
-      {/* 15. Tu footer (será estilizado por el CSS) */}
-      <footer className={styles.footer}>
-        <p>Sistema de Gestión de Firmas Digitales © 2025 - SEDEQ</p>
-      </footer>
     </div>
   );
 };
