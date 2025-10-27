@@ -361,6 +361,15 @@ const CertificadosYConstancias = () => {
     console.log("  - Universidad:", !!firmaUniversidad);
     console.log("  - Coordinador:", !!firmaCoordinador);
 
+    // ===== PASO 1: LIMPIAR TODAS LAS FIRMAS PRIMERO =====
+    console.log("🧹 Limpiando firmas anteriores...");
+    const todasLasFirmas = iframeDoc.querySelectorAll("[data-firma]");
+    todasLasFirmas.forEach((img) => {
+      img.src = "";
+      img.style.display = "none";
+    });
+
+    // ===== PASO 2: INYECTAR SOLO LAS FIRMAS QUE EXISTEN =====
     // Actualizar firma SEDEQ
     if (firmaSedeq && firmaSedeq.imagen_url) {
       const firmaSedeqImgs = iframeDoc.querySelectorAll('[data-firma="sedeq"]');
@@ -374,7 +383,7 @@ const CertificadosYConstancias = () => {
         img.style.display = "block";
       });
     } else {
-      console.log("  ⚠️ SEDEQ no disponible - no se inyecta");
+      console.log("  ⚠️ SEDEQ no disponible - permanece oculta");
     }
 
     // Actualizar firma Universidad
@@ -392,7 +401,7 @@ const CertificadosYConstancias = () => {
         img.style.display = "block";
       });
     } else {
-      console.log("  ⚠️ Firma Universidad no disponible - no se inyecta");
+      console.log("  ⚠️ Firma Universidad no disponible - permanece oculta");
     }
 
     // Actualizar firma Coordinador
@@ -410,7 +419,7 @@ const CertificadosYConstancias = () => {
         img.style.display = "block";
       });
     } else {
-      console.log("  ⚠️ Firma Coordinador no disponible - no se inyecta");
+      console.log("  ⚠️ Firma Coordinador no disponible - permanece oculta");
     }
 
     console.log("✅ updateIframePreview completado");
