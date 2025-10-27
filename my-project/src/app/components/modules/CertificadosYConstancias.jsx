@@ -16,7 +16,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-const SERVER_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+// SERVER_URL para archivos estáticos (sin /api)
+const SERVER_URL =
+  process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000";
 
 const CertificadosYConstancias = () => {
   const { user } = useAuth(); // Obtenemos el usuario del hook
@@ -325,9 +327,26 @@ const CertificadosYConstancias = () => {
       '[data-field="logoUniversidad"]',
     );
     console.log("🖼️ Logos encontrados:", logoImgs.length);
+    console.log("📋 Universidad completa:", universidad);
     logoImgs.forEach((img) => {
       if (universidad.logo_url) {
-        img.src = `${SERVER_URL}${universidad.logo_url}`;
+        // Limpiar /api/ duplicado si existe
+        let logoPath = universidad.logo_url;
+        if (logoPath.startsWith("/api/")) {
+          logoPath = logoPath.replace("/api/", "/");
+        }
+        const fullLogoUrl = `${SERVER_URL}${logoPath}`;
+        console.log("  📌 Intentando cargar logo:", fullLogoUrl);
+        img.src = fullLogoUrl;
+        img.style.display = "block";
+        img.onerror = () => {
+          console.error("❌ Error cargando logo de universidad");
+          console.error("   URL que falló:", fullLogoUrl);
+          img.style.display = "none";
+        };
+      } else {
+        console.log("  ⚠️ Universidad sin logo_url en la BD");
+        img.style.display = "none";
       }
     });
 
