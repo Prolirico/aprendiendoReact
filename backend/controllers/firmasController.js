@@ -33,13 +33,11 @@ exports.subirFirma = async (req, res) => {
       }
 
       // Validaciones de permisos
-      if (user.role === "admin_universidad") {
+      if (user.tipo_usuario === "admin_universidad") {
         if (tipo_firma === "sedeq") {
-          return res
-            .status(403)
-            .json({
-              message: "No tiene permisos para subir firmas de tipo SEDEQ.",
-            });
+          return res.status(403).json({
+            message: "No tiene permisos para subir firmas de tipo SEDEQ.",
+          });
         }
         // Un admin de universidad solo puede subir firmas para su propia universidad
         if (String(id_universidad) !== String(user.id_universidad)) {
@@ -47,14 +45,12 @@ exports.subirFirma = async (req, res) => {
             .status(403)
             .json({ message: "No puede subir firmas para otra universidad." });
         }
-      } else if (user.role === "admin_sedeq") {
+      } else if (user.tipo_usuario === "admin_sedeq") {
         if (tipo_firma !== "sedeq" && !id_universidad) {
-          return res
-            .status(400)
-            .json({
-              message:
-                "Debe especificar una universidad para este tipo de firma.",
-            });
+          return res.status(400).json({
+            message:
+              "Debe especificar una universidad para este tipo de firma.",
+          });
         }
       }
 
@@ -71,14 +67,115 @@ exports.subirFirma = async (req, res) => {
   });
 };
 
+exports.verificarFirmaExistente = async (req, res) => {
+  try {
+    const { tipo_firma, id_universidad } = req.query;
+    const user = req.user;
+
+    if (!tipo_firma) {
+      return res
+        .status(400)
+        .json({ message: "El tipo de firma es obligatorio." });
+    }
+
+    // Validar permisos
+    if (user.tipo_usuario === "admin_universidad") {
+      if (tipo_firma === "sedeq") {
+        return res.status(403).json({
+          message: "No tiene permisos para verificar firmas de tipo SEDEQ.",
+        });
+      }
+      if (String(id_universidad) !== String(user.id_universidad)) {
+        return res
+          .status(403)
+          .json({ message: "No puede verificar firmas de otra universidad." });
+      }
+    }
+
+    const id_univ = tipo_firma === "sedeq" ? null : id_universidad;
+    const firmaExistente = await Firmas.findExisting(tipo_firma, id_univ);
+
+    if (firmaExistente) {
+      return res.status(200).json({
+        exists: true,
+        firma: {
+          id_firma: firmaExistente.id_firma,
+          fecha_subida: firmaExistente.fecha_subida,
+        },
+      });
+    }
+
+    res.status(200).json({ exists: false });
+  } catch (error) {
+    console.error("Error al verificar firma existente:", error);
+    res.status(500).json({ message: "Error interno del servidor." });
+  }
+};
+
+exports.reemplazarFirma = async (req, res) => {
+  upload(req, res, async (err) => {
+    if (err) {
+      return res.status(400).json({ message: err.message });
+    }
+
+    try {
+      const { tipo_firma, id_universidad } = req.body;
+      const user = req.user;
+
+      if (!tipo_firma || !req.file) {
+        return res
+          .status(400)
+          .json({ message: "El tipo de firma y el archivo son obligatorios." });
+      }
+
+      // Validaciones de permisos (igual que en subirFirma)
+      if (user.tipo_usuario === "admin_universidad") {
+        if (tipo_firma === "sedeq") {
+          return res.status(403).json({
+            message: "No tiene permisos para subir firmas de tipo SEDEQ.",
+          });
+        }
+        if (String(id_universidad) !== String(user.id_universidad)) {
+          return res
+            .status(403)
+            .json({ message: "No puede subir firmas para otra universidad." });
+        }
+      } else if (user.tipo_usuario === "admin_sedeq") {
+        if (tipo_firma !== "sedeq" && !id_universidad) {
+          return res.status(400).json({
+            message:
+              "Debe especificar una universidad para este tipo de firma.",
+          });
+        }
+      }
+
+      const imagen_blob = req.file.buffer;
+      const id_univ = tipo_firma === "sedeq" ? null : id_universidad;
+
+      // Eliminar firma anterior si existe
+      await Firmas.removeExisting(tipo_firma, id_univ);
+
+      // Crear la nueva firma
+      const firmaId = await Firmas.create(tipo_firma, imagen_blob, id_univ);
+
+      res
+        .status(201)
+        .json({ message: "Firma reemplazada exitosamente.", firmaId });
+    } catch (error) {
+      console.error("Error al reemplazar la firma:", error);
+      res.status(500).json({ message: "Error interno del servidor." });
+    }
+  });
+};
+
 exports.obtenerFirmas = async (req, res) => {
   try {
     const user = req.user;
     let firmas;
 
-    if (user.role === "admin_sedeq") {
+    if (user.tipo_usuario === "admin_sedeq") {
       firmas = await Firmas.findAll();
-    } else if (user.role === "admin_universidad") {
+    } else if (user.tipo_usuario === "admin_universidad") {
       firmas = await Firmas.findForUniversity(user.id_universidad);
     } else {
       return res.status(403).json({ message: "Acceso no autorizado." });
@@ -121,7 +218,7 @@ exports.eliminarFirma = async (req, res) => {
     }
 
     // Validar permisos
-    if (user.role === "admin_universidad") {
+    if (user.tipo_usuario === "admin_universidad") {
       if (String(firma.id_universidad) !== String(user.id_universidad)) {
         return res
           .status(403)

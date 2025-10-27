@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import styles from "./CertificadosYConstancias.module.css";
 import { useAuth } from "@/hooks/useAuth"; // Importamos el hook de autenticación
 import axios from "axios";
@@ -30,6 +30,14 @@ const CertificadosYConstancias = () => {
   const [signatureToDelete, setSignatureToDelete] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false); // Unifica isUploading y isApplying
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
+
+  // Ref para el iframe
+  const iframeRef = useRef(null);
+
+  // Estados para modal de reemplazo de firma
+  const [showReplaceModal, setShowReplaceModal] = useState(false);
+  const [firmaExistente, setFirmaExistente] = useState(null);
+  const [pendingUploadData, setPendingUploadData] = useState(null);
 
   const [universidades, setUniversidades] = useState([]);
   const [formData, setFormData] = useState({
@@ -160,6 +168,43 @@ const CertificadosYConstancias = () => {
       return;
     }
 
+    // Verificar si ya existe una firma del mismo tipo
+    try {
+      const token = localStorage.getItem("token");
+      const params = new URLSearchParams({
+        tipo_firma: formData.tipo_firma,
+      });
+
+      if (formData.tipo_firma !== "sedeq") {
+        params.append("id_universidad", formData.id_universidad);
+      }
+
+      const response = await axios.get(`/api/firmas/verificar?${params}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.data.exists) {
+        // Mostrar modal de confirmación
+        setFirmaExistente(response.data.firma);
+        setPendingUploadData({
+          tipo_firma: formData.tipo_firma,
+          id_universidad: formData.id_universidad,
+          file: selectedFile,
+        });
+        setShowReplaceModal(true);
+        return;
+      }
+
+      // Si no existe, proceder con la subida normal
+      await uploadFirma(false);
+    } catch (error) {
+      showAlert("error", "Error al verificar firma existente.");
+      console.error(error);
+    }
+  };
+
+  // Función para subir la firma (nueva o reemplazo)
+  const uploadFirma = async (isReplace = false) => {
     const uploadData = new FormData();
     uploadData.append("tipo_firma", formData.tipo_firma);
     uploadData.append("firma", selectedFile);
@@ -170,14 +215,22 @@ const CertificadosYConstancias = () => {
     setIsProcessing(true);
     try {
       const token = localStorage.getItem("token");
-      await axios.post("/api/firmas", uploadData, {
+      const endpoint = isReplace ? "/api/firmas/reemplazar" : "/api/firmas";
+
+      await axios.post(endpoint, uploadData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
         },
       });
 
-      showAlert("success", "Firma subida correctamente.");
+      showAlert(
+        "success",
+        isReplace
+          ? "Firma reemplazada correctamente."
+          : "Firma subida correctamente.",
+      );
+
       // Resetear formulario
       setFormData((prev) => ({ ...prev, tipo_firma: "" }));
       setSelectedFile(null);
@@ -185,10 +238,25 @@ const CertificadosYConstancias = () => {
       fetchSignatures(); // Recargar la lista de firmas
     } catch (error) {
       showAlert("error", "Error al subir la firma.");
-      console.error("Error al subir firma:", error);
+      console.error(error);
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  // Confirmar reemplazo de firma
+  const handleConfirmReplace = async () => {
+    setShowReplaceModal(false);
+    await uploadFirma(true);
+    setPendingUploadData(null);
+    setFirmaExistente(null);
+  };
+
+  // Cancelar reemplazo de firma
+  const handleCancelReplace = () => {
+    setShowReplaceModal(false);
+    setPendingUploadData(null);
+    setFirmaExistente(null);
   };
 
   // Manejar la eliminación de una firma
@@ -220,22 +288,43 @@ const CertificadosYConstancias = () => {
 
   // Función para actualizar la vista previa con datos dinámicos
   const updateIframePreview = useCallback(() => {
-    if (!selectedUniversidadPreview) return;
+    console.log("🔄 updateIframePreview llamada");
+    console.log("📋 selectedUniversidadPreview:", selectedUniversidadPreview);
+    console.log("📋 universidades disponibles:", universidades.length);
+    console.log("📋 firmas disponibles:", signatures.length);
 
-    const iframe = document.querySelector("iframe.previewDocument");
-    if (!iframe || !iframe.contentDocument) return;
+    if (!selectedUniversidadPreview) {
+      console.log("⚠️ No hay universidad seleccionada");
+      return;
+    }
+
+    const iframe = iframeRef.current;
+    console.log("🖼️ Iframe encontrado:", !!iframe);
+
+    if (!iframe || !iframe.contentDocument) {
+      console.log("❌ No se puede acceder al iframe o contentDocument");
+      return;
+    }
 
     const iframeDoc = iframe.contentDocument;
+    console.log("📄 iframeDoc readyState:", iframeDoc.readyState);
+
     const universidad = universidades.find(
       (u) => String(u.id_universidad) === String(selectedUniversidadPreview),
     );
 
-    if (!universidad) return;
+    if (!universidad) {
+      console.log("❌ Universidad no encontrada");
+      return;
+    }
+
+    console.log("✅ Universidad encontrada:", universidad.nombre);
 
     // Actualizar logo de universidad
     const logoImgs = iframeDoc.querySelectorAll(
       '[data-field="logoUniversidad"]',
     );
+    console.log("🖼️ Logos encontrados:", logoImgs.length);
     logoImgs.forEach((img) => {
       if (universidad.logo_url) {
         img.src = `${SERVER_URL}${universidad.logo_url}`;
@@ -245,6 +334,10 @@ const CertificadosYConstancias = () => {
     // Actualizar nombre de universidad
     const nombreUnivElements = iframeDoc.querySelectorAll(
       '[data-field="nombreUniversidad"]',
+    );
+    console.log(
+      "📝 Elementos de nombre encontrados:",
+      nombreUnivElements.length,
     );
     nombreUnivElements.forEach((el) => {
       el.textContent = universidad.nombre;
@@ -263,13 +356,25 @@ const CertificadosYConstancias = () => {
         String(s.id_universidad) === String(selectedUniversidadPreview),
     );
 
+    console.log("✍️ Firmas encontradas:");
+    console.log("  - SEDEQ:", !!firmaSedeq);
+    console.log("  - Universidad:", !!firmaUniversidad);
+    console.log("  - Coordinador:", !!firmaCoordinador);
+
     // Actualizar firma SEDEQ
     if (firmaSedeq && firmaSedeq.imagen_url) {
       const firmaSedeqImgs = iframeDoc.querySelectorAll('[data-firma="sedeq"]');
+      console.log(
+        "  📌 Inyectando SEDEQ en",
+        firmaSedeqImgs.length,
+        "elementos",
+      );
       firmaSedeqImgs.forEach((img) => {
         img.src = firmaSedeq.imagen_url;
         img.style.display = "block";
       });
+    } else {
+      console.log("  ⚠️ SEDEQ no disponible - no se inyecta");
     }
 
     // Actualizar firma Universidad
@@ -277,10 +382,17 @@ const CertificadosYConstancias = () => {
       const firmaUnivImgs = iframeDoc.querySelectorAll(
         '[data-firma="universidad"]',
       );
+      console.log(
+        "  📌 Inyectando Universidad en",
+        firmaUnivImgs.length,
+        "elementos",
+      );
       firmaUnivImgs.forEach((img) => {
         img.src = firmaUniversidad.imagen_url;
         img.style.display = "block";
       });
+    } else {
+      console.log("  ⚠️ Firma Universidad no disponible - no se inyecta");
     }
 
     // Actualizar firma Coordinador
@@ -288,21 +400,38 @@ const CertificadosYConstancias = () => {
       const firmaCoordImgs = iframeDoc.querySelectorAll(
         '[data-firma="coordinador"]',
       );
+      console.log(
+        "  📌 Inyectando Coordinador en",
+        firmaCoordImgs.length,
+        "elementos",
+      );
       firmaCoordImgs.forEach((img) => {
         img.src = firmaCoordinador.imagen_url;
         img.style.display = "block";
       });
+    } else {
+      console.log("  ⚠️ Firma Coordinador no disponible - no se inyecta");
     }
+
+    console.log("✅ updateIframePreview completado");
   }, [selectedUniversidadPreview, universidades, signatures]);
+
+  // Manejar la carga del iframe
+  const handleIframeLoad = useCallback(() => {
+    console.log("🔄 Iframe cargado completamente");
+    // Pequeño delay para asegurar que el DOM está listo
+    setTimeout(() => {
+      updateIframePreview();
+    }, 100);
+  }, [updateIframePreview]);
 
   // Ejecutar actualización cuando cambie la selección o se carguen datos
   useEffect(() => {
-    const timer = setTimeout(() => {
+    if (selectedUniversidadPreview) {
+      console.log("🔄 Universidad cambió, esperando iframe...");
       updateIframePreview();
-    }, 500); // Esperar a que el iframe cargue completamente
-
-    return () => clearTimeout(timer);
-  }, [updateIframePreview]);
+    }
+  }, [selectedUniversidadPreview, signatures, activeTab, updateIframePreview]);
 
   // Renderizado del componente
   if (!user) {
@@ -537,6 +666,7 @@ const CertificadosYConstancias = () => {
               </div>
               <div className={styles.tabContent}>
                 <iframe
+                  ref={iframeRef}
                   src={
                     activeTab === "constancia"
                       ? "/constancia.html"
@@ -546,6 +676,7 @@ const CertificadosYConstancias = () => {
                   title={
                     activeTab === "constancia" ? "Constancia" : "Certificado"
                   }
+                  onLoad={handleIframeLoad}
                 />
               </div>
             </div>
@@ -586,6 +717,66 @@ const CertificadosYConstancias = () => {
                 disabled={isProcessing}
               >
                 {isProcessing ? "Eliminando..." : "Eliminar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Reemplazo de Firma */}
+      {showReplaceModal && (
+        <div
+          className={styles.modalBackdrop}
+          onClick={() => setShowReplaceModal(false)}
+        >
+          <div
+            className={styles.deleteModal}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={styles.deleteModalContent}>
+              <div
+                className={styles.deleteIcon}
+                style={{ backgroundColor: "#fef3c7", color: "#f59e0b" }}
+              >
+                <FontAwesomeIcon icon={faUpload} />
+              </div>
+              <h3>¿Desea reemplazar la firma actual?</h3>
+              <p>
+                Ya existe una firma de este tipo.{" "}
+                {firmaExistente && (
+                  <span>
+                    (Subida el{" "}
+                    {new Date(firmaExistente.fecha_subida).toLocaleDateString(
+                      "es-MX",
+                    )}
+                    )
+                  </span>
+                )}
+              </p>
+              <p
+                style={{
+                  fontWeight: 600,
+                  color: "#ef4444",
+                  marginTop: "0.5rem",
+                }}
+              >
+                Esta acción no podrá deshacerse una vez confirmada.
+              </p>
+            </div>
+            <div className={styles.deleteActions}>
+              <button
+                className={styles.cancelButton}
+                onClick={handleCancelReplace}
+              >
+                No, Cancelar
+              </button>
+              <button
+                className={styles.confirmDeleteButton}
+                onClick={handleConfirmReplace}
+                disabled={isProcessing}
+                style={{ backgroundColor: "#f59e0b" }}
+              >
+                {isProcessing ? "Reemplazando..." : "Sí, Reemplazar"}
               </button>
             </div>
           </div>

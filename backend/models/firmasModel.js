@@ -65,6 +65,41 @@ const Firmas = {
     ]);
     return result.affectedRows;
   },
+
+  // Verificar si existe una firma del mismo tipo para una universidad
+  findExisting: async (tipo_firma, id_universidad = null) => {
+    let query =
+      "SELECT id_firma, fecha_subida FROM firmas WHERE tipo_firma = ?";
+    const params = [tipo_firma];
+
+    if (id_universidad) {
+      query += " AND id_universidad = ?";
+      params.push(id_universidad);
+    } else {
+      query += " AND id_universidad IS NULL";
+    }
+
+    query += " LIMIT 1";
+
+    const [rows] = await db.execute(query, params);
+    return rows[0] || null;
+  },
+
+  // Eliminar firma existente del mismo tipo antes de crear una nueva
+  removeExisting: async (tipo_firma, id_universidad = null) => {
+    let query = "DELETE FROM firmas WHERE tipo_firma = ?";
+    const params = [tipo_firma];
+
+    if (id_universidad) {
+      query += " AND id_universidad = ?";
+      params.push(id_universidad);
+    } else {
+      query += " AND id_universidad IS NULL";
+    }
+
+    const [result] = await db.execute(query, params);
+    return result.affectedRows;
+  },
 };
 
 module.exports = Firmas;
