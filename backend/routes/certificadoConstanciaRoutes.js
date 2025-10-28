@@ -14,7 +14,7 @@ router.get(
   certificadoConstanciaController.getDocumentosDisponibles,
 );
 
-/**
+/**l
  * @route POST /api/alumno/generar-constancia/:id_curso
  * @desc Genera una constancia para un curso específico
  * @access Private (Alumno)

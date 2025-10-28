@@ -138,18 +138,59 @@ const AlumnoDescargaCertificadosConstancias = () => {
   };
 
   // Función para descargar documento
-  const descargarDocumento = (tipo, id, ruta) => {
+  const descargarDocumento = async (tipo, id) => {
     try {
-      // Abrir en nueva ventana la URL de descarga
-      const downloadUrl = `${API_URL}/alumno/descargar/${tipo}/${id}`;
-      window.open(downloadUrl, "_blank");
+      const token = localStorage.getItem("token");
+      if (!token) {
+        showToast("No estás autenticado. Inicia sesión nuevamente.", "error");
+        return;
+      }
+
+      showToast(`Preparando descarga de ${tipo}...`, "success");
+
+      const response = await axios.get(
+        `${API_URL}/alumno/descargar/${tipo}/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          responseType: "blob", // Importante para manejar archivos
+        },
+      );
+
+      // Crear un enlace temporal para descargar el archivo
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+
+      // Extraer el nombre del archivo de las cabeceras
+      const contentDisposition = response.headers["content-disposition"];
+      let filename = `${tipo}_${id}.pdf`; // Nombre por defecto
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?(.+)"?/);
+        if (filenameMatch.length > 1) {
+          filename = filenameMatch[1];
+        }
+      }
+
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+
+      // Limpiar
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
 
       showToast(
-        `Descargando ${tipo === "constancia" ? "constancia" : "certificado"}...`,
+        `✅ ${tipo.charAt(0).toUpperCase() + tipo.slice(1)} descargado correctamente`,
+        "success",
       );
     } catch (error) {
-      console.error("Error al descargar documento:", error);
-      showToast("Error al descargar el documento.", "error");
+      console.error("Error al descargar el documento:", error);
+      const errorMessage =
+        error.response?.data?.error ||
+        "No se pudo descargar el archivo. Inténtalo de nuevo.";
+      showToast(errorMessage, "error");
     }
   };
 
@@ -176,11 +217,7 @@ const AlumnoDescargaCertificadosConstancias = () => {
       buttonText = "Descargar Constancia";
       buttonClass = `${styles.btn} ${styles.btnIndigo} ${styles.btnFull}`;
       onClick = () =>
-        descargarDocumento(
-          "constancia",
-          constancia.id_constancia,
-          constancia.ruta_constancia,
-        );
+        descargarDocumento("constancia", constancia.id_constancia);
       isDisabled = false;
       tooltipText = "";
     } else if (constancia.puede_generar) {
@@ -321,11 +358,7 @@ const AlumnoDescargaCertificadosConstancias = () => {
       buttonText = "Descargar Certificado";
       buttonClass = `${styles.btn} ${styles.btnIndigo} ${styles.btnFull}`;
       onClick = () =>
-        descargarDocumento(
-          "certificado",
-          certificado.id_certificacion,
-          certificado.ruta_certificado,
-        );
+        descargarDocumento("certificado", certificado.id_certificacion);
       isDisabled = false;
       tooltipText = "";
     } else if (certificado.puede_generar) {

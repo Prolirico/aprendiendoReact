@@ -1,4 +1,7 @@
 const certificadoConstanciaModel = require("../models/certificadoConstanciaModel");
+const { generatePdf } = require("../utils/pdfGenerator");
+const path = require("path");
+const fs = require("fs");
 
 /**
  * Obtiene todos los documentos disponibles para el alumno
@@ -15,7 +18,8 @@ const getDocumentosDisponibles = async (req, res) => {
     }
 
     // Obtener cursos donde puede generar constancias
-    const cursosConstancias = await certificadoConstanciaModel.getCursosParaConstancias(id_alumno);
+    const cursosConstancias =
+      await certificadoConstanciaModel.getCursosParaConstancias(id_alumno);
 
     // Procesar datos de constancias con cálculo de créditos
     const constancias_disponibles = cursosConstancias.map((curso) => {
@@ -39,7 +43,9 @@ const getDocumentosDisponibles = async (req, res) => {
           nombre: curso.nombre_universidad,
           logo_url: curso.logo_universidad,
         },
-        calificacion_final: parseFloat(curso.calificacion_final || 0).toFixed(2),
+        calificacion_final: parseFloat(curso.calificacion_final || 0).toFixed(
+          2,
+        ),
         umbral_aprobatorio: curso.umbral_aprobatorio,
         creditos: creditos,
         total_actividades: curso.total_actividades,
@@ -49,13 +55,17 @@ const getDocumentosDisponibles = async (req, res) => {
         id_constancia: curso.id_constancia,
         ruta_constancia: curso.ruta_constancia,
         fecha_emitida: curso.fecha_emitida,
-        aprobado: parseFloat(curso.calificacion_final || 0) >= curso.umbral_aprobatorio,
+        aprobado:
+          parseFloat(curso.calificacion_final || 0) >= curso.umbral_aprobatorio,
         id_credencial: curso.id_credencial,
       };
     });
 
     // Obtener credenciales donde puede generar certificados
-    const credencialesCertificados = await certificadoConstanciaModel.getCredencialesParaCertificados(id_alumno);
+    const credencialesCertificados =
+      await certificadoConstanciaModel.getCredencialesParaCertificados(
+        id_alumno,
+      );
 
     // Procesar datos de certificados
     const certificados_disponibles = await Promise.all(
@@ -63,7 +73,7 @@ const getDocumentosDisponibles = async (req, res) => {
         // Obtener cursos de la credencial con su estado
         const cursos = await certificadoConstanciaModel.getCursosDeCredencial(
           credencial.id_credencial,
-          id_alumno
+          id_alumno,
         );
 
         return {
@@ -77,9 +87,15 @@ const getDocumentosDisponibles = async (req, res) => {
           },
           total_cursos: credencial.total_cursos,
           cursos_completados: credencial.cursos_completados,
-          progreso_porcentaje: credencial.total_cursos > 0
-            ? parseFloat(((credencial.cursos_completados / credencial.total_cursos) * 100).toFixed(2))
-            : 0,
+          progreso_porcentaje:
+            credencial.total_cursos > 0
+              ? parseFloat(
+                  (
+                    (credencial.cursos_completados / credencial.total_cursos) *
+                    100
+                  ).toFixed(2),
+                )
+              : 0,
           cursos_requeridos: cursos.map((c) => ({
             id_curso: c.id_curso,
             nombre_curso: c.nombre_curso,
@@ -89,14 +105,18 @@ const getDocumentosDisponibles = async (req, res) => {
             creditos_otorgados: c.creditos_otorgados,
             fecha_emitida: c.fecha_emitida,
           })),
-          todos_completados: credencial.cursos_completados === credencial.total_cursos && credencial.total_cursos > 0,
+          todos_completados:
+            credencial.cursos_completados === credencial.total_cursos &&
+            credencial.total_cursos > 0,
           puede_generar: Boolean(credencial.puede_generar),
-          ya_generado: Boolean(credencial.id_certificacion_alumno) && Boolean(credencial.completada),
+          ya_generado:
+            Boolean(credencial.id_certificacion_alumno) &&
+            Boolean(credencial.completada),
           id_certificacion: credencial.id_certificacion_alumno,
           ruta_certificado: credencial.ruta_certificado,
           fecha_certificado: credencial.fecha_certificado,
         };
-      })
+      }),
     );
 
     res.json({
@@ -127,7 +147,8 @@ const generarConstancia = async (req, res) => {
     }
 
     // Verificar que el alumno puede generar la constancia
-    const cursos = await certificadoConstanciaModel.getCursosParaConstancias(id_alumno);
+    const cursos =
+      await certificadoConstanciaModel.getCursosParaConstancias(id_alumno);
     const curso = cursos.find((c) => c.id_curso === parseInt(id_curso));
 
     if (!curso) {
@@ -158,23 +179,46 @@ const generarConstancia = async (req, res) => {
     // Calcular créditos según pertenezca o no a una credencial
     let creditos_otorgados;
     if (curso.id_credencial && curso.total_cursos_credencial > 0) {
-      creditos_otorgados = parseFloat((100 / curso.total_cursos_credencial).toFixed(2));
+      creditos_otorgados = parseFloat(
+        (100 / curso.total_cursos_credencial).toFixed(2),
+      );
     } else {
       creditos_otorgados = 100;
     }
 
-    // TODO: Aquí irá la lógica de generación del PDF con Puppeteer
-    // Por ahora, creamos el registro sin PDF real
     const timestamp = Date.now();
-    const ruta_constancia = `/uploads/constancias/constancia_${id_alumno}_${id_curso}_${timestamp}.pdf`;
+    const relativePath = `/uploads/constancias/constancia_${id_alumno}_${id_curso}_${timestamp}.pdf`;
+    const outputPath = path.resolve(__dirname, "..", relativePath.substring(1));
 
     const constancia = await certificadoConstanciaModel.crearConstancia({
       id_alumno,
       id_curso: parseInt(id_curso),
       id_credencial: curso.id_credencial || null,
       creditos_otorgados,
-      ruta_constancia,
+      ruta_constancia: relativePath,
     });
+
+    // Datos para la plantilla PDF
+    const pdfData = {
+      nombreAlumno: curso.nombre_alumno,
+      nombreMicrocredencial: curso.nombre_curso,
+      totalCreditos: creditos_otorgados,
+      credencialAsociada: curso.nombre_credencial || "N/A",
+      logoUniversidad: curso.logo_universidad,
+      nombreUniversidad: curso.nombre_universidad,
+      fechaEmision: new Date().toLocaleDateString("es-MX", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }),
+      // Aquí puedes añadir las rutas a las firmas si las tienes
+      // firmaSEDEQ: '/path/to/firma.png',
+      // firmaUniversidad: '/path/to/firma.png',
+      // firmaCoordinador: '/path/to/firma.png',
+    };
+
+    // Generar el PDF
+    await generatePdf("constancia.html", pdfData, outputPath);
 
     res.status(201).json({
       mensaje: "Constancia generada exitosamente",
@@ -207,8 +251,13 @@ const generarCertificado = async (req, res) => {
     }
 
     // Verificar que el alumno puede generar el certificado
-    const credenciales = await certificadoConstanciaModel.getCredencialesParaCertificados(id_alumno);
-    const credencial = credenciales.find((c) => c.id_credencial === parseInt(id_credencial));
+    const credenciales =
+      await certificadoConstanciaModel.getCredencialesParaCertificados(
+        id_alumno,
+      );
+    const credencial = credenciales.find(
+      (c) => c.id_credencial === parseInt(id_credencial),
+    );
 
     if (!credencial) {
       return res.status(404).json({
@@ -236,11 +285,11 @@ const generarCertificado = async (req, res) => {
     // Obtener cursos completados para calcular promedio
     const cursos = await certificadoConstanciaModel.getCursosDeCredencial(
       parseInt(id_credencial),
-      id_alumno
+      id_alumno,
     );
 
     // Calcular calificación promedio de las constancias
-    const cursosConCalificacion = cursos.filter(c => c.completado);
+    const cursosConCalificacion = cursos.filter((c) => c.completado);
     let calificacion_promedio = null;
 
     if (cursosConCalificacion.length > 0) {
@@ -249,17 +298,34 @@ const generarCertificado = async (req, res) => {
       calificacion_promedio = 8.5;
     }
 
-    // TODO: Aquí irá la lógica de generación del PDF con Puppeteer
     const timestamp = Date.now();
-    const ruta_certificado = `/uploads/certificados/certificado_${id_alumno}_${id_credencial}_${timestamp}.pdf`;
+    const relativePath = `/uploads/certificados/certificado_${id_alumno}_${id_credencial}_${timestamp}.pdf`;
+    const outputPath = path.resolve(__dirname, "..", relativePath.substring(1));
 
     const certificado = await certificadoConstanciaModel.crearCertificado({
       id_alumno,
       id_certificacion: parseInt(id_credencial),
       calificacion_promedio,
-      ruta_certificado,
+      ruta_certificado: relativePath,
       descripcion: credencial.descripcion_credencial,
     });
+
+    // Datos para la plantilla PDF
+    const pdfData = {
+      nombreAlumno: req.user.nombre_completo, // Asumiendo que tienes el nombre en req.user
+      nombreCredencial: credencial.nombre_credencial,
+      descripcionCredencial: credencial.descripcion_credencial,
+      logoUniversidad: credencial.logo_universidad,
+      nombreUniversidad: credencial.nombre_universidad,
+      fechaEmision: new Date().toLocaleDateString("es-MX", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }),
+    };
+
+    // Generar el PDF
+    await generatePdf("certificado.html", pdfData, outputPath);
 
     res.status(201).json({
       mensaje: "Certificado generado exitosamente",
@@ -288,7 +354,8 @@ const descargarDocumento = async (req, res) => {
 
     if (!["constancia", "certificado"].includes(tipo)) {
       return res.status(400).json({
-        error: "Tipo de documento inválido. Debe ser 'constancia' o 'certificado'",
+        error:
+          "Tipo de documento inválido. Debe ser 'constancia' o 'certificado'",
       });
     }
 
@@ -320,31 +387,42 @@ const descargarDocumento = async (req, res) => {
       });
     }
 
-    // TODO: Implementar descarga del archivo PDF real
-    // const path = require('path');
-    // const fs = require('fs');
-    // const fullPath = path.join(__dirname, '..', rutaArchivo);
-    // res.download(fullPath);
+    const fullPath = path.resolve(__dirname, "..", rutaArchivo.substring(1));
 
-    // Por ahora retornamos la información del documento
-    res.json({
-      mensaje: "Documento encontrado",
-      tipo,
-      ruta: rutaArchivo,
-      documento: {
-        id: tipo === "constancia" ? documento.id_constancia : documento.id_cert_alumno,
-        nombre_alumno: documento.nombre_alumno,
-        fecha_emision: tipo === "constancia" ? documento.fecha_emitida : documento.fecha_certificado,
-        nombre_curso: documento.nombre_curso || documento.nombre_credencial,
-        universidad: documento.nombre_universidad,
-      },
+    // --- INICIO: Código de diagnóstico ---
+    console.log(`[Diagnóstico] Intentando descargar: ${fullPath}`);
+    if (!fs.existsSync(fullPath)) {
+      console.error(`[Error] El archivo no existe en la ruta: ${fullPath}`);
+      return res.status(404).json({
+        error:
+          "El archivo PDF no fue encontrado en el servidor. Puede que necesite ser generado de nuevo.",
+      });
+    }
+    // --- FIN: Código de diagnóstico ---
+
+    // Enviar el archivo para descarga
+    res.download(fullPath, (err) => {
+      if (err) {
+        console.error("Error al enviar el archivo con res.download:", err);
+        // Es importante verificar si las cabeceras ya se enviaron
+        if (!res.headersSent) {
+          res.status(500).json({
+            error: "Ocurrió un error al intentar enviar el archivo.",
+            details: err.message,
+          });
+        }
+      }
     });
   } catch (error) {
     console.error("Error al descargar documento:", error);
-    res.status(500).json({
-      error: "Error al descargar el documento",
-      details: error.message,
-    });
+
+    if (!res.headersSent) {
+      res.status(500).json({
+        error: "Error interno al procesar la descarga",
+
+        details: error.message,
+      });
+    }
   }
 };
 

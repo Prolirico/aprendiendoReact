@@ -88,6 +88,12 @@ log(
   `📁 Servicio de archivos de entregas configurado en /uploads/material/entregas_Alumno`,
 );
 
+// Servir archivos estáticos del frontend (para las plantillas PDF)
+app.use(express.static(path.join(__dirname, "..", "my-project", "public")));
+log(
+  `📁 Servicio de archivos estáticos configurado para el frontend en /my-project/public`,
+);
+
 // Health check endpoint
 app.get("/health", (req, res) => {
   log(`🏥 Health check solicitado`);
