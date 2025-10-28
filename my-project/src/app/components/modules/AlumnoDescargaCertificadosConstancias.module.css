@@ -1,0 +1,608 @@
+/* ===== CONTENEDOR PRINCIPAL ===== */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem;
+    font-family:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+        Arial, sans-serif;
+    background-color: #f9fafb;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+.container *,
+.card *,
+.cardContent *,
+.tabs *,
+.grid * {
+    box-sizing: border-box;
+}
+
+.mainTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+/* ===== TABS ===== */
+.tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #e5e7eb;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tab {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #6b7280;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.tab:hover {
+    color: #4f46e5;
+    background-color: #f3f4f6;
+}
+
+.tabActive {
+    color: #4f46e5;
+    border-bottom-color: #4f46e5;
+    background-color: #eef2ff;
+}
+
+/* ===== GRID DE TARJETAS ===== */
+.grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+}
+
+/* ===== TARJETAS ===== */
+.card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+}
+
+.card:hover {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.cardContent {
+    padding: 1.25rem;
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.universityInfo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.universityLogo {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.universityName {
+    font-size: 0.875rem;
+    color: #6b7280;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ===== BADGES ===== */
+.badge {
+    padding: 0.375rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+}
+
+.badgeAvailable {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.badgeGenerated {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.badgePending {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+/* ===== CONTENIDO DE TARJETAS ===== */
+.courseTitle {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+}
+
+.description {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.courseStats {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.statLabel {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.statValue {
+    font-size: 1rem;
+    color: #111827;
+    font-weight: 600;
+}
+
+/* ===== SECCIÓN DE CURSOS ===== */
+.cursosSection {
+    margin-bottom: 1rem;
+}
+
+.cursosTitle {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.75rem;
+}
+
+.cursosList {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.cursoItem {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #4b5563;
+    padding: 0.5rem;
+    background-color: #f9fafb;
+    border-radius: 6px;
+}
+
+.iconCheck {
+    width: 18px;
+    height: 18px;
+    color: #10b981;
+    flex-shrink: 0;
+}
+
+.iconCross {
+    width: 18px;
+    height: 18px;
+    color: #ef4444;
+    flex-shrink: 0;
+}
+
+/* ===== PROGRESO ===== */
+.progress {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background-color: #f3f4f6;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.progressLabel {
+    font-size: 0.875rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.progressValue {
+    font-size: 0.875rem;
+    color: #111827;
+    font-weight: 600;
+}
+
+/* ===== BOTONES ===== */
+.actionContainer {
+    margin-top: 1rem;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-align: center;
+}
+
+.btnFull {
+    width: 100%;
+}
+
+.btnIndigo {
+    background-color: #4f46e5;
+    color: white;
+}
+
+.btnIndigo:hover {
+    background-color: #4338ca;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.btnGreen {
+    background-color: #10b981;
+    color: white;
+}
+
+.btnGreen:hover {
+    background-color: #059669;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btnDisabled {
+    background-color: #e5e7eb;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+.btnDisabled:hover {
+    background-color: #e5e7eb;
+    transform: none;
+    box-shadow: none;
+}
+
+.btnLoading {
+    position: relative;
+}
+
+/* ===== SPINNER ===== */
+.spinner {
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+}
+
+.loadingSpinner {
+    width: 48px;
+    height: 48px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinnerCircle {
+    opacity: 0.25;
+}
+
+.spinnerPath {
+    opacity: 0.75;
+}
+
+/* ===== TOOLTIP ===== */
+.tooltip {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.tooltipText {
+    visibility: hidden;
+    background-color: #1f2937;
+    color: white;
+    text-align: center;
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.tooltipText::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #1f2937 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltipText {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* ===== LOADING ===== */
+.loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+}
+
+.spinnerContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ===== EMPTY STATE ===== */
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    text-align: center;
+    background: white;
+    border-radius: 12px;
+    border: 2px dashed #e5e7eb;
+}
+
+.emptyIcon {
+    width: 64px;
+    height: 64px;
+    color: #d1d5db;
+    margin-bottom: 1rem;
+}
+
+.emptyTitle {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.emptyText {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+/* ===== TOAST ===== */
+.toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    animation: slideIn 0.3s ease;
+    max-width: 90%;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.toastSuccess {
+    background-color: #10b981;
+    color: white;
+}
+
+.toastError {
+    background-color: #ef4444;
+    color: white;
+}
+
+/* ===== MEDIA QUERIES - RESPONSIVE ===== */
+
+/* Tablets pequeñas y móviles grandes (576px+) */
+@media (min-width: 576px) {
+    .container {
+        padding: 1.5rem;
+    }
+
+    .mainTitle {
+        font-size: 1.875rem;
+    }
+
+    .tab {
+        font-size: 1rem;
+        padding: 0.875rem 1.75rem;
+    }
+
+    .cardContent {
+        padding: 1.5rem;
+    }
+
+    .courseTitle {
+        font-size: 1.25rem;
+    }
+
+    .toast {
+        max-width: 400px;
+    }
+}
+
+/* Tablets (768px+) */
+@media (min-width: 768px) {
+    .container {
+        padding: 2rem;
+    }
+
+    .mainTitle {
+        font-size: 2.25rem;
+        margin-bottom: 2rem;
+    }
+
+    .grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .cardHeader {
+        flex-wrap: nowrap;
+    }
+
+    .universityName {
+        white-space: normal;
+    }
+
+    .courseStats {
+        gap: 2rem;
+    }
+
+    .progress {
+        flex-wrap: nowrap;
+    }
+}
+
+/* Desktop (1024px+) */
+@media (min-width: 1024px) {
+    .container {
+        padding: 2.5rem;
+    }
+
+    .grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+    }
+
+    .card:hover {
+        transform: translateY(-4px);
+    }
+}
+
+/* Desktop grande (1280px+) */
+@media (min-width: 1280px) {
+    .mainTitle {
+        font-size: 2.5rem;
+    }
+
+    .cardContent {
+        padding: 2rem;
+    }
+}
+
+/* Ajustes para pantallas muy pequeñas */
+@media (max-width: 375px) {
+    .container {
+        padding: 0.75rem;
+    }
+
+    .mainTitle {
+        font-size: 1.25rem;
+    }
+
+    .tab {
+        padding: 0.625rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    .cardContent {
+        padding: 1rem;
+    }
+
+    .courseTitle {
+        font-size: 1rem;
+    }
+
+    .btn {
+        padding: 0.625rem 1rem;
+        font-size: 0.8125rem;
+    }
+
+    .universityLogo {
+        width: 32px;
+        height: 32px;
+    }
+
+    .toast {
+        bottom: 1rem;
+        right: 1rem;
+        left: 1rem;
+        max-width: none;
+    }
+}

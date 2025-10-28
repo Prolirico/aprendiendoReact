@@ -3,13 +3,14 @@ import styles from "./Dashboard.module.css";
 import CursosYCredencialesAlumno from "../modules/CursoYCredencialesAlumno";
 import CardConvocatoriaBienvenido from "../controls/CardConvocatoriaBienvenido";
 import AlumnoTareaYCalificaciones from "../modules/AlumnoTareaYCalificaciones";
+import AlumnoDescargaCertificadosConstancias from "../modules/AlumnoDescargaCertificadosConstancias";
 
 function StudentDashboard({ userId }) {
   const [estadoGeneral, setEstadoGeneral] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
-  const [activeMainTab, setActiveMainTab] = useState("cursos"); // "cursos" o "tareas"
+  const [activeMainTab, setActiveMainTab] = useState("cursos"); // "cursos", "tareas" o "documentos"
 
   const showToast = (message, type = "success") => {
     setToast({ show: true, message, type });
@@ -166,6 +167,12 @@ function StudentDashboard({ userId }) {
           >
             📝 Tareas y Calificaciones
           </button>
+          <button
+            className={`${styles.mainTab} ${activeMainTab === "documentos" ? styles.activeMainTab : ""}`}
+            onClick={() => setActiveMainTab("documentos")}
+          >
+            🎓 Certificados y Constancias
+          </button>
         </div>
 
         {/* Contenido según la pestaña activa */}
@@ -183,6 +190,10 @@ function StudentDashboard({ userId }) {
 
           {activeMainTab === "tareas" && (
             <AlumnoTareaYCalificaciones userId={userId} />
+          )}
+
+          {activeMainTab === "documentos" && (
+            <AlumnoDescargaCertificadosConstancias userId={userId} />
           )}
         </section>
 
