@@ -14,6 +14,13 @@ import TeacherDashboard from "../../components/dashboards/TeacherDashboard";
 import UniversityDashboard from "../../components/dashboards/UniversityDashboard";
 import SEDEQDashboard from "../../components/dashboards/SEDEQDashboard";
 import Image from "next/image";
+import dynamic from 'next/dynamic';
+
+// Importar el componente dinámicamente para evitar problemas de hidratación
+const ValidacionAlumnoPublica = dynamic(
+  () => import('../../components/modules/ValidacionAlumnoPublica'),
+  { ssr: false }
+);
 
 const handleAnimationComplete = () => {
   console.log("All letters have animated!");
@@ -94,19 +101,25 @@ export default function HomeLayout() {
   const renderContent = () => {
     if (!user) {
       return (
-        <main className={styles.contenidoIntro}>
-          <Card
-            title="Bienvenido"
-            description="Ingresa a tu cuenta para desbloquear todas las oportunidades que tenemos para ti."
-            bottomText="Explora nuestros cursos"
-            logoConfig={{
-              type: "none",
-              customSvg: null,
-              width: 0,
-              height: 0,
-            }}
-          />
-        </main>
+        <>
+          <div className={styles.contenidoIntro}>
+            <Card
+              title="Bienvenido"
+              description="Ingresa a tu cuenta para desbloquear todas las oportunidades que tenemos para ti."
+              bottomText="Explora nuestros cursos"
+              logoConfig={{
+                type: "none",
+                customSvg: null,
+                width: 0,
+                height: 0,
+              }}
+            />
+          </div>
+          
+          <div className="max-w-4xl mx-auto px-6 py-8">
+            <ValidacionAlumnoPublica />
+          </div>
+        </>
       );
     }
 

@@ -408,10 +408,51 @@ const descargarDocumento = async (req, res) => {
     }
   }
 };
+// getPublicUniversities
+const getPublicUniversities = async (req, res) => {
+  try {
+    const universities = await certificadoConstanciaModel.getPublicUniversities();
+    res.json({ universities });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener universidades públicas' });
+  }
+};
+
+// getPublicStudentStatus
+const getPublicStudentStatus = async (req, res) => {
+  try {
+    const { universityId, studentId } = req.query;
+    console.log('Parámetros recibidos en el controlador:', { universityId, studentId });
+    
+    if (!universityId || !studentId) {
+      return res.status(400).json({ error: 'Faltan parámetros requeridos' });
+    }
+
+    const data = await certificadoConstanciaModel.getPublicStudentStatus(universityId, studentId);
+    console.log('Datos obtenidos del modelo:', data);
+    
+    if (!data) {
+      return res.status(404).json({ 
+        error: 'No se encontraron resultados para la matrícula y universidad proporcionadas',
+        details: { universityId, studentId }
+      });
+    }
+    
+    res.json(data);
+  } catch (error) {
+    console.error('Error en getPublicStudentStatus:', error);
+    res.status(500).json({ 
+      error: 'Error al obtener el estado del estudiante',
+      details: error.message 
+    });
+  }
+};
 
 module.exports = {
   getDocumentosDisponibles,
   generarConstancia,
   generarCertificado,
   descargarDocumento,
+  getPublicUniversities,
+  getPublicStudentStatus
 };

@@ -48,5 +48,6 @@ router.get(
   protect,
   certificadoConstanciaController.descargarDocumento,
 );
-
+router.get('/universidades', certificadoConstanciaController.getPublicUniversities); 
+router.get('/public/student-status', certificadoConstanciaController.getPublicStudentStatus);
 module.exports = router;

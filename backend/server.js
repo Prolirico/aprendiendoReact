@@ -149,6 +149,7 @@ app.use("/api/entregas", entregasRoutes);
 app.use("/api/material", materialRoutes);
 app.use("/api/firmas", firmasRoutes);
 app.use("/api/alumno", certificadoConstanciaRoutes);
+app.use('/api', require('./routes/certificadoConstanciaRoutes'));
 log(`🔌 Rutas configuradas en la aplicación`);
 
 log(`💾 Conectando a la base de datos...`);
