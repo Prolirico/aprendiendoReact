@@ -3,10 +3,8 @@ const Firmas = require("../models/firmasModel");
 const { generatePdf } = require("../utils/pdfGenerator");
 const path = require("path");
 const fs = require("fs");
-/**
- * Obtiene todos los documentos disponibles para el alumno
- * (constancias y certificados)
- */
+
+// getDocumentosDisponibles (sin cambios)
 const getDocumentosDisponibles = async (req, res) => {
   try {
     const id_alumno = req.user.id_alumno;
@@ -15,18 +13,13 @@ const getDocumentosDisponibles = async (req, res) => {
         error: "No se pudo identificar al alumno",
       });
     }
-    // Obtener cursos donde puede generar constancias
     const cursosConstancias =
       await certificadoConstanciaModel.getCursosParaConstancias(id_alumno);
-    // Procesar datos de constancias con cálculo de créditos
     const constancias_disponibles = cursosConstancias.map((curso) => {
-      // Calcular créditos según pertenezca o no a una credencial
       let creditos;
       if (curso.id_credencial && curso.total_cursos_credencial > 0) {
-        // Si pertenece a credencial: 100 / total_cursos
         creditos = parseFloat((100 / curso.total_cursos_credencial).toFixed(2));
       } else {
-        // Si NO pertenece a credencial: 100
         creditos = 100;
       }
       return {
@@ -39,9 +32,7 @@ const getDocumentosDisponibles = async (req, res) => {
           nombre: curso.nombre_universidad,
           logo_url: curso.logo_universidad,
         },
-        calificacion_final: parseFloat(curso.calificacion_final || 0).toFixed(
-          2,
-        ),
+        calificacion_final: parseFloat(curso.calificacion_final || 0).toFixed(2),
         umbral_aprobatorio: curso.umbral_aprobatorio,
         creditos: creditos,
         total_actividades: curso.total_actividades,
@@ -51,23 +42,17 @@ const getDocumentosDisponibles = async (req, res) => {
         id_constancia: curso.id_constancia,
         ruta_constancia: curso.ruta_constancia,
         fecha_emitida: curso.fecha_emitida,
-        aprobado:
-          parseFloat(curso.calificacion_final || 0) >= curso.umbral_aprobatorio,
+        aprobado: parseFloat(curso.calificacion_final || 0) >= curso.umbral_aprobatorio,
         id_credencial: curso.id_credencial,
       };
     });
-    // Obtener credenciales donde puede generar certificados
     const credencialesCertificados =
-      await certificadoConstanciaModel.getCredencialesParaCertificados(
-        id_alumno,
-      );
-    // Procesar datos de certificados
+      await certificadoConstanciaModel.getCredencialesParaCertificados(id_alumno);
     const certificados_disponibles = await Promise.all(
       credencialesCertificados.map(async (credencial) => {
-        // Obtener cursos de la credencial con su estado
         const cursos = await certificadoConstanciaModel.getCursosDeCredencial(
           credencial.id_credencial,
-          id_alumno,
+          id_alumno
         );
         return {
           id_credencial: credencial.id_credencial,
@@ -83,10 +68,7 @@ const getDocumentosDisponibles = async (req, res) => {
           progreso_porcentaje:
             credencial.total_cursos > 0
               ? parseFloat(
-                  (
-                    (credencial.cursos_completados / credencial.total_cursos) *
-                    100
-                  ).toFixed(2),
+                  ((credencial.cursos_completados / credencial.total_cursos) * 100).toFixed(2)
                 )
               : 0,
           cursos_requeridos: cursos.map((c) => ({
@@ -109,7 +91,7 @@ const getDocumentosDisponibles = async (req, res) => {
           ruta_certificado: credencial.ruta_certificado,
           fecha_certificado: credencial.fecha_certificado,
         };
-      }),
+      })
     );
     res.json({
       constancias_disponibles,
@@ -123,9 +105,8 @@ const getDocumentosDisponibles = async (req, res) => {
     });
   }
 };
-/**
- * Genera una constancia para un curso específico
- */
+
+// generarConstancia (sin cambios)
 const generarConstancia = async (req, res) => {
   try {
     const id_alumno = req.user.id_alumno;
@@ -135,7 +116,6 @@ const generarConstancia = async (req, res) => {
         error: "Datos incompletos",
       });
     }
-    // Verificar que el alumno puede generar la constancia
     const cursos =
       await certificadoConstanciaModel.getCursosParaConstancias(id_alumno);
     const curso = cursos.find((c) => c.id_curso === parseInt(id_curso));
@@ -161,11 +141,10 @@ const generarConstancia = async (req, res) => {
         umbral_aprobatorio: curso.umbral_aprobatorio,
       });
     }
-    // Calcular créditos según pertenezca o no a una credencial
     let creditos_otorgados;
     if (curso.id_credencial && curso.total_cursos_credencial > 0) {
       creditos_otorgados = parseFloat(
-        (100 / curso.total_cursos_credencial).toFixed(2),
+        (100 / curso.total_cursos_credencial).toFixed(2)
       );
     } else {
       creditos_otorgados = 100;
@@ -180,21 +159,18 @@ const generarConstancia = async (req, res) => {
       creditos_otorgados,
       ruta_constancia: relativePath,
     });
-    // Obtener las firmas necesarias para la universidad
     const firmas = await Firmas.findForUniversity(curso.id_universidad);
-    // Buscar las firmas específicas por tipo
     const firmaSEDEQ = firmas.find((f) => f.tipo_firma === "sedeq");
     const firmaUniversidad = firmas.find(
       (f) =>
         f.tipo_firma === "universidad" &&
-        f.id_universidad === curso.id_universidad,
+        f.id_universidad === curso.id_universidad
     );
     const firmaCoordinador = firmas.find(
       (f) =>
         f.tipo_firma === "coordinador" &&
-        f.id_universidad === curso.id_universidad,
+        f.id_universidad === curso.id_universidad
     );
-    // Convertir las firmas a base64 para incluirlas en el PDF
     const firmaSEDEQBase64 = firmaSEDEQ
       ? `data:image/png;base64,${firmaSEDEQ.imagen_blob.toString("base64")}`
       : null;
@@ -204,41 +180,33 @@ const generarConstancia = async (req, res) => {
     const firmaCoordinadorBase64 = firmaCoordinador
       ? `data:image/png;base64,${firmaCoordinador.imagen_blob.toString("base64")}`
       : null;
-    // Embebed de logo como base64 para evitar issues de path en PDF
     let logoUniversidadBase64 = null;
     if (curso.logo_universidad) {
-      const logoFullPath = path.resolve(
-        __dirname,
-        "..",
-        curso.logo_universidad.substring(1),
-      ); // Quita / inicial si hay
+      const logoFullPath = path.resolve(__dirname, '..', curso.logo_universidad.substring(1));
       if (fs.existsSync(logoFullPath)) {
         const logoBuffer = fs.readFileSync(logoFullPath);
-        const mimeType = path.extname(logoFullPath) === ".jpg" ? "jpeg" : "png"; // Ajusta según extensión real
-        logoUniversidadBase64 = `data:image/${mimeType};base64,${logoBuffer.toString("base64")}`;
+        const mimeType = path.extname(logoFullPath) === '.jpg' ? 'jpeg' : 'png';
+        logoUniversidadBase64 = `data:image/${mimeType};base64,${logoBuffer.toString('base64')}`;
       } else {
         console.error(`Logo no encontrado en: ${logoFullPath}`);
       }
     }
-    // Datos para la plantilla PDF
     const pdfData = {
       nombreAlumno: curso.nombre_alumno,
       nombreMicrocredencial: curso.nombre_curso,
       totalCreditos: creditos_otorgados,
       credencialAsociada: curso.nombre_credencial || "N/A",
-      logoUniversidad: logoUniversidadBase64, // Ahora base64 en vez de path relativo
+      logoUniversidad: logoUniversidadBase64,
       nombreUniversidad: curso.nombre_universidad,
       fechaEmision: new Date().toLocaleDateString("es-MX", {
         year: "numeric",
         month: "long",
         day: "numeric",
       }),
-      // Incluir las firmas en base64
       firmaSEDEQ: firmaSEDEQBase64,
       firmaUniversidad: firmaUniversidadBase64,
       firmaCoordinador: firmaCoordinadorBase64,
     };
-    // Generar el PDF
     await generatePdf("constancia.html", pdfData, outputPath);
     res.status(201).json({
       mensaje: "Constancia generada exitosamente",
@@ -255,9 +223,8 @@ const generarConstancia = async (req, res) => {
     });
   }
 };
-/**
- * Genera un certificado para una credencial específica
- */
+
+// generarCertificado (modificado para usar getCursosParaConstancias)
 const generarCertificado = async (req, res) => {
   try {
     const id_alumno = req.user.id_alumno;
@@ -267,13 +234,10 @@ const generarCertificado = async (req, res) => {
         error: "Datos incompletos",
       });
     }
-    // Verificar que el alumno puede generar el certificado
     const credenciales =
-      await certificadoConstanciaModel.getCredencialesParaCertificados(
-        id_alumno,
-      );
+      await certificadoConstanciaModel.getCredencialesParaCertificados(id_alumno);
     const credencial = credenciales.find(
-      (c) => c.id_credencial === parseInt(id_credencial),
+      (c) => c.id_credencial === parseInt(id_credencial)
     );
     if (!credencial) {
       return res.status(404).json({
@@ -295,18 +259,13 @@ const generarCertificado = async (req, res) => {
         total_cursos: credencial.total_cursos,
       });
     }
-    // Obtener cursos completados para calcular promedio
     const cursos = await certificadoConstanciaModel.getCursosDeCredencial(
       parseInt(id_credencial),
-      id_alumno,
+      id_alumno
     );
-    // Calcular calificación promedio de las constancias
-    const cursosConCalificacion = cursos.filter((c) => c.completado);
     let calificacion_promedio = null;
-    if (cursosConCalificacion.length > 0) {
-      // TODO: Obtener calificaciones reales de cada curso
-      // Por ahora usamos un promedio de ejemplo
-      calificacion_promedio = 8.5;
+    if (cursos.filter((c) => c.completado).length > 0) {
+      calificacion_promedio = 8.5; // TODO: Obtener calificaciones reales
     }
     const timestamp = Date.now();
     const relativePath = `/uploads/certificados/certificado_${id_alumno}_${id_credencial}_${timestamp}.pdf`;
@@ -318,21 +277,18 @@ const generarCertificado = async (req, res) => {
       ruta_certificado: relativePath,
       descripcion: credencial.descripcion_credencial,
     });
-    // Obtener las firmas necesarias para la universidad
     const firmas = await Firmas.findForUniversity(credencial.id_universidad);
-    // Buscar las firmas específicas por tipo
     const firmaSEDEQ = firmas.find((f) => f.tipo_firma === "sedeq");
     const firmaUniversidad = firmas.find(
       (f) =>
         f.tipo_firma === "universidad" &&
-        f.id_universidad === credencial.id_universidad,
+        f.id_universidad === credencial.id_universidad
     );
     const firmaCoordinador = firmas.find(
       (f) =>
         f.tipo_firma === "coordinador" &&
-        f.id_universidad === credencial.id_universidad,
+        f.id_universidad === credencial.id_universidad
     );
-    // Convertir las firmas a base64 para incluirlas en el PDF
     const firmaSEDEQBase64 = firmaSEDEQ
       ? `data:image/png;base64,${firmaSEDEQ.imagen_blob.toString("base64")}`
       : null;
@@ -342,40 +298,37 @@ const generarCertificado = async (req, res) => {
     const firmaCoordinadorBase64 = firmaCoordinador
       ? `data:image/png;base64,${firmaCoordinador.imagen_blob.toString("base64")}`
       : null;
-    // Embebed de logo como base64 para evitar issues de path en PDF
     let logoUniversidadBase64 = null;
     if (credencial.logo_universidad) {
-      const logoFullPath = path.resolve(
-        __dirname,
-        "..",
-        credencial.logo_universidad.substring(1),
-      ); // Quita / inicial si hay
+      const logoFullPath = path.resolve(__dirname, '..', credencial.logo_universidad.substring(1));
       if (fs.existsSync(logoFullPath)) {
         const logoBuffer = fs.readFileSync(logoFullPath);
-        const mimeType = path.extname(logoFullPath) === ".jpg" ? "jpeg" : "png"; // Ajusta según extensión real
-        logoUniversidadBase64 = `data:image/${mimeType};base64,${logoBuffer.toString("base64")}`;
+        const mimeType = path.extname(logoFullPath) === '.jpg' ? 'jpeg' : 'png';
+        logoUniversidadBase64 = `data:image/${mimeType};base64,${logoBuffer.toString('base64')}`;
       } else {
         console.error(`Logo no encontrado en: ${logoFullPath}`);
       }
     }
-    // Datos para la plantilla PDF
+    // Obtener nombre del alumno desde getCursosParaConstancias (como en constancias)
+    const cursosParaNombre = await certificadoConstanciaModel.getCursosParaConstancias(id_alumno);
+    const cursoEjemplo = cursosParaNombre[0]; // Tomamos el primer curso para obtener el nombre
+    const nombreAlumno = cursoEjemplo?.nombre_alumno || "Nombre no disponible";
     const pdfData = {
-      nombreAlumno: req.user.nombre_completo,
+      nombreAlumno: nombreAlumno,
       nombreCredencial: credencial.nombre_credencial,
       descripcionCredencial: credencial.descripcion_credencial,
-      logoUniversidad: logoUniversidadBase64, // Ahora base64 en vez de path relativo
+      logoUniversidad: logoUniversidadBase64,
       nombreUniversidad: credencial.nombre_universidad,
       fechaEmision: new Date().toLocaleDateString("es-MX", {
         year: "numeric",
         month: "long",
         day: "numeric",
       }),
-      // Incluir las firmas en base64
       firmaSEDEQ: firmaSEDEQBase64,
       firmaUniversidad: firmaUniversidadBase64,
       firmaCoordinador: firmaCoordinadorBase64,
     };
-    // Generar el PDF
+    console.log("pdfData para certificado:", JSON.stringify(pdfData, null, 2));
     await generatePdf("certificado.html", pdfData, outputPath);
     res.status(201).json({
       mensaje: "Certificado generado exitosamente",
@@ -383,7 +336,7 @@ const generarCertificado = async (req, res) => {
       ruta_certificado: certificado.ruta_certificado,
       calificacion_promedio: certificado.calificacion_promedio,
       nombre_credencial: credencial.nombre_credencial,
-      creditos: 100, // Siempre 100/100 para certificados
+      creditos: 100,
     });
   } catch (error) {
     console.error("Error al generar certificado:", error);
@@ -393,17 +346,15 @@ const generarCertificado = async (req, res) => {
     });
   }
 };
-/**
- * Descarga una constancia o certificado
- */
+
+// descargarDocumento (sin cambios)
 const descargarDocumento = async (req, res) => {
   try {
     const { tipo, id } = req.params;
     const id_alumno = req.user.id_alumno;
     if (!["constancia", "certificado"].includes(tipo)) {
       return res.status(400).json({
-        error:
-          "Tipo de documento inválido. Debe ser 'constancia' o 'certificado'",
+        error: "Tipo de documento inválido. Debe ser 'constancia' o 'certificado'",
       });
     }
     let documento;
@@ -429,16 +380,13 @@ const descargarDocumento = async (req, res) => {
       });
     }
     const fullPath = path.resolve(__dirname, "..", rutaArchivo.substring(1));
-    // Código de diagnóstico
     console.log(`[Diagnóstico] Intentando descargar: ${fullPath}`);
     if (!fs.existsSync(fullPath)) {
       console.error(`[Error] El archivo no existe en la ruta: ${fullPath}`);
       return res.status(404).json({
-        error:
-          "El archivo PDF no fue encontrado en el servidor. Puede que necesite ser generado de nuevo.",
+        error: "El archivo PDF no fue encontrado en el servidor. Puede que necesite ser generado de nuevo.",
       });
     }
-    // Enviar el archivo para descarga
     res.download(fullPath, (err) => {
       if (err) {
         console.error("Error al enviar el archivo con res.download:", err);
@@ -460,6 +408,7 @@ const descargarDocumento = async (req, res) => {
     }
   }
 };
+
 module.exports = {
   getDocumentosDisponibles,
   generarConstancia,
