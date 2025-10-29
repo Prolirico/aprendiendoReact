@@ -237,3 +237,143 @@
         width: 100%;
     }
 }
+
+/* Estilos para la sección de credenciales */
+.section {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.sectionTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sectionIcon {
+    color: #3b82f6;
+}
+
+.credentialsList {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.credentialItem {
+    background-color: #f9fafb;
+    border-radius: 0.5rem;
+    padding: 1.25rem;
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s ease;
+}
+
+.credentialItem:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.credentialHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.credentialName {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.credentialDates {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.credentialDescription {
+    color: #4b5563;
+    margin: 0.75rem 0;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+}
+
+.credentialActions {
+    margin-top: 1rem;
+}
+
+.credentialButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    background-color: #10b981;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.credentialButton:hover {
+    background-color: #0d9f6e;
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+/* Mejoras para los botones de documentos */
+.documents {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 0.75rem;
+}
+
+.documentButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.documentButton:hover {
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+.recordButton {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.recordButton:hover {
+    background-color: #2563eb;
+}
+
+.certificateButton {
+    background-color: #10b981;
+    color: white;
+}
+
+.certificateButton:hover {
+    background-color: #0d9f6e;
+}

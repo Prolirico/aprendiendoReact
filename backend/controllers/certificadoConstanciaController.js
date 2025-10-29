@@ -422,28 +422,45 @@ const getPublicUniversities = async (req, res) => {
 const getPublicStudentStatus = async (req, res) => {
   try {
     const { universityId, studentId } = req.query;
-    console.log('Parámetros recibidos en el controlador:', { universityId, studentId });
+    console.log('🔍 Parámetros recibidos en el controlador:', { universityId, studentId });
     
     if (!universityId || !studentId) {
-      return res.status(400).json({ error: 'Faltan parámetros requeridos' });
-    }
-
-    const data = await certificadoConstanciaModel.getPublicStudentStatus(universityId, studentId);
-    console.log('Datos obtenidos del modelo:', data);
-    
-    if (!data) {
-      return res.status(404).json({ 
-        error: 'No se encontraron resultados para la matrícula y universidad proporcionadas',
+      console.error('❌ Faltan parámetros requeridos');
+      return res.status(400).json({ 
+        error: 'Faltan parámetros requeridos',
         details: { universityId, studentId }
       });
     }
+
+    console.log('🔍 Buscando información del estudiante...');
+    const data = await certificadoConstanciaModel.getPublicStudentStatus(universityId, studentId);
     
+    if (!data) {
+      console.error('❌ No se encontraron resultados para el estudiante');
+      return res.status(404).json({ 
+        error: 'No se encontraron resultados para la matrícula y universidad proporcionadas',
+        details: { 
+          universityId, 
+          studentId,
+          message: 'El estudiante no existe o no tiene cursos completados'
+        }
+      });
+    }
+    
+    console.log('✅ Datos del estudiante obtenidos correctamente');
     res.json(data);
+    
   } catch (error) {
-    console.error('Error en getPublicStudentStatus:', error);
+    console.error('❌ Error en getPublicStudentStatus:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    
     res.status(500).json({ 
       error: 'Error al obtener el estado del estudiante',
-      details: error.message 
+      details: process.env.NODE_ENV === 'development' ? error.message : 'Error interno del servidor',
+      ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
     });
   }
 };

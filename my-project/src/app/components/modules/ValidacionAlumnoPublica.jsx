@@ -2,7 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import styles from './ValidacionAlumnoPublica.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner, faSearch, faCalendarAlt, faFilePdf, faFileAlt } from '@fortawesome/free-solid-svg-icons';
+import { 
+  faSpinner, 
+  faSearch, 
+  faCalendarAlt, 
+  faFilePdf, 
+  faFileAlt, 
+  faAward 
+} from '@fortawesome/free-solid-svg-icons';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
@@ -168,46 +175,87 @@ const ValidacionAlumnoPublica = () => {
                     {results.completedCourses && results.completedCourses.length > 0 ? (
                         <ul className={styles.courseList}>
                             {results.completedCourses.map((course, index) => (
-                                <li key={index} className={styles.courseItem}>
-                                    <div className={styles.courseName}>{course.courseName || 'Curso no disponible'}</div>
-                                    <div className={styles.courseDate}>
-                                        <FontAwesomeIcon icon={faCalendarAlt} className={styles.iconSpacing} />
-                                        Completado el {formatDate(course.completionDate)}
+                                <div className={styles.courseItem} key={`course-${index}`}>
+                                    <div className={styles.courseHeader}>
+                                        <h3 className={styles.courseName}>{course.courseName}</h3>
+                                        <span className={styles.courseDate}>
+                                            <FontAwesomeIcon icon={faCalendarAlt} className={styles.icon} />
+                                            {formatDate(course.completionDate)}
+                                        </span>
                                     </div>
-                                    <div className={styles.downloadButtons}>
-                                        {course.certificateUrl && (
-                                            <a
-                                                href={course.certificateUrl}
-                                                className={`${styles.btn} ${styles.btnSuccess} ${styles.btnSm}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                            >
-                                                <FontAwesomeIcon icon={faFilePdf} className={styles.iconSpacing} />
-                                                Descargar Certificado
-                                            </a>
-                                        )}
-
+                                    
+                                    <div className={styles.documents}>
                                         {course.recordUrl && (
-                                            <a
-                                                href={course.recordUrl}
-                                                className={`${styles.btn} ${styles.btnOutline} ${styles.btnSm}`}
-                                                target="_blank"
+                                            <a 
+                                                href={`${API_BASE_URL}${course.recordUrl}`} 
+                                                target="_blank" 
                                                 rel="noopener noreferrer"
+                                                className={`${styles.documentButton} ${styles.recordButton}`}
                                             >
-                                                <FontAwesomeIcon icon={faFileAlt} className={styles.iconSpacing} />
-                                                Descargar Constancia
+                                                <FontAwesomeIcon icon={faFileAlt} /> Ver Constancia
+                                            </a>
+                                        )}
+                                        {course.certificateUrl && (
+                                            <a 
+                                                href={`${API_BASE_URL}${course.certificateUrl}`} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className={`${styles.documentButton} ${styles.certificateButton}`}
+                                            >
+                                                <FontAwesomeIcon icon={faFilePdf} /> Ver Certificado
                                             </a>
                                         )}
                                     </div>
-                                </li>
+                                </div>
                             ))}
                         </ul>
                     ) : (
-                        <div className={`${styles.alert} ${styles.alertInfo}`}>
-                            El estudiante no tiene cursos completados registrados.
-                        </div>
+                        <p>No se encontraron cursos completados.</p>
                     )}
 
+                    {/* Sección de Credenciales */}
+                    {results.credentials && results.credentials.length > 0 && (
+                        <div className={styles.section}>
+                            <h3 className={styles.sectionTitle}>
+                                <FontAwesomeIcon icon={faAward} className={styles.sectionIcon} />
+                                Credenciales Obtenidas
+                            </h3>
+                            <div className={styles.credentialsList}>
+                                {results.credentials.map((credencial, index) => (
+                                    <div className={styles.credentialItem} key={`credential-${index}`}>
+                                        <div className={styles.credentialHeader}>
+                                            <h4 className={styles.credentialName}>{credencial.nombre}</h4>
+                                            <div className={styles.credentialDates}>
+                                                <span>
+                                                    <strong>Emitido:</strong> {formatDate(credencial.fechaEmision)}
+                                                </span>
+                                                {credencial.fechaVencimiento && (
+                                                    <span>
+                                                        <strong>Vence:</strong> {formatDate(credencial.fechaVencimiento)}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                        {credencial.descripcion && (
+                                            <p className={styles.credentialDescription}>{credencial.descripcion}</p>
+                                        )}
+                                        {credencial.certificadoUrl && (
+                                            <div className={styles.credentialActions}>
+                                                <a 
+                                                    href={`${API_BASE_URL}${credencial.certificadoUrl}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className={`${styles.documentButton} ${styles.credentialButton}`}
+                                                >
+                                                    <FontAwesomeIcon icon={faFilePdf} /> Ver Credencial
+                                                </a>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                     <div className={`${styles.textCenter} ${styles.mt4}`}>
                         <button
                             onClick={resetForm}
