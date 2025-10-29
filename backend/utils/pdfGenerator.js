@@ -1,7 +1,7 @@
 const puppeteer = require("puppeteer");
 const fs = require("fs");
 const path = require("path");
-
+const cheerio = require("cheerio"); // Nueva dependencia
 const SERVER_URL = process.env.API_URL || "http://localhost:5000";
 
 /**
@@ -21,35 +21,42 @@ const generatePdf = async (templateName, data, outputPath) => {
     );
     let htmlContent = fs.readFileSync(templatePath, "utf-8");
 
-    // Inyectar la etiqueta <base> para que las rutas relativas (CSS, imágenes de fondo) funcionen
+    // Inyectar la etiqueta <base> para assets relativos como background (opcional con base64)
     const baseTag = `<base href="${SERVER_URL}/">`;
-    htmlContent = htmlContent.replace("<head>", `<head>\n    ${baseTag}`);
+    htmlContent = htmlContent.replace("<head>", `<head>\n ${baseTag}`);
 
-    // 2. Reemplazar los placeholders con los datos reales
+    // 2. Usar Cheerio para parsear y reemplazar placeholders de manera robusta
+    const $ = cheerio.load(htmlContent);
+
     for (const key in data) {
-      const value = data[key] || ""; // Usar string vacío si el valor es null/undefined
-      // Crear una expresión regular para buscar el data-field y reemplazar el contenido del elemento
-      const regexContenido = new RegExp(`(data-field="${key}"[^>]*>)[^<]*(<)`);
-      htmlContent = htmlContent.replace(regexContenido, `$1${value}$2`);
-
-      // Para imágenes, construir URL absoluta, reemplazar el src y quitar el display:none
-      if (key.startsWith("logo") || key.startsWith("firma")) {
-        const relativePath = value;
-        if (
-          relativePath &&
-          typeof relativePath === "string" &&
-          relativePath.startsWith("/")
-        ) {
-          const absoluteUrl = `${SERVER_URL}${relativePath}`;
-          const regexImg = new RegExp(
-            `(<img[^>]*data-field="${key}"[^>]*src=")[^"]*("[^>]*style="[^"]*display: none[^"]*")`,
-          );
-          htmlContent = htmlContent
-            .replace(regexImg, `$1${absoluteUrl}$2`)
-            .replace(`display: none`, `display: block`);
+      const value = data[key] || ""; // Valor vacío si null
+      const elements = $(`[data-field="${key}"]`);
+      elements.each((i, el) => {
+        if (key === "logoUniversidad" && value) {
+          // Para logo: Setea src y display en el img
+          $(el).attr("src", value).css("display", "block");
+        } else if (key.startsWith("firma") && value) {
+          // Para firmas: El data-field está en el div padre; setea en el img hijo
+          const img = $(el).find("img");
+          if (img.length) {
+            img.attr("src", value).css({
+              width: "100%",
+              height: "100%",
+              "object-fit": "contain",
+              display: "block",
+            });
+          }
+        } else {
+          // Para campos de texto: Setea textContent
+          $(el).text(value);
         }
-      }
+      });
     }
+
+    htmlContent = $.html(); // Obtener el HTML actualizado
+
+    // Debug: Guarda HTML post-replace para inspeccionar
+    fs.writeFileSync("debug_post_replace.html", htmlContent);
 
     // 3. Iniciar Puppeteer y generar el PDF
     browser = await puppeteer.launch({
@@ -57,7 +64,6 @@ const generatePdf = async (templateName, data, outputPath) => {
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
     const page = await browser.newPage();
-
     // Establecer el contenido de la página
     await page.setContent(htmlContent, { waitUntil: "networkidle0" });
 
