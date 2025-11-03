@@ -20,7 +20,7 @@ function SEDEQDashboard({ userId }) {
     universities: [],
   });
 
-  useEffect(() => { }, [userId]);
+  useEffect(() => {}, [userId]);
 
   return (
     <div className={styles.todo}>
@@ -89,7 +89,7 @@ function SEDEQDashboard({ userId }) {
         </section>
       </div>
       <div className={styles.modulos}>
-        <h1>Gestión de Calificaciones de Cursos</h1>
+        <h1>Certificados y Constancias</h1>
         <section>
           <CertificadosYConstancia rol="sedeq" />
         </section>
