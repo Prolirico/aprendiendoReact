@@ -126,9 +126,11 @@ const entregasRoutes = require("./routes/entregasRoutes");
 const materialRoutes = require("./routes/materialRoutes");
 const firmasRoutes = require("./routes/firmasRoutes");
 const certificadoConstanciaRoutes = require("./routes/certificadoConstanciaRoutes");
+const verificacionHomeConstanciasYcertificadosRoutes = require("./routes/verificacionHomeConstanciasYcertificadosRoutes");
 
 log(`✅ Rutas importadas correctamente`);
 
+app.use("/api/public", verificacionHomeConstanciasYcertificadosRoutes);
 app.use("/api", userRoutes);
 app.use("/api/universidades", universidadRoutes);
 app.use("/api/maestros", maestroRoutes);

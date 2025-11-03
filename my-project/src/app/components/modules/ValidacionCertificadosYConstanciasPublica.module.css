@@ -1,0 +1,373 @@
+.validationCard {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Títulos */
+.cardTitle {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.resultsTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 0.5rem;
+}
+
+.resultsSubtitle {
+    font-size: 1rem;
+    color: #718096;
+    margin-bottom: 1.5rem;
+}
+
+/* Alertas */
+.alert {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.alertDanger {
+    background-color: #fee;
+    color: #c53030;
+    border: 1px solid #fc8181;
+}
+
+/* Utilidades de texto */
+.textCenter {
+    text-align: center;
+}
+
+/* Spinner */
+.spinnerIcon {
+    font-size: 2rem;
+    color: #3182ce;
+    margin-bottom: 1rem;
+}
+
+/* Formulario */
+.formGroup {
+    margin-bottom: 1.5rem;
+}
+
+.formLabel {
+    display: block;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.formControl {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
+}
+
+.formControl:focus {
+    outline: none;
+    border-color: #3182ce;
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+}
+
+/* Botones */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btnPrimary {
+    background-color: #3182ce;
+    color: white;
+}
+
+.btnPrimary:hover:not(:disabled) {
+    background-color: #2c5aa0;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(49, 130, 206, 0.3);
+}
+
+.btnPrimary:disabled {
+    background-color: #a0aec0;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.w100 {
+    width: 100%;
+}
+
+/* Iconos */
+.iconSpacing {
+    margin-right: 0.5rem;
+}
+
+.icon {
+    margin-right: 0.5rem;
+    color: #718096;
+}
+
+/* Márgenes */
+.mt4 {
+    margin-top: 2rem;
+}
+
+.mb2 {
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+/* Contenedor de resultados */
+.resultsContainer {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.resultsHeader {
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+}
+
+/* Lista de cursos */
+.courseList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.courseItem {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: box-shadow 0.2s;
+}
+
+.courseItem:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.courseHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.courseName {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0;
+}
+
+.courseDate {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #718096;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+/* Documentos */
+.documents {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.documentButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+.recordButton {
+    background-color: #48bb78;
+    color: white;
+}
+
+.recordButton:hover {
+    background-color: #38a169;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(72, 187, 120, 0.3);
+}
+
+.certificateButton {
+    background-color: #ed8936;
+    color: white;
+}
+
+.certificateButton:hover {
+    background-color: #dd6b20;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(237, 137, 54, 0.3);
+}
+
+/* Secciones */
+.section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid #e2e8f0;
+}
+
+.sectionTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sectionIcon {
+    color: #3182ce;
+}
+
+/* Credenciales */
+.credentialsList {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.credentialItem {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: box-shadow 0.2s;
+}
+
+.credentialItem:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.credentialHeader {
+    margin-bottom: 1rem;
+}
+
+.credentialName {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0 0 0.5rem 0;
+}
+
+.credentialDates {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    font-size: 0.9rem;
+    color: #718096;
+}
+
+.credentialDescription {
+    color: #4a5568;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.credentialActions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.credentialButton {
+    background-color: #805ad5;
+    color: white;
+}
+
+.credentialButton:hover {
+    background-color: #6b46c1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(128, 90, 213, 0.3);
+}
+
+/* Footer */
+.footer {
+    color: #a0aec0;
+    font-size: 0.875rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .validationCard {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+
+    .cardTitle {
+        font-size: 1.5rem;
+    }
+
+    .courseHeader {
+        flex-direction: column;
+    }
+
+    .documents {
+        flex-direction: column;
+    }
+
+    .documentButton {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .credentialDates {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
