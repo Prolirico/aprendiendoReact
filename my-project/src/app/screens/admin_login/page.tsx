@@ -5,11 +5,6 @@ import { useRouter } from "next/navigation";
 import axios, { AxiosError } from "axios"; // Import AxiosError
 import styles from "./AdminLogin.module.css";
 
-{
-  /*
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://165.140.156.195/api";
-*/
-}
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 interface ApiErrorResponse {
@@ -17,8 +12,8 @@ interface ApiErrorResponse {
 }
 
 interface UserDataForLocalStorage {
-  id: string | number;
-  role: "alumno" | "maestro" | "admin_universidad" | "admin_sedeq" | string;
+  id_usuario: number;
+  tipo_usuario: "alumno" | "maestro" | "admin_universidad" | "admin_sedeq" | string;
   username: string;
   // Add any other properties that HomeLayout might need from the user object
 }
@@ -37,7 +32,7 @@ export default function AdminLoginPage() {
 
     console.log("=== DEBUG LOGIN ===");
     console.log("API_URL:", API_URL);
-    console.log("URL completa:", `${API_URL}/login`);
+    console.log("URL completa:", `${API_URL}/admin_login`);
     console.log("Datos enviados:", { loginId: username, password: "***" });
 
     try {
@@ -50,22 +45,17 @@ export default function AdminLoginPage() {
 
       const user = response.data.user;
 
-      // Guardar token en localStorage si es necesario
+      // Guardar token en localStorage si es necesario (solo una vez)
       if (response.data.token) {
         localStorage.setItem("token", response.data.token);
       }
 
-      if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
-      }
-
-      // Prepare user data for localStorage, ensuring the role matches expected values
+      // Prepare user data for localStorage, using original backend keys
       if (user) {
         const userData: UserDataForLocalStorage = {
-          id: user.id, // Assuming the user object has an 'id'
-          role: user.tipo_usuario, // Use the tipo_usuario directly as it matches the expected roles
-          username: user.username, // Assuming the user object has a 'username'
-          // Add other user properties if needed by HomeLayout
+          id_usuario: user.id_usuario, // Usa "id_usuario" directamente
+          tipo_usuario: user.tipo_usuario, // Usa "tipo_usuario" directamente
+          username: user.username,
         };
 
         localStorage.setItem("user", JSON.stringify(userData));

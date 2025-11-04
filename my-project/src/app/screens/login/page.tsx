@@ -9,11 +9,6 @@ import {
 import axios, { AxiosError } from "axios";
 import styles from "./Login.module.css";
 
-{
-  /*
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://165.140.156.195/api";
-*/
-}
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 const GOOGLE_CLIENT_ID =
@@ -61,9 +56,9 @@ export default function LoginPage() {
         localStorage.setItem(
           "user",
           JSON.stringify({
-            id: response.data.user.id_usuario,
+            id_usuario: response.data.user.id_usuario,  // Mantiene "id_usuario"
             username: response.data.user.username,
-            role: response.data.user.tipo_usuario,
+            tipo_usuario: response.data.user.tipo_usuario,  // Mantiene "tipo_usuario"
           }),
         );
         console.log(

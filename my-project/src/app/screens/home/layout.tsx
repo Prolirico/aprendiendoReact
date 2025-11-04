@@ -20,18 +20,36 @@ const handleAnimationComplete = () => {
   console.log("All letters have animated!");
 };
 
+// Define the possible keys for our roleMap
 type RoleMapKeys = "alumno" | "maestro" | "admin_universidad" | "admin_sedeq";
 
+// Define a type for the raw data from localStorage.
+interface RawStoredUserData {
+  id_usuario?: number;
+  tipo_usuario?: RoleMapKeys | string;
+  username?: string;
+  [key: string]: unknown; // Allow other properties
+}
+
 export default function HomeLayout() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<RawStoredUserData | null>(null);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
+    const storedUserString = localStorage.getItem("user");
+    if (storedUserString) {
       try {
-        setUser(JSON.parse(storedUser));
+        const rawStoredUser: RawStoredUserData = JSON.parse(storedUserString);
+
+        // Validación básica (permisiva)
+        if (rawStoredUser.id_usuario && rawStoredUser.tipo_usuario) {
+          setUser(rawStoredUser);
+        } else {
+          console.error("Malformed user data in localStorage. Clearing...");
+          localStorage.removeItem("user");
+        }
       } catch (error) {
-        console.error("Error parsing user data:", error);
+        console.error("Failed to parse user from localStorage:", error);
+        localStorage.removeItem("user");
       }
     }
   }, []);
@@ -58,16 +76,24 @@ export default function HomeLayout() {
       );
     }
 
-    console.log("Rendering dashboard for role:", user.role);
-    switch (user.role) {
+    // Map the role from backend format to uppercase (fallback if undefined)
+    const roleMap: Record<RoleMapKeys, string> = {
+      alumno: "ALUMNO",
+      maestro: "MAESTRO",
+      admin_universidad: "UNIVERSIDAD",
+      admin_sedeq: "SEDEQ",
+    };
+    const mappedRole = user.tipo_usuario ? roleMap[user.tipo_usuario as RoleMapKeys] || user.tipo_usuario : "UNKNOWN";
+
+    switch (mappedRole) {
       case "ALUMNO":
-        return <StudentDashboard userId={user.id} />;
+        return <StudentDashboard userId={user.id_usuario} />;
       case "MAESTRO":
-        return <TeacherDashboard userId={user.id} />;
+        return <TeacherDashboard userId={user.id_usuario} />;
       case "UNIVERSIDAD":
-        return <UniversityDashboard userId={user.id} />;
+        return <UniversityDashboard userId={user.id_usuario} />;
       case "SEDEQ":
-        return <SEDEQDashboard userId={user.id} />;
+        return <SEDEQDashboard userId={user.id_usuario} />;
       default:
         return (
           <p className="text-center text-red-600">Rol de usuario no válido.</p>
