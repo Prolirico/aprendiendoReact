@@ -127,10 +127,12 @@ const materialRoutes = require("./routes/materialRoutes");
 const firmasRoutes = require("./routes/firmasRoutes");
 const certificadoConstanciaRoutes = require("./routes/certificadoConstanciaRoutes");
 const verificacionHomeConstanciasYcertificadosRoutes = require("./routes/verificacionHomeConstanciasYcertificadosRoutes");
+const publicFilesRoutes = require("./routes/publicFilesRoutes");
 
 log(`✅ Rutas importadas correctamente`);
 
 app.use("/api/public", verificacionHomeConstanciasYcertificadosRoutes);
+app.use("/api/public-files", publicFilesRoutes);
 app.use("/api", userRoutes);
 app.use("/api/universidades", universidadRoutes);
 app.use("/api/maestros", maestroRoutes);
