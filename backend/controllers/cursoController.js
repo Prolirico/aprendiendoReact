@@ -37,10 +37,13 @@ const getAllCursos = async (req, res) => {
     if (universidades) {
       const uniIds = universidades
         .split(",")
-        .map((id) => parseInt(id.trim(), 10));
+        .map((id) => parseInt(id.trim(), 10))
+        .filter(id => !isNaN(id)); // Filtrar valores inválidos
+
       if (uniIds.length > 0) {
-        whereClauses.push(`c.id_universidad IN (?)`);
-        queryParams.push(uniIds);
+        const placeholders = uniIds.map(() => '?').join(',');
+        whereClauses.push(`c.id_universidad IN (${placeholders})`);
+        queryParams.push(...uniIds); // Spread operator
       }
     } else if (
       universidadId &&

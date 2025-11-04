@@ -72,25 +72,40 @@ function CourseManagement({ userId }) {
     setLoading(true);
     setError(null);
     try {
+      const token = localStorage.getItem("token");
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+
       let url = API_URL;
       const params = new URLSearchParams();
-
-      // Always show all courses in management view
       params.append("exclude_assigned", "false");
 
-      if (userId) {
+      // Solo filtrar por maestro si NO es admin_sedeq
+      if (user.tipo_usuario !== 'admin_sedeq' && userId) {
         params.append("id_maestro", userId);
       }
 
       url += `?${params.toString()}`;
-      const response = await fetch(url);
+
+      console.log("Fetching courses from:", url); // DEBUG
+
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
       if (!response.ok) {
         const errData = await response.json();
+        console.error("Error response:", errData); // DEBUG
         throw new Error(errData.error || "Error al obtener los cursos");
       }
+
       const data = await response.json();
+      console.log("Courses loaded:", data); // DEBUG
       setCourses(data.cursos || []);
     } catch (err) {
+      console.error("Fetch error:", err); // DEBUG
       setError(err.message);
       setCourses([]);
     } finally {
