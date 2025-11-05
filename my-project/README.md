@@ -1,12 +1,10 @@
-# Iniciar back
+# Iniciar backend en carpeta backend
 node server.js
 
-# Iniciar front
-En carpeta raiz ejecutar: npm run dev
+# Iniciar front en carpeta my-project
+npm run dev
 
-# Iniciar base de datos mysql
-sudo systemctl enable --now mariadb
-
+# Usuarios base de datos mysql pruebas(usar solo el de sedeq)
 {
   username: "alumno1",
   email: "alumno1@example.com",
@@ -36,16 +34,5 @@ sudo systemctl enable --now mariadb
   estatus: "activo",
 }
 
-# Base de datos
-root: $Yy@pJB5Poqs
 
-# JWT_secret
-0d86c1e9aaf0192c1234673d06d6ed452beb5ca2a12014cfa913818b114444bd7a6ee2c64fde53f98503a98a153754becdf0fe8ec53304adb233f0c4fec0bf31
 
-# Pm2 servidor (/microCredencialesApp)
-### Verificar que tu app esté corriendo
-pm2 list
-### Ver logs en tiempo real
-pm2 logs nextjs-app
-### Verificar estado detallado
-pm2 show nextjs-app

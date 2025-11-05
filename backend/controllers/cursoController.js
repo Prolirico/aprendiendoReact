@@ -43,7 +43,7 @@ const getAllCursos = async (req, res) => {
       if (uniIds.length > 0) {
         const placeholders = uniIds.map(() => '?').join(',');
         whereClauses.push(`c.id_universidad IN (${placeholders})`);
-        queryParams.push(...uniIds); // Spread operator
+      queryParams.push(...uniIds); // Spread operator
       }
     } else if (
       universidadId &&

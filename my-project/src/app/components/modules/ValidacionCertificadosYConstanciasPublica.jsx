@@ -26,15 +26,14 @@ const ValidacionAlumnoPublica = () => {
     const fetchUniversidades = async () => {
       try {
         setIsLoadingUniversidades(true);
-        // Corregida: Quita /api si backend monta en /api/universidades; ajusta si proxy
-        const response = await fetch(`${API_BASE_URL}/universidades`); // <--- Cambio clave: quita /api
+        // CORRECCIÓN: Agrega /api de vuelta
+        const response = await fetch(`${API_BASE_URL}/universidades`);
 
         if (!response.ok) {
           throw new Error("Error al cargar las universidades");
         }
 
         const data = await response.json();
-        // Asegúrate de que el backend devuelve un array en `data.universities`
         setUniversidades(data.universities || []);
       } catch (error) {
         console.error("Error fetching universities:", error);
@@ -59,6 +58,8 @@ const ValidacionAlumnoPublica = () => {
         selectedUniversidad,
         matricula,
       });
+
+      // CORRECCIÓN: Agrega /api
       const response = await fetch(
         `${API_BASE_URL}/public/student-status?universityId=${selectedUniversidad}&studentId=${matricula}`,
       );
