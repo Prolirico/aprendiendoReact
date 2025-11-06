@@ -148,43 +148,45 @@ export default function HomeLayout() {
         </div>
       </header>
       {renderContent()}
-
-      {/*CONTENIDO*/}
-      <div className={styles.contenidoHomeAprendizaje}>
-        <BlurText
-          text="Programas de aprendizaje"
-          delay={320}
-          animateBy="words"
-          direction="top"
-          onAnimationComplete={handleAnimationComplete}
-          className="text-6xl mb-12"
-          animationFrom={{ filter: "blur(10px)", opacity: 0, y: -50 }}
-          animationTo={[
-            { filter: "blur(5px)", opacity: 0.5, y: 5 },
-            { filter: "blur(0px)", opacity: 1, y: 0 },
-          ]}
-        />
-        <div className={styles.contenidoText}>
-          <DecryptedText
-            text="Un programa de aprendizaje es un sitio al que un grupo de estudiantes
-            invitados tiene acceso a un catálogo de cursos que los ayuda a
-            desarrollar las habilidades pertinentes para desempeñarse en sus
-            trabajos actuales y alcanzar futuras metas en sus carreras
-            profesionales. Debe invitarse a los estudiantes a unirse a un Programa
-            de aprendizaje y un estudiante puede unirse a múltiples Programas de
-            aprendizaje. Cada programa de aprendizaje cuenta con un catálogo
-            específico de cursos a los que solo pueden acceder los estudiantes
-            invitados a unirse a dicho programa. Los administradores de programas
-            pueden editar el catálogo de recomendaciones de cursos y agregar
-            colecciones específicas de cursos. Asimismo, pueden invitar, eliminar
-            y ver informes de los estudiantes de dicho programa de aprendizaje."
-            animateOn="view"
-            revealDirection="center"
+      
+      {/* CONTENIDO: Solo mostrar si NO hay user (vista pública) */}
+      {!user && (
+        <div className={styles.contenidoHomeAprendizaje}>
+          <BlurText
+            text="Programas de aprendizaje"
+            delay={320}
+            animateBy="words"
+            direction="top"
+            onAnimationComplete={handleAnimationComplete}
+            className="text-6xl mb-12"
+            animationFrom={{ filter: "blur(10px)", opacity: 0, y: -50 }}
+            animationTo={[
+              { filter: "blur(5px)", opacity: 0.5, y: 5 },
+              { filter: "blur(0px)", opacity: 1, y: 0 },
+            ]}
           />
+          <div className={styles.contenidoText}>
+            <DecryptedText
+              text="Un programa de aprendizaje es un sitio al que un grupo de estudiantes
+              invitados tiene acceso a un catálogo de cursos que los ayuda a
+              desarrollar las habilidades pertinentes para desempeñarse en sus
+              trabajos actuales y alcanzar futuras metas en sus carreras
+              profesionales. Debe invitarse a los estudiantes a unirse a un Programa
+              de aprendizaje y un estudiante puede unirse a múltiples Programas de
+              aprendizaje. Cada programa de aprendizaje cuenta con un catálogo
+              específico de cursos a los que solo pueden acceder los estudiantes
+              invitados a unirse a dicho programa. Los administradores de programas
+              pueden editar el catálogo de recomendaciones de cursos y agregar
+              colecciones específicas de cursos. Asimismo, pueden invitar, eliminar
+              y ver informes de los estudiantes de dicho programa de aprendizaje."
+              animateOn="view"
+              revealDirection="center"
+            />
+          </div>
         </div>
-      </div>
+      )}
 
-      {/*FOOTER */}
+      {/*FOOTER: Siempre visible para consistencia, pero si causa issues, hazlo {!user && <footer...>} */}
       <footer className={styles.contenidoFooter}>
         <div className={styles.contenidoFooter1}>
           <div>
