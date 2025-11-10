@@ -130,16 +130,14 @@ exports.googleAuth = async (req, res) => {
         return res.status(403).json({ error: "Cuenta inactiva o suspendida" });
       }
 
-      // ¡NUEVA LÓGICA! Si el perfil está pendiente, no se le permite iniciar sesión.
       if (user.estatus === "pendiente") {
         console.log(
           "Google Auth: User has a pending profile. Denying login and signaling to complete profile.",
         );
-        // Enviamos un error 403 (Prohibido) con una señal clara para el frontend.
         return res.status(403).json({
           error: "PROFILE_INCOMPLETE",
           message: "El perfil del alumno debe ser completado antes de iniciar sesión.",
-          user: { // Enviamos los datos para que el frontend pueda usarlos
+          user: { 
             id_usuario: user.id_usuario,
             username: user.username,
             email: user.email,

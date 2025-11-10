@@ -29,25 +29,12 @@ const MainMenu: FC<MainMenuProps> = ({ isAuthenticated }) => {
       </button>
       {open && (
         <div className={styles.dropdown}>
-          {isAuthenticated ? (
-            <>
-              <Link href="/dashboard">
-                <button className={styles.menuItem}>Dashboard</button>
-              </Link>
-              <Link href="/profile">
-                <button className={styles.menuItem}>Perfil</button>
-              </Link>
-            </>
-          ) : (
-            <>
-              <Link href={"https://ceatycc.fif-uaq.mx/index.html"}>
-                <button className={styles.menuItem}>CeatYCC</button>
-              </Link>
-              <Link href={"https://portal.queretaro.gob.mx/educacion/"}>
-                <button className={styles.menuItem}>SEDEQ</button>
-              </Link>
-            </>
-          )}
+          <Link href={"https://ceatycc.fif-uaq.mx/index.html"}>
+            <button className={styles.menuItem}>CeatYCC</button>
+          </Link>
+          <Link href={"https://portal.queretaro.gob.mx/educacion/"}>
+            <button className={styles.menuItem}>SEDEQ</button>
+          </Link>
         </div>
       )}
     </div>
