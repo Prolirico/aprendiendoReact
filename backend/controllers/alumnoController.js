@@ -8,6 +8,7 @@ exports.completeStudentProfile = async (req, res) => {
         id_universidad,
         id_carrera,
         semestre_actual,
+        correo_personal,
     } = req.body;
 
     if (
@@ -16,7 +17,8 @@ exports.completeStudentProfile = async (req, res) => {
         !matricula ||
         !id_universidad ||
         !id_carrera ||
-        !semestre_actual
+        !semestre_actual ||
+        !correo_personal
     ) {
         return res
             .status(400)
@@ -59,14 +61,15 @@ exports.completeStudentProfile = async (req, res) => {
         }
 
         await connection.execute(
-            `INSERT INTO alumno (id_usuario, id_universidad, nombre_completo, matricula, correo_institucional, id_carrera, semestre_actual, estatus_academico)
-             VALUES (?, ?, ?, ?, ?, ?, ?, 'regular')`,
+            `INSERT INTO alumno (id_usuario, id_universidad, nombre_completo, matricula, correo_institucional, correo_personal, id_carrera, semestre_actual, estatus_academico)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'regular')`,
             [
                 id_usuario,
                 id_universidad,
                 nombre_completo,
                 matricula,
                 user.email,
+                correo_personal,
                 id_carrera,
                 semestre_actual,
             ],

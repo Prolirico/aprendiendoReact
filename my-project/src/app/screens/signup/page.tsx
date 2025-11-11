@@ -53,6 +53,7 @@ export default function SignUpPage() {
     id_universidad: "",
     id_carrera: "",
     semestre_actual: "",
+    correo_personal: "",
   });
   const [universidades, setUniversidades] = useState<University[]>([]);
   const [loading, setLoading] = useState(false);
@@ -336,6 +337,20 @@ export default function SignUpPage() {
                     min="1"
                     max="15"
                     required
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label htmlFor="correo_personal">Correo Personal</label>
+                  <input
+                    type="email"
+                    id="correo_personal"
+                    name="correo_personal"
+                    value={profileData.correo_personal || ''}
+                    onChange={handleProfileChange}
+                    required
+                    placeholder="tucorreo@ejemplo.com"
+                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                    title="Por favor ingresa un correo electrónico válido"
                   />
                 </div>
                 <button
