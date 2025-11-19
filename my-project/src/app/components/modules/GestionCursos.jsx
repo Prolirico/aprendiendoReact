@@ -6,10 +6,14 @@ import {
   faTrash,
   faPlus,
   faTimes,
+  faListCheck,
+  faDownload,
 } from "@fortawesome/free-solid-svg-icons";
 import styles from "./GestionCursos.module.css";
 import GestionHorarios from "./GestionHorarios"; // Importar el nuevo componente
-import GestionUnidades from "./GestionUnidades"; // Importar el nuevo componente
+import PlaneacionCurso from "./PlaneacionCurso";
+import MaterialADescargar from "./MaterialADescargar";
+import { useAuth } from "@/hooks/useAuth";
 
 const API_URL = "http://localhost:5000/api/cursos";
 const API_URL_UNIVERSIDADES = "http://localhost:5000/api/universidades";
@@ -62,10 +66,40 @@ function CourseManagement({ userId }) {
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [openPlaneacionCurso, setOpenPlaneacionCurso] = useState(false);
+  const [cursoPlaneacion, setCursoPlaneacion] = useState(null);
+  const [openMaterialModal, setOpenMaterialModal] = useState(false);
+  const [cursoMaterial, setCursoMaterial] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+  const { token } = useAuth();
   const [formState, setFormState] = useState(initialCourseState);
   const [isEditing, setIsEditing] = useState(false);
   const [courseToDelete, setCourseToDelete] = useState(null);
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
+  const [confirmModal, setConfirmModal] = useState({
+    show: false,
+    title: "",
+    message: "",
+    onConfirm: null,
+    type: "warning",
+  });
+
+  useEffect(() => {
+    try {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        setCurrentUser(JSON.parse(storedUser));
+      } else {
+        setCurrentUser(null);
+      }
+    } catch (error) {
+      console.error("Error al leer usuario desde localStorage:", error);
+      setCurrentUser(null);
+    }
+  }, []);
+
+  const isMaestroUser = currentUser?.tipo_usuario === "maestro";
+  const isAdminSedeq = currentUser?.tipo_usuario === "admin_sedeq";
 
   // Función para obtener los cursos
   const fetchCourses = useCallback(async () => {
@@ -252,6 +286,37 @@ function CourseManagement({ userId }) {
     }, 3000);
   };
 
+  const showConfirmModal = (title, message, onConfirm, type = "warning") => {
+    setConfirmModal({ show: true, title, message, onConfirm, type });
+  };
+
+  const closeConfirmModal = () => {
+    setConfirmModal({ show: false, title: "", message: "", onConfirm: null, type: "warning" });
+  };
+
+  const openPlaneacion = (curso) => {
+    setCursoPlaneacion(curso);
+    setOpenPlaneacionCurso(true);
+  };
+
+  const closePlaneacion = () => {
+    setOpenPlaneacionCurso(false);
+    setCursoPlaneacion(null);
+  };
+
+  const openMaterial = (curso) => {
+    setCursoMaterial(curso);
+    setOpenMaterialModal(true);
+  };
+
+  const closeMaterial = (shouldReload = false) => {
+    setOpenMaterialModal(false);
+    setCursoMaterial(null);
+    if (shouldReload) {
+      fetchCourses();
+    }
+  };
+
   // Abrir modal para agregar/editar
   const handleOpenModal = (course = null) => {
     if (course) {
@@ -273,6 +338,7 @@ function CourseManagement({ userId }) {
         id_universidad: formattedCourse.id_universidad || "",
         id_facultad: formattedCourse.id_facultad || "",
         id_carrera: formattedCourse.id_carrera || "",
+        id_maestro: formattedCourse.id_maestro ? String(formattedCourse.id_maestro) : "",
       };
       setFormState(stateReadyCourse);
 
@@ -295,7 +361,8 @@ function CourseManagement({ userId }) {
       }
     } else {
       setIsEditing(false);
-      setFormState({ ...initialCourseState, id_maestro: userId || null });
+      const presetMaestro = isMaestroUser && userId ? String(userId) : "";
+      setFormState({ ...initialCourseState, id_maestro: presetMaestro });
       setSelectedArea("");
       setCategories([]);
       setSelectedUniversidad("");
@@ -987,7 +1054,32 @@ function CourseManagement({ userId }) {
                 >
                   Cancelar
                 </button>
-                {/* Cambiamos de type="submit" a type="button" y usamos onClick para tener control total */}
+                {isEditing && (
+                  <div className={styles.formActionsInline}>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        openPlaneacion(formState);
+                      }}
+                      className={styles.buttonLight}
+                    >
+                      <FontAwesomeIcon icon={faListCheck} /> Planear Curso
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        openMaterial(formState);
+                      }}
+                      className={styles.buttonLight}
+                    >
+                      <FontAwesomeIcon icon={faDownload} /> Material a Descargar
+                    </button>
+                  </div>
+                )}
                 <button
                   type="button"
                   onClick={(e) => {
@@ -1011,16 +1103,64 @@ function CourseManagement({ userId }) {
                   e.stopPropagation();
                 }}
               >
-                <GestionUnidades
-                  key={`unidades-${formState.id_curso}`} // Key estable
-                  cursoId={formState.id_curso}
-                />
                 <GestionHorarios
                   key={`horarios-${formState.id_curso}`} // Key estable
                   cursoId={formState.id_curso}
                 />
               </div>
             )}
+          </div>
+        </div>
+      )}
+      {openPlaneacionCurso && cursoPlaneacion && (
+        <PlaneacionCurso
+          curso={cursoPlaneacion}
+          token={token}
+          onClose={() => closePlaneacion()}
+          onSave={() => {
+            showToast("Planeación guardada correctamente", "success");
+            closePlaneacion();
+          }}
+        />
+      )}
+      {openMaterialModal && cursoMaterial && (
+        <MaterialADescargar
+          curso={cursoMaterial}
+          onClose={() => closeMaterial(true)}
+          showToast={showToast}
+          showConfirmModal={showConfirmModal}
+        />
+      )}
+      {confirmModal.show && (
+        <div className={styles.modalBackdrop} onClick={closeConfirmModal}>
+          <div className={styles.deleteModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.deleteModalContent}>
+              <div className={`${styles.deleteIcon} ${styles[confirmModal.type] || styles.warning}`}>
+                {confirmModal.type === "success"
+                  ? "✅"
+                  : confirmModal.type === "error"
+                    ? "❌"
+                    : "⚠️"}
+              </div>
+              <h3>{confirmModal.title}</h3>
+              <p>{confirmModal.message}</p>
+            </div>
+            <div className={styles.deleteActions}>
+              <button onClick={closeConfirmModal} className={styles.cancelButton}>
+                {confirmModal.onConfirm ? "Cancelar" : "Cerrar"}
+              </button>
+              {confirmModal.onConfirm && (
+                <button
+                  onClick={() => {
+                    confirmModal.onConfirm();
+                    closeConfirmModal();
+                  }}
+                  className={styles.confirmDeleteButton}
+                >
+                  Confirmar
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}

@@ -1,5 +1,7 @@
 const pool = require("../config/db");
 
+const DEFAULT_ACTIVITY_FILE_TYPES = ["pdf", "link"];
+
 // @desc    Obtener todos los cursos con paginación, búsqueda y filtro
 // @route   GET /api/cursos
 const getAllCursos = async (req, res) => {
@@ -469,6 +471,20 @@ const getAlumnosPorCurso = async (req, res) => {
   }
 };
 
+const obtenerPlaneacion = async (req, res) => {
+  res.status(501).json({
+    error:
+      "El endpoint para obtener la planeación del curso está en desarrollo.",
+  });
+};
+
+const actualizarPlaneacion = async (req, res) => {
+  res.status(501).json({
+    error:
+      "El endpoint para actualizar la planeación del curso está en desarrollo.",
+  });
+};
+
 module.exports = {
   getAllCursos,
   getCursoById,
@@ -476,4 +492,6 @@ module.exports = {
   updateCurso,
   deleteCurso,
   getAlumnosPorCurso,
+  obtenerPlaneacion,
+  actualizarPlaneacion,
 };

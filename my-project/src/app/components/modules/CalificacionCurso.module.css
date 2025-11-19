@@ -190,14 +190,43 @@
     cursor: not-allowed;
 }
 
+.buttonLight {
+    background-color: #eef2ff;
+    color: #312e81;
+    border: 1px solid #c7d2fe;
+    padding: 0.6rem 1.2rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.buttonLight:hover {
+    background-color: #e0e7ff;
+    border-color: #a5b4fc;
+}
+
+.buttonLight:disabled {
+    background-color: #ede9fe;
+    color: #9ca3af;
+    border-color: #e0e0e0;
+    cursor: not-allowed;
+}
+
 .buttonSecondary {
     background-color: #e5e7eb;
     color: #374151;
     border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
     cursor: pointer;
-    font-size: 0.875rem;
     transition: background-color 0.2s;
 }
 

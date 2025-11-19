@@ -7,6 +7,8 @@ const {
   updateCurso,
   deleteCurso,
   getAlumnosPorCurso,
+  obtenerPlaneacion,
+  actualizarPlaneacion,
 } = require("../controllers/cursoController");
 const { protect } = require("../middleware/authMiddleware.js");
 
@@ -15,9 +17,11 @@ const { protect } = require("../middleware/authMiddleware.js");
 // Rutas para los cursos
 router.get("/", getAllCursos);
 router.get("/:id", getCursoById);
-router.get("/:id/alumnos", protect, getAlumnosPorCurso); // <-- NUEVA RUTA
+router.get("/:id/alumnos", protect, getAlumnosPorCurso);
 router.post("/", createCurso);
 router.put("/:id", updateCurso);
 router.delete("/:id", deleteCurso);
+router.put("/:id/planeacion", protect, actualizarPlaneacion);
+router.get("/:id/planeacion", protect, obtenerPlaneacion);
 
 module.exports = router;

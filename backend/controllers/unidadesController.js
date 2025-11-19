@@ -131,10 +131,39 @@ const updateUnidadesOrden = async (req, res) => {
     }
 };
 
+// ===== Subtemas (stubs en desarrollo) =====
+const obtenerSubtemas = async (req, res) => {
+  res.status(501).json({
+    error: "El endpoint para obtener subtemas está en desarrollo.",
+  });
+};
+
+const crearSubtema = async (req, res) => {
+  res.status(501).json({
+    error: "El endpoint para crear subtemas está en desarrollo.",
+  });
+};
+
+const actualizarSubtema = async (req, res) => {
+  res.status(501).json({
+    error: "El endpoint para actualizar subtemas está en desarrollo.",
+  });
+};
+
+const eliminarSubtema = async (req, res) => {
+  res.status(501).json({
+    error: "El endpoint para eliminar subtemas está en desarrollo.",
+  });
+};
+
 module.exports = {
   getUnidadesByCursoId,
   createUnidad,
   updateUnidad,
   deleteUnidad,
   updateUnidadesOrden,
+  obtenerSubtemas,
+  crearSubtema,
+  actualizarSubtema,
+  eliminarSubtema,
 };
