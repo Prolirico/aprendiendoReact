@@ -8,9 +8,10 @@ import {
   faTimes,
   faListCheck,
   faDownload,
+  faClock,
 } from "@fortawesome/free-solid-svg-icons";
 import styles from "./GestionCursos.module.css";
-import GestionHorarios from "./GestionHorarios"; // Importar el nuevo componente
+import GestionHorarios from "./GestionHorarios";
 import PlaneacionCurso from "./PlaneacionCurso";
 import MaterialADescargar from "./MaterialADescargar";
 import { useAuth } from "@/hooks/useAuth";
@@ -70,6 +71,7 @@ function CourseManagement({ userId }) {
   const [cursoPlaneacion, setCursoPlaneacion] = useState(null);
   const [openMaterialModal, setOpenMaterialModal] = useState(false);
   const [cursoMaterial, setCursoMaterial] = useState(null);
+  const [openHorariosModal, setOpenHorariosModal] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const { token } = useAuth();
   const [formState, setFormState] = useState(initialCourseState);
@@ -315,6 +317,14 @@ function CourseManagement({ userId }) {
     if (shouldReload) {
       fetchCourses();
     }
+  };
+
+  const openHorarios = () => {
+    setOpenHorariosModal(true);
+  };
+
+  const closeHorarios = () => {
+    setOpenHorariosModal(false);
   };
 
   // Abrir modal para agregar/editar
@@ -1043,6 +1053,50 @@ function CourseManagement({ userId }) {
                 </div>
               </div>{" "}
               {/* Cierre de formGrid */}
+
+              {isEditing && (
+                <div className={styles.managementGrid}>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      openPlaneacion(formState);
+                    }}
+                    className={styles.managementButton}
+                  >
+                    <FontAwesomeIcon icon={faListCheck} className={styles.managementButtonIcon} />
+                    <span className={styles.managementButtonText}>Planear Curso</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      openMaterial(formState);
+                    }}
+                    className={styles.managementButton}
+                  >
+                    <FontAwesomeIcon icon={faDownload} className={styles.managementButtonIcon} />
+                    <span className={styles.managementButtonText}>Material a Descargar</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      openHorarios();
+                    }}
+                    className={styles.managementButton}
+                  >
+                    <FontAwesomeIcon icon={faClock} className={styles.managementButtonIcon} />
+                    <span className={styles.managementButtonText}>Agregar Horario</span>
+                  </button>
+                </div>
+              )}
+
               <div className={styles.formActions}>
                 <button
                   type="button"
@@ -1054,32 +1108,6 @@ function CourseManagement({ userId }) {
                 >
                   Cancelar
                 </button>
-                {isEditing && (
-                  <div className={styles.formActionsInline}>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        openPlaneacion(formState);
-                      }}
-                      className={styles.buttonLight}
-                    >
-                      <FontAwesomeIcon icon={faListCheck} /> Planear Curso
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        openMaterial(formState);
-                      }}
-                      className={styles.buttonLight}
-                    >
-                      <FontAwesomeIcon icon={faDownload} /> Material a Descargar
-                    </button>
-                  </div>
-                )}
                 <button
                   type="button"
                   onClick={(e) => {
@@ -1094,21 +1122,6 @@ function CourseManagement({ userId }) {
               </div>
             </div>
 
-            {isEditing && formState.id_curso && (
-              <div
-                className={`${styles.subModulesSection} ${styles.fullWidth}`}
-                onClick={(e) => e.stopPropagation()}
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-              >
-                <GestionHorarios
-                  key={`horarios-${formState.id_curso}`} // Key estable
-                  cursoId={formState.id_curso}
-                />
-              </div>
-            )}
           </div>
         </div>
       )}
@@ -1130,6 +1143,24 @@ function CourseManagement({ userId }) {
           showToast={showToast}
           showConfirmModal={showConfirmModal}
         />
+      )}
+      {openHorariosModal && isEditing && formState.id_curso && (
+        <div className={styles.modalBackdrop} onClick={closeHorarios}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3>Gestión de Horarios</h3>
+              <button onClick={closeHorarios} className={styles.closeButton}>
+                <FontAwesomeIcon icon={faTimes} />
+              </button>
+            </div>
+            <div className={styles.modalBody}>
+              <GestionHorarios
+                key={`horarios-${formState.id_curso}`}
+                cursoId={formState.id_curso}
+              />
+            </div>
+          </div>
+        </div>
       )}
       {confirmModal.show && (
         <div className={styles.modalBackdrop} onClick={closeConfirmModal}>
