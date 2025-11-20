@@ -30,6 +30,9 @@ const initialCourseState = {
   id_area: "",
   id_categoria: "",
   id_maestro: "",
+  id_universidad: "",
+  id_facultad: "",
+  id_carrera: "",
   objetivos: "",
   prerequisitos: "",
   duracion_horas: "",
@@ -287,10 +290,8 @@ function CourseManagement({ userId }) {
   useEffect(() => {
     fetchCourses();
     fetchAreas(); // Cargamos las áreas en lugar de todas las categorías
-    if (!userId) {
-      fetchUniversidades();
-    }
-  }, [fetchCourses, fetchAreas, fetchUniversidades, userId]);
+    fetchUniversidades();
+  }, [fetchCourses, fetchAreas, fetchUniversidades]);
 
   // Función para mostrar notificaciones toast
   const showToast = (message, type = "success") => {
@@ -340,7 +341,7 @@ function CourseManagement({ userId }) {
   };
 
   // Abrir modal para agregar/editar
-  const handleOpenModal = (course = null) => {
+  const handleOpenModal = async (course = null) => {
     if (course) {
       setIsEditing(true);
       const formattedCourse = {
@@ -371,15 +372,19 @@ function CourseManagement({ userId }) {
 
       if (course.id_universidad) {
         setSelectedUniversidad(course.id_universidad);
-        fetchFacultades(course.id_universidad);
+        await fetchFacultades(course.id_universidad);
       }
       if (course.id_facultad) {
         setSelectedFacultad(course.id_facultad);
-        fetchCarreras(course.id_facultad);
+        await fetchCarreras(course.id_facultad);
       }
-      if (course.id_carrera) {
-        setSelectedCarrera(course.id_carrera);
-        fetchTeachers(course.id_carrera);
+      if (course.id_carrera || course.id_facultad) {
+        setSelectedCarrera(course.id_carrera || "");
+        await fetchTeachers({
+          universidadId: course.id_universidad,
+          facultadId: course.id_facultad,
+          carreraId: course.id_carrera || null
+        });
       }
     } else {
       setIsEditing(false);
@@ -471,7 +476,7 @@ function CourseManagement({ userId }) {
     fetchCategoriesByArea(areaId);
   };
 
-  const handleUniversidadChange = (e) => {
+  const handleUniversidadChange = async (e) => {
     const uniId = e.target.value;
     setSelectedUniversidad(uniId);
     setSelectedFacultad("");
@@ -483,10 +488,13 @@ function CourseManagement({ userId }) {
       id_carrera: "",
       id_maestro: "",
     }));
-    fetchFacultades(uniId);
+    setFacultades([]);
+    setCarreras([]);
+    setTeachers([]);
+    await fetchFacultades(uniId);
   };
 
-  const handleFacultadChange = (e) => {
+  const handleFacultadChange = async (e) => {
     const facId = e.target.value;
     setSelectedFacultad(facId);
     setSelectedCarrera("");
@@ -496,10 +504,12 @@ function CourseManagement({ userId }) {
       id_carrera: "",
       id_maestro: "",
     }));
-    fetchCarreras(facId);
+    setCarreras([]);
+    setTeachers([]);
+    await fetchCarreras(facId);
   };
 
-  const handleCarreraChange = (e) => {
+  const handleCarreraChange = async (e) => {
     const carId = e.target.value;
     setSelectedCarrera(carId);
     setFormState((prev) => ({
@@ -507,7 +517,14 @@ function CourseManagement({ userId }) {
       id_carrera: carId,
       id_maestro: "",
     }));
-    fetchTeachers(carId);
+    setTeachers([]);
+    if (isEditing) {
+      await fetchTeachers({
+        universidadId: selectedUniversidad,
+        facultadId: selectedFacultad,
+        carreraId: carId
+      });
+    }
   };
 
   const handleFormSubmit = async (e) => {
@@ -544,6 +561,7 @@ function CourseManagement({ userId }) {
       id_universidad: selectedUniversidad || formState.id_universidad || null,
       id_facultad: selectedFacultad || formState.id_facultad || null,
       id_carrera: selectedCarrera || formState.id_carrera || null,
+      id_maestro: formState.id_maestro || null, // Asegurar null si no se selecciona
     };
 
     if (!isEditing) {
@@ -701,117 +719,117 @@ function CourseManagement({ userId }) {
                 {" "}
                 {/* Este div se mantiene para el layout */}
                 {/* --- INICIO DE LA SECCIÓN DE FILTROS --- */}
-                {!userId && (
-                  <>
-                    <div className={`${styles.formGroup} ${styles.fullWidth}`}>
-                      <label htmlFor="universidad">Universidad</label>
-                      <select
-                        id="universidad"
-                        name="universidad"
-                        value={selectedUniversidad}
-                        onChange={handleUniversidadChange}
-                        required
+                <>
+                  <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                    <label htmlFor="universidad">Universidad</label>
+                    <select
+                      id="universidad"
+                      name="universidad"
+                      value={selectedUniversidad}
+                      onChange={handleUniversidadChange}
+                      required
+                    >
+                      <option value="">Seleccione una universidad</option>
+                      {universidades.map((uni) => (
+                        <option
+                          key={uni.id_universidad}
+                          value={uni.id_universidad}
+                        >
+                          {uni.nombre}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {isFacultadesLoading ? (
+                    <p>Cargando facultades...</p>
+                  ) : (
+                    selectedUniversidad && (
+                      <div
+                        className={`${styles.formGroup} ${styles.fullWidth}`}
                       >
-                        <option value="">Seleccione una universidad</option>
-                        {universidades.map((uni) => (
-                          <option
-                            key={uni.id_universidad}
-                            value={uni.id_universidad}
-                          >
-                            {uni.nombre}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {isFacultadesLoading ? (
-                      <p>Cargando facultades...</p>
-                    ) : (
-                      selectedUniversidad && (
-                        <div
-                          className={`${styles.formGroup} ${styles.fullWidth}`}
+                        <label htmlFor="facultad">Facultad</label>
+                        <select
+                          id="facultad"
+                          name="facultad"
+                          value={selectedFacultad}
+                          onChange={handleFacultadChange}
+                          required
                         >
-                          <label htmlFor="facultad">Facultad</label>
-                          <select
-                            id="facultad"
-                            name="facultad"
-                            value={selectedFacultad}
-                            onChange={handleFacultadChange}
-                            required
-                          >
-                            <option value="">Seleccione una facultad</option>
-                            {facultades.map((fac) => (
-                              <option
-                                key={fac.id_facultad}
-                                value={fac.id_facultad}
-                              >
-                                {fac.nombre}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      )
-                    )}
+                          <option value="">Seleccione una facultad</option>
+                          {facultades.map((fac) => (
+                            <option
+                              key={fac.id_facultad}
+                              value={fac.id_facultad}
+                            >
+                              {fac.nombre}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )
+                  )}
 
-                    {isCarrerasLoading ? (
-                      <p>Cargando carreras...</p>
-                    ) : (
-                      selectedFacultad && (
-                        <div
-                          className={`${styles.formGroup} ${styles.fullWidth}`}
+                  {isCarrerasLoading ? (
+                    <p>Cargando carreras...</p>
+                  ) : (
+                    selectedFacultad && (
+                      <div
+                        className={`${styles.formGroup} ${styles.fullWidth}`}
+                      >
+                        <label htmlFor="carrera">Carrera (Opcional)</label>
+                        <select
+                          id="carrera"
+                          name="carrera"
+                          value={selectedCarrera}
+                          onChange={handleCarreraChange}
                         >
-                          <label htmlFor="carrera">Carrera</label>
-                          <select
-                            id="carrera"
-                            name="carrera"
-                            value={selectedCarrera}
-                            onChange={handleCarreraChange}
-                            required
-                          >
-                            <option value="">Seleccione una carrera</option>
-                            {carreras.map((car) => (
-                              <option
-                                key={car.id_carrera}
-                                value={car.id_carrera}
-                              >
-                                {car.nombre}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      )
-                    )}
+                          <option value="">Seleccione una carrera (opcional)</option>
+                          {carreras.map((car) => (
+                            <option
+                              key={car.id_carrera}
+                              value={car.id_carrera}
+                            >
+                              {car.nombre}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )
+                  )}
 
-                    {isTeachersLoading ? (
-                      <p>Cargando maestros...</p>
-                    ) : (
-                      selectedCarrera && (
-                        <div
-                          className={`${styles.formGroup} ${styles.fullWidth}`}
-                        >
-                          <label htmlFor="id_maestro">Maestro Asignado</label>
-                          <select
-                            id="id_maestro"
-                            name="id_maestro"
-                            value={formState.id_maestro || ""}
-                            onChange={handleFormChange}
-                            required
+                  {isEditing && (
+                    <>
+                      {isTeachersLoading ? (
+                        <p>Cargando maestros...</p>
+                      ) : (
+                        selectedFacultad && (
+                          <div
+                            className={`${styles.formGroup} ${styles.fullWidth}`}
                           >
-                            <option value="">Seleccione un maestro</option>
-                            {teachers.map((teacher) => (
-                              <option
-                                key={teacher.id_maestro}
-                                value={teacher.id_maestro}
-                              >
-                                {teacher.nombre_completo}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      )
-                    )}
-                  </>
-                )}
+                            <label htmlFor="id_maestro">Maestro (Opcional)</label>
+                            <select
+                              id="id_maestro"
+                              name="id_maestro"
+                              value={formState.id_maestro || ""}
+                              onChange={handleFormChange}
+                            >
+                              <option value="">Seleccione un maestro (opcional)</option>
+                              {teachers.map((teacher) => (
+                                <option
+                                  key={teacher.id_maestro}
+                                  value={teacher.id_maestro}
+                                >
+                                  {teacher.nombre_completo}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        )
+                      )}
+                    </>
+                  )}
+                </>
                 {/* --- FIN DE LA SECCIÓN DE FILTROS --- */}
                 <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                   <label htmlFor="nombre_curso">Nombre del Curso</label>

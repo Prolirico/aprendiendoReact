@@ -22,8 +22,8 @@ const getAllCursos = async (req, res) => {
     exclude_assigned = "true",
     editing_credential_id,
     universidades,
-    groupByCourse, // <-- Nuestro nuevo parámetro
-    universidadId, // <-- Añadir estos parámetros que envía el frontend
+    groupByCourse,
+    universidadId,
     facultadId,
   } = req.query;
   const offset = (page - 1) * limit;
@@ -400,8 +400,8 @@ const updateCurso = async (req, res) => {
   const categoriaId = normalizeNullableInt(id_categoria);
   const areaId = normalizeNullableInt(id_area);
 
+  // REMOVER !normalizedIdMaestro: Hazlo opcional, como en createCurso
   if (
-    !normalizedIdMaestro ||
     !nombre_curso ||
     !duracion_horas ||
     !nivel ||
@@ -431,7 +431,15 @@ const updateCurso = async (req, res) => {
     });
   }
 
-  try {
+  // MOVER LAS VALIDACIONES DENTRO DE ESTE IF: Solo si se proporciona maestro
+  if (normalizedIdMaestro !== null) {
+    if (!universidadId || !facultadId) {
+      return res.status(400).json({
+        error:
+          "Debe especificar la universidad y facultad del curso antes de asignar un maestro.",
+      });
+    }
+
     const [maestroRows] = await pool.query(
       "SELECT id_maestro, id_universidad, id_facultad, id_carrera FROM maestro WHERE id_maestro = ?",
       [normalizedIdMaestro],
@@ -465,7 +473,10 @@ const updateCurso = async (req, res) => {
         error: "El maestro seleccionado no pertenece a la carrera del curso.",
       });
     }
+  }
 
+  // El resto sin cambios: El query ya actualiza universidad/facultad/carrera/maestro correctamente (pueden ser null)
+  try {
     const [result] = await pool.query(
       `UPDATE curso SET
                 id_maestro = ?, id_categoria = ?, id_area = ?, id_universidad = ?, id_facultad = ?, id_carrera = ?,
