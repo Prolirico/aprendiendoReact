@@ -102,6 +102,7 @@ function CourseManagement({ userId }) {
 
   const isMaestroUser = currentUser?.tipo_usuario === "maestro";
   const isAdminSedeq = currentUser?.tipo_usuario === "admin_sedeq";
+  const canAssignTeacher = isEditing && !!selectedUniversidad && !!selectedFacultad;
 
   // Función para obtener los cursos
   const fetchCourses = useCallback(async () => {
@@ -250,26 +251,37 @@ function CourseManagement({ userId }) {
     }
   }, []);
 
-  const fetchTeachers = useCallback(async (idCarrera) => {
-    if (!idCarrera) {
+  const fetchTeachers = useCallback(
+    async ({ universidadId, facultadId, carreraId = null }) => {
+      if (!universidadId || !facultadId) {
+        setTeachers([]);
+        return;
+      }
+
+      setIsTeachersLoading(true);
       setTeachers([]);
-      return;
-    }
-    setIsTeachersLoading(true);
-    setTeachers([]);
-    try {
-      // El backend podrá filtrar por carrera
-      const response = await fetch(
-        `${API_URL_MAESTROS}?id_carrera=${idCarrera}`,
-      );
-      const data = await response.json();
-      setTeachers(data.maestros || []);
-    } catch (err) {
-      console.error("Error al cargar maestros:", err);
-    } finally {
-      setIsTeachersLoading(false);
-    }
-  }, []);
+
+      try {
+        const params = new URLSearchParams({
+          id_universidad: universidadId,
+          id_facultad: facultadId,
+        });
+
+        if (carreraId) {
+          params.append("id_carrera", carreraId);
+        }
+
+        const response = await fetch(`${API_URL_MAESTROS}?${params.toString()}`);
+        const data = await response.json();
+        setTeachers(data.maestros || []);
+      } catch (err) {
+        console.error("Error al cargar maestros:", err);
+      } finally {
+        setIsTeachersLoading(false);
+      }
+    },
+    [],
+  );
 
   // Efecto para cargar datos iniciales
   useEffect(() => {

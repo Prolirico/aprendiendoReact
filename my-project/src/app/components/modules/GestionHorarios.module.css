@@ -1,301 +1,440 @@
 .gestionContainer {
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid #e0e0e0;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
 }
 
 .gestionContainer h4 {
-    margin-bottom: 1.5rem;
-    font-size: 1.2rem;
-    color: #333;
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+  color: #111827;
+  font-weight: 600;
 }
 
 .horariosList {
-    list-style: none;
-    padding: 0;
-    margin-bottom: 1.5rem;
+  list-style: none;
+  padding: 0;
+  margin-bottom: 1.5rem;
 }
 
 .horarioItem {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 1rem;
-    background-color: #f9f9f9;
-    border-radius: 6px;
-    margin-bottom: 0.5rem;
-    border: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background-color: white;
+  border-radius: 0.5rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.horarioItem:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border-color: #d1d5db;
 }
 
 .horarioInfo {
-    font-size: 0.95rem;
+  font-size: 0.95rem;
+  color: #374151;
+  flex: 1;
+}
+
+.horarioInfo strong {
+  color: #111827;
+  font-weight: 600;
 }
 
 .horarioActions {
-    display: flex;
-    gap: 0.5rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
 }
 
 .actionButton {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #555;
-    font-size: 1rem;
-    padding: 0.25rem;
+  background: none;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  color: #6b7280;
+  font-size: 1rem;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
 }
 
-.actionButton:hover {
-    color: #007bff;
+.actionButton:hover:not(:disabled) {
+  color: #4f46e5;
+  background-color: #eef2ff;
+  border-color: #4f46e5;
+}
+
+.actionButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .addButton {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 0.6rem 1.2rem;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background-color 0.2s;
+  background-color: #10b981;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .addButton:hover {
-    background-color: #218838;
+  background-color: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
 }
 
 .horarioForm {
-    margin-top: 1.5rem;
-    padding: 1.5rem;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #fff;
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  background-color: white;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
 }
 
 .horarioForm h5 {
-    margin-top: 0;
-    margin-bottom: 1rem;
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+  font-size: 1.125rem;
+  color: #111827;
+  font-weight: 600;
 }
 
 .formGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
 }
 
 .formGroup {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .formGroup label {
-    margin-bottom: 0.3rem;
-    font-size: 0.85rem;
-    font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
 }
 
 .formGroup input,
 .formGroup select {
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 0.9rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  color: #111827;
+  background-color: white;
+  transition: all 0.2s ease;
+}
+
+.formGroup input:focus,
+.formGroup select:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
 .formActions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.75rem;
-    margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #e5e7eb;
 }
 
 .saveButton,
 .cancelButton {
-    padding: 0.6rem 1.2rem;
-    border-radius: 5px;
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
 }
 
 .saveButton {
-    background-color: #007bff;
-    color: white;
+  background-color: #4f46e5;
+  color: white;
 }
 
 .saveButton:hover {
-    background-color: #0056b3;
+  background-color: #4338ca;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
 }
 
 .cancelButton {
-    background-color: #f0f0f0;
-    color: #333;
-    border: 1px solid #ccc;
+  background-color: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
 }
 
 .cancelButton:hover {
-    background-color: #e0e0e0;
+  background-color: #f9fafb;
+  border-color: #9ca3af;
 }
 
 .emptyState {
-    text-align: center;
-    padding: 1rem;
-    color: #666;
-    background-color: #f9f9f9;
-    border-radius: 6px;
-    margin-bottom: 1rem;
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #6b7280;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px dashed #d1d5db;
+}
+
+.emptyState p {
+  margin: 0;
+  font-size: 0.95rem;
 }
 
 .errorText {
-    color: #dc3545;
+  color: #ef4444;
+  padding: 0.75rem 1rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
 }
 
 /* Modal de confirmación personalizado */
 .confirmModalBackdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
-    /* Z-index muy alto para superar problemas de fullscreen */
-    backdrop-filter: blur(2px);
-    animation: fadeInBackdrop 0.2s ease-out;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(4px);
+  animation: fadeInBackdrop 0.2s ease-out;
 }
 
 .confirmModal {
-    background: white;
-    border-radius: 12px;
-    box-shadow:
-        0 20px 25px -5px rgba(0, 0, 0, 0.1),
-        0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    max-width: 400px;
-    width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-    animation: slideInModal 0.3s ease-out;
-    /* Asegurar que el modal tenga su propio stacking context */
-    transform: translateZ(0);
-    position: relative;
-    z-index: 10001;
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  max-width: 450px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideInModal 0.3s ease-out;
+  transform: translateZ(0);
+  position: relative;
+  z-index: 10001;
 }
 
 .confirmModalContent {
-    padding: 24px;
-    text-align: center;
+  padding: 2rem;
+  text-align: center;
 }
 
 .confirmIcon {
-    font-size: 3rem;
-    color: #f59e0b;
-    margin-bottom: 16px;
+  font-size: 3.5rem;
+  color: #f59e0b;
+  margin-bottom: 1.25rem;
 }
 
 .confirmModal h3 {
-    margin: 0 0 12px 0;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #111827;
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
 }
 
 .confirmModal p {
-    margin: 8px 0;
-    color: #6b7280;
-    line-height: 1.5;
+  margin: 0.75rem 0;
+  color: #6b7280;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.confirmModal strong {
+  color: #111827;
+  font-weight: 600;
 }
 
 .warningText {
-    font-size: 0.875rem;
-    color: #dc2626 !important;
-    font-weight: 500;
-    margin-top: 12px !important;
+  font-size: 0.875rem;
+  color: #ef4444 !important;
+  font-weight: 600;
+  margin-top: 1rem !important;
 }
 
 .confirmActions {
-    display: flex;
-    gap: 12px;
-    padding: 0 24px 24px 24px;
-    justify-content: center;
+  display: flex;
+  gap: 0.75rem;
+  padding: 0 2rem 2rem 2rem;
+  justify-content: center;
 }
 
 .deleteConfirmButton {
-    background-color: #dc2626;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    min-width: 100px;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
 }
 
 .deleteConfirmButton:hover:not(:disabled) {
-    background-color: #b91c1c;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
+  background-color: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
 }
 
 .deleteConfirmButton:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .confirmActions .cancelButton {
-    background-color: #f3f4f6;
-    color: #374151;
-    border: 1px solid #d1d5db;
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    min-width: 100px;
+  background-color: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
 }
 
 .confirmActions .cancelButton:hover:not(:disabled) {
-    background-color: #e5e7eb;
-    border-color: #9ca3af;
-    transform: translateY(-1px);
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+  transform: translateY(-1px);
 }
 
 .confirmActions .cancelButton:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Animaciones para el modal */
 @keyframes fadeInBackdrop {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideInModal {
-    from {
-        opacity: 0;
-        transform: scale(0.95) translateY(-10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
-.actionButton:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    pointer-events: none;
+/* Responsivo para tablets */
+@media (max-width: 768px) {
+  .horarioItem {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .horarioActions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .formActions {
+    flex-direction: column-reverse;
+  }
+
+  .saveButton,
+  .cancelButton {
+    width: 100%;
+  }
+
+  .confirmModal {
+    width: 95%;
+  }
+
+  .confirmModalContent {
+    padding: 1.5rem;
+  }
+
+  .confirmActions {
+    flex-direction: column-reverse;
+    padding: 0 1.5rem 1.5rem 1.5rem;
+  }
+
+  .deleteConfirmButton,
+  .confirmActions .cancelButton {
+    width: 100%;
+  }
+}
+
+/* Responsivo para móviles */
+@media (max-width: 480px) {
+  .gestionContainer h4 {
+    font-size: 1.125rem;
+  }
+
+  .horarioForm {
+    padding: 1rem;
+  }
+
+  .horarioForm h5 {
+    font-size: 1rem;
+  }
+
+  .addButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .confirmModal h3 {
+    font-size: 1.25rem;
+  }
+
+  .confirmIcon {
+    font-size: 2.5rem;
+  }
 }

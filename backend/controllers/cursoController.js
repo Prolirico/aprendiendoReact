@@ -2,6 +2,14 @@ const pool = require("../config/db");
 
 const DEFAULT_ACTIVITY_FILE_TYPES = ["pdf", "link"];
 
+const normalizeNullableInt = (value) => {
+  if (value === undefined || value === null || value === "") {
+    return null;
+  }
+  const parsed = parseInt(value, 10);
+  return Number.isNaN(parsed) ? null : parsed;
+};
+
 // @desc    Obtener todos los cursos con paginación, búsqueda y filtro
 // @route   GET /api/cursos
 const getAllCursos = async (req, res) => {
@@ -218,14 +226,14 @@ const createCurso = async (req, res) => {
     horas_practica,
   } = req.body;
 
-  if (
-    !id_maestro ||
-    !nombre_curso ||
-    !duracion_horas ||
-    !nivel ||
-    !fecha_inicio ||
-    !fecha_fin
-  ) {
+  const normalizedIdMaestro = normalizeNullableInt(id_maestro);
+  const universidadId = normalizeNullableInt(id_universidad);
+  const facultadId = normalizeNullableInt(id_facultad);
+  const carreraId = normalizeNullableInt(id_carrera);
+  const categoriaId = normalizeNullableInt(id_categoria);
+  const areaId = normalizeNullableInt(id_area);
+
+  if (!nombre_curso || !duracion_horas || !nivel || !fecha_inicio || !fecha_fin) {
     return res
       .status(400)
       .json({ error: "Faltan campos obligatorios para crear el curso." });
@@ -254,16 +262,64 @@ const createCurso = async (req, res) => {
     connection = await pool.getConnection();
     await connection.beginTransaction();
 
+    if (normalizedIdMaestro !== null) {
+      if (!universidadId || !facultadId) {
+        await connection.rollback();
+        return res.status(400).json({
+          error:
+            "Debe especificar la universidad y facultad del curso antes de asignar un maestro.",
+        });
+      }
+
+      const [maestroRows] = await connection.query(
+        "SELECT id_maestro, id_universidad, id_facultad FROM maestro WHERE id_maestro = ?",
+        [normalizedIdMaestro],
+      );
+
+      if (maestroRows.length === 0) {
+        await connection.rollback();
+        return res
+          .status(400)
+          .json({ error: "El maestro seleccionado no existe." });
+      }
+
+      const maestroData = maestroRows[0];
+
+      if (universidadId && maestroData.id_universidad !== universidadId) {
+        await connection.rollback();
+        return res.status(400).json({
+          error: "El maestro seleccionado no pertenece a la universidad del curso.",
+        });
+      }
+
+      if (
+        facultadId &&
+        (maestroData.id_facultad === null || maestroData.id_facultad !== facultadId)
+      ) {
+        await connection.rollback();
+        return res.status(400).json({
+          error: "El maestro seleccionado no pertenece a la facultad del curso.",
+        });
+      }
+
+      if (carreraId && maestroData.id_carrera && maestroData.id_carrera !== carreraId) {
+        await connection.rollback();
+        return res.status(400).json({
+          error: "El maestro seleccionado no pertenece a la carrera del curso.",
+        });
+      }
+    }
+
     const [result] = await connection.query(
       `INSERT INTO curso (id_maestro, id_area, id_categoria, id_universidad, id_facultad, id_carrera, nombre_curso, descripcion, objetivos, prerequisitos, duracion_horas, horas_teoria, horas_practica, nivel, cupo_maximo, fecha_inicio, fecha_fin, modalidad, tipo_costo, costo)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        id_maestro,
-        id_area || null,
-        id_categoria || null,
-        id_universidad || null,
-        id_facultad || null,
-        id_carrera || null,
+        normalizedIdMaestro,
+        areaId,
+        categoriaId,
+        universidadId,
+        facultadId,
+        carreraId,
         nombre_curso,
         descripcion,
         objetivos,
@@ -337,8 +393,15 @@ const updateCurso = async (req, res) => {
     horas_practica,
   } = req.body;
 
+  const normalizedIdMaestro = normalizeNullableInt(id_maestro);
+  const universidadId = normalizeNullableInt(id_universidad);
+  const facultadId = normalizeNullableInt(id_facultad);
+  const carreraId = normalizeNullableInt(id_carrera);
+  const categoriaId = normalizeNullableInt(id_categoria);
+  const areaId = normalizeNullableInt(id_area);
+
   if (
-    !id_maestro ||
+    !normalizedIdMaestro ||
     !nombre_curso ||
     !duracion_horas ||
     !nivel ||
@@ -369,6 +432,40 @@ const updateCurso = async (req, res) => {
   }
 
   try {
+    const [maestroRows] = await pool.query(
+      "SELECT id_maestro, id_universidad, id_facultad, id_carrera FROM maestro WHERE id_maestro = ?",
+      [normalizedIdMaestro],
+    );
+
+    if (maestroRows.length === 0) {
+      return res
+        .status(400)
+        .json({ error: "El maestro seleccionado no existe." });
+    }
+
+    const maestroData = maestroRows[0];
+
+    if (universidadId && maestroData.id_universidad !== universidadId) {
+      return res.status(400).json({
+        error: "El maestro seleccionado no pertenece a la universidad del curso.",
+      });
+    }
+
+    if (
+      facultadId &&
+      (maestroData.id_facultad === null || maestroData.id_facultad !== facultadId)
+    ) {
+      return res.status(400).json({
+        error: "El maestro seleccionado no pertenece a la facultad del curso.",
+      });
+    }
+
+    if (carreraId && maestroData.id_carrera && maestroData.id_carrera !== carreraId) {
+      return res.status(400).json({
+        error: "El maestro seleccionado no pertenece a la carrera del curso.",
+      });
+    }
+
     const [result] = await pool.query(
       `UPDATE curso SET
                 id_maestro = ?, id_categoria = ?, id_area = ?, id_universidad = ?, id_facultad = ?, id_carrera = ?,
@@ -377,12 +474,12 @@ const updateCurso = async (req, res) => {
                 tipo_costo = ?, costo = ?
               WHERE id_curso = ?`,
       [
-        id_maestro,
-        id_categoria || null,
-        id_area || null,
-        id_universidad || null,
-        id_facultad || null,
-        id_carrera || null,
+        normalizedIdMaestro,
+        categoriaId,
+        areaId,
+        universidadId,
+        facultadId,
+        carreraId,
         nombre_curso,
         descripcion,
         objetivos,

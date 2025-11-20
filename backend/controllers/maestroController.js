@@ -9,9 +9,17 @@ const handleError = (res, error, message = "Error en el servidor") => {
 
 // Obtener todos los maestros con paginación y búsqueda
 exports.getMaestros = async (req, res) => {
-  // Añadimos id_carrera a los parámetros que podemos recibir
-  const { page = 1, limit = 10, searchTerm = "", id_carrera } = req.query;
-  const offset = (page - 1) * limit;
+  const {
+    page = 1,
+    limit = 10,
+    searchTerm = "",
+    id_carrera,
+    id_universidad,
+    id_facultad,
+  } = req.query;
+  const parsedLimit = parseInt(limit, 10) || 10;
+  const parsedPage = parseInt(page, 10) || 1;
+  const offset = (parsedPage - 1) * parsedLimit;
 
   try {
     const db = await pool.getConnection();
@@ -33,8 +41,8 @@ exports.getMaestros = async (req, res) => {
          LEFT JOIN facultades fac ON m.id_facultad = fac.id_facultad
          LEFT JOIN carreras car ON m.id_carrera = car.id_carrera`;
 
-      let whereClauses = [];
-      let params = [];
+      const whereClauses = [];
+      const params = [];
 
       if (searchTerm) {
         whereClauses.push(
@@ -43,13 +51,20 @@ exports.getMaestros = async (req, res) => {
         params.push(`%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`);
       }
 
-      // --- INICIO DE LA MODIFICACIÓN ---
-      // Añadimos el filtro por carrera si se proporciona el id_carrera
+      if (id_universidad) {
+        whereClauses.push("m.id_universidad = ?");
+        params.push(parseInt(id_universidad, 10));
+      }
+
+      if (id_facultad) {
+        whereClauses.push("m.id_facultad = ?");
+        params.push(parseInt(id_facultad, 10));
+      }
+
       if (id_carrera) {
         whereClauses.push("m.id_carrera = ?");
-        params.push(id_carrera);
+        params.push(parseInt(id_carrera, 10));
       }
-      // --- FIN DE LA MODIFICACIÓN ---
 
       if (whereClauses.length > 0) {
         const whereSql = " WHERE " + whereClauses.join(" AND ");
@@ -58,21 +73,18 @@ exports.getMaestros = async (req, res) => {
       }
 
       dataSql += ` LIMIT ? OFFSET ?`;
-      params.push(parseInt(limit), parseInt(offset));
+      params.push(parsedLimit, offset);
 
-      const [totalResult] = await db.execute(
-        countSql,
-        params.slice(0, params.length - 2),
-      );
+      const [totalResult] = await db.execute(countSql, params.slice(0, -2));
       const total = totalResult[0].total;
-      const totalPages = Math.ceil(total / limit);
+      const totalPages = Math.ceil(total / parsedLimit);
 
       const [maestros] = await db.execute(dataSql, params);
 
       res.json({
         maestros,
         total,
-        page: parseInt(page),
+        page: parsedPage,
         totalPages,
       });
     } finally {
