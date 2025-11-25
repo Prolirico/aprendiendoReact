@@ -310,7 +310,16 @@ function CourseManagement({ userId }) {
   };
 
   const openPlaneacion = (curso) => {
-    setCursoPlaneacion(curso);
+    // Enriquecer el objeto curso con información de la carrera seleccionada
+    const carreraSeleccionada = carreras.find(c => c.id_carrera === curso.id_carrera);
+
+    const cursoEnriquecido = {
+      ...curso,
+      nombre_carrera: carreraSeleccionada?.nombre || curso.nombre_carrera || null,
+      clave_carrera: carreraSeleccionada?.clave_carrera || curso.clave_carrera || null,
+    };
+
+    setCursoPlaneacion(cursoEnriquecido);
     setOpenPlaneacionCurso(true);
   };
 
@@ -777,14 +786,14 @@ function CourseManagement({ userId }) {
                       <div
                         className={`${styles.formGroup} ${styles.fullWidth}`}
                       >
-                        <label htmlFor="carrera">Carrera (Opcional)</label>
+                        <label htmlFor="carrera">Carrera</label>
                         <select
                           id="carrera"
                           name="carrera"
                           value={selectedCarrera}
                           onChange={handleCarreraChange}
                         >
-                          <option value="">Seleccione una carrera (opcional)</option>
+                          <option value="">Seleccione una carrera</option>
                           {carreras.map((car) => (
                             <option
                               key={car.id_carrera}

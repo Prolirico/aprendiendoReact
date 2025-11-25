@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faTrash, faPlus, faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons"
 import styles from "./PlaneacionCurso.module.css"
@@ -49,16 +49,44 @@ const PlaneacionCurso = ({ curso, onClose, onSave, token }) => {
     }
   }, [planeacion.convocatoria_id])
 
+  // Inicializar id_carrera y clave_asignatura automáticamente
+  useEffect(() => {
+    if (!planeacion.id_carrera && curso.id_carrera) {
+      setPlaneacion((prev) => ({
+        ...prev,
+        id_carrera: String(curso.id_carrera),
+        clave_asignatura: curso.codigo_curso || prev.clave_asignatura
+      }))
+    }
+  }, [curso.id_carrera, curso.codigo_curso])
+
+  // Cargar datos existentes si los hay
+  useEffect(() => {
+    if (curso.id_curso) {
+      cargarPlaneacionExistente()
+    }
+  }, [curso.id_curso])
+
   // --- FUNCIONES PARA CARGAR DATOS ---
   const cargarCarreras = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/carreras`, {
+      const params = new URLSearchParams()
+      if (curso.id_facultad) {
+        params.append("id_facultad", curso.id_facultad)
+      } else if (curso.id_universidad) {
+        params.append("id_universidad", curso.id_universidad)
+      }
+
+      const url = `${API_BASE_URL}/api/carreras${params.toString() ? `?${params.toString()}` : ""}`
+      const response = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
       })
-      if (response.ok) {
-        const data = await response.json()
-        setCarreras(data)
-      }
+
+      if (!response.ok) return
+
+      const data = await response.json()
+      const carrerasResponse = Array.isArray(data) ? data : data.carreras || data.data || []
+      setCarreras(carrerasResponse)
     } catch (err) {
       console.error("Error al cargar carreras:", err)
     }
@@ -91,13 +119,6 @@ const PlaneacionCurso = ({ curso, onClose, onSave, token }) => {
       console.error("Error al cargar universidades participantes:", err)
     }
   }
-
-  // Cargar datos existentes si los hay
-  useEffect(() => {
-    if (curso.id_curso) {
-      cargarPlaneacionExistente()
-    }
-  }, [curso.id_curso])
 
   const cargarPlaneacionExistente = async () => {
     try {
@@ -251,7 +272,7 @@ const PlaneacionCurso = ({ curso, onClose, onSave, token }) => {
       ...fuentes,
       {
         id_temporal: Date.now(),
-        tipo: "",
+        tipo: "libro",
         referencia: "",
       },
     ])
@@ -336,6 +357,22 @@ const PlaneacionCurso = ({ curso, onClose, onSave, token }) => {
     }
   }
 
+  // useMemo para obtener la carrera seleccionada
+  const carreraSeleccionada = useMemo(
+    () =>
+      carreras.find(
+        (carrera) =>
+          String(carrera.id_carrera) === String(planeacion.id_carrera || curso.id_carrera),
+      ),
+    [carreras, planeacion.id_carrera, curso.id_carrera],
+  )
+
+  // Generar el label de la carrera
+  const carreraLabel = carreraSeleccionada
+    ? `${carreraSeleccionada.nombre}${carreraSeleccionada.clave_carrera ? ` (${carreraSeleccionada.clave_carrera})` : ""
+    }`
+    : curso.nombre_carrera || "No asignada"
+
   if (loading && !planeacion.clave_asignatura) {
     return (
       <div className={styles.modalBackdrop}>
@@ -369,26 +406,19 @@ const PlaneacionCurso = ({ curso, onClose, onSave, token }) => {
                 <input
                   type="text"
                   className={styles.inputReadonly}
-                  value={planeacion.clave_asignatura}
+                  value={curso.codigo_curso || planeacion.clave_asignatura || "Se asignará automáticamente"}
                   readOnly
-                  placeholder="Se asignará automáticamente"
                 />
               </div>
 
               <div className={styles.formGroup}>
                 <label className={styles.label}>Carrera *</label>
-                <select
-                  className={styles.select}
-                  value={planeacion.id_carrera}
-                  onChange={(e) => setPlaneacion({ ...planeacion, id_carrera: e.target.value })}
-                >
-                  <option value="">Seleccionar carrera...</option>
-                  {carreras.map((carrera) => (
-                    <option key={carrera.id_carrera} value={carrera.id_carrera}>
-                      {carrera.nombre} ({carrera.clave_carrera})
-                    </option>
-                  ))}
-                </select>
+                <input
+                  type="text"
+                  className={styles.inputReadonly}
+                  value={carreraLabel}
+                  readOnly
+                />
               </div>
             </div>
 
@@ -741,7 +771,6 @@ const PlaneacionCurso = ({ curso, onClose, onSave, token }) => {
           {/* SECCIÓN 8: FUENTES DE INFORMACIÓN */}
           <div className={styles.section}>
             <h3 className={styles.sectionTitle}>📖 Fuentes de Información</h3>
-
             {fuentes.map((fuente, index) => (
               <div key={fuente.id_temporal || fuente.id_fuente} className={styles.practicaItem}>
                 <span className={styles.practicaNumber}>{index + 1}</span>

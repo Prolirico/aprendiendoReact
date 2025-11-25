@@ -97,11 +97,40 @@ exports.getCarrerasByFacultad = async (req, res) => {
   }
 };
 
-/**
- * Actualiza una carrera existente.
- * PUT /api/carreras/:id
- * Body: { "nombre": "Ing. de Software y Sistemas", "clave_carrera": "ISS-2024", "duracion_anos": 4 }
- */
+exports.getCarreras = async (req, res) => {
+  const { id_universidad, id_facultad } = req.query;
+
+  try {
+    if (id_universidad) {
+      const [carreras] = await pool.query(
+        `SELECT c.id_carrera, c.nombre, c.clave_carrera, c.id_facultad
+           FROM carreras c
+           JOIN facultades f ON c.id_facultad = f.id_facultad
+          WHERE f.id_universidad = ?
+          ORDER BY c.nombre ASC`,
+        [id_universidad],
+      );
+      return res.json(carreras);
+    }
+
+    if (id_facultad) {
+      const carreras = await Carrera.findByFacultadId(id_facultad);
+      // findByFacultadId ya trae nombre y clave; devuelve el arreglo tal cual
+      return res.json(carreras);
+    }
+
+    const [carreras] = await pool.query(
+      `SELECT id_carrera, nombre, clave_carrera, id_facultad
+         FROM carreras
+        ORDER BY nombre ASC`,
+    );
+    res.json(carreras);
+  } catch (error) {
+    console.error("Error al obtener carreras:", error);
+    res.status(500).json({ error: "Error en el servidor al obtener las carreras." });
+  }
+};
+
 exports.updateCarrera = async (req, res) => {
   const { id } = req.params;
   const { nombre, clave_carrera, duracion_anos } = req.body;

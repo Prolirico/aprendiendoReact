@@ -12,6 +12,7 @@ const carreraController = require("../controllers/carreraController");
  */
 router.post("/", carreraController.createCarrera);
 
+router.get("/", carreraController.getCarreras);
 /**
  * @route   GET /api/carreras/facultad/:idFacultad
  * @desc    Obtener todas las carreras de una facultad
