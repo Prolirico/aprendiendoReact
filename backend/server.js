@@ -128,6 +128,7 @@ const firmasRoutes = require("./routes/firmasRoutes");
 const certificadoConstanciaRoutes = require("./routes/certificadoConstanciaRoutes");
 const verificacionHomeConstanciasYcertificadosRoutes = require("./routes/verificacionHomeConstanciasYcertificadosRoutes");
 const publicFilesRoutes = require("./routes/publicFilesRoutes");
+const planeacionRoutes = require("./routes/planeacionRoutes");
 
 log(`✅ Rutas importadas correctamente`);
 
@@ -153,6 +154,7 @@ app.use("/api/entregas", entregasRoutes);
 app.use("/api/material", materialRoutes);
 app.use("/api/firmas", firmasRoutes);
 app.use("/api/alumno", certificadoConstanciaRoutes);
+app.use('/api/planeacion', planeacionRoutes);
 log(`🔌 Rutas configuradas en la aplicación`);
 
 log(`💾 Conectando a la base de datos...`);

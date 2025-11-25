@@ -17,16 +17,15 @@ const PlaneacionCurso = ({ curso, onClose, onSave, token }) => {
     competencias_desarrollar: "",
     competencias_previas: "",
     evaluacion_competencias: "",
-    proyecto: {
-      fundamentacion: "",
-      planeacion: "",
-      ejecucion: "",
-      evaluacion: "",
-    },
     fecha_creacion: new Date().toISOString().split("T")[0],
     convocatoria_id: "",
   })
-
+  const [porcentajePracticas, setPorcentajePracticas] = useState(50)
+  const [porcentajeProyecto, setPorcentajeProyecto] = useState(50)
+  const [proyecto, setProyecto] = useState({
+    instrucciones: "",
+    materiales: [],
+  })
   const [temario, setTemario] = useState([])
   const [temasExpandidos, setTemasExpandidos] = useState({})
   const [practicas, setPracticas] = useState([])
@@ -55,7 +54,7 @@ const PlaneacionCurso = ({ curso, onClose, onSave, token }) => {
       setPlaneacion((prev) => ({
         ...prev,
         id_carrera: String(curso.id_carrera),
-        clave_asignatura: curso.codigo_curso || prev.clave_asignatura
+        clave_asignatura: curso.codigo_curso || prev.clave_asignatura,
       }))
     }
   }, [curso.id_carrera, curso.codigo_curso])
@@ -129,15 +128,53 @@ const PlaneacionCurso = ({ curso, onClose, onSave, token }) => {
 
       if (response.ok) {
         const data = await response.json()
-        if (data.planeacion) {
-          setPlaneacion(data.planeacion)
-          setTemario(data.temario || [])
-          setPracticas(data.practicas || [])
-          setFuentes(data.fuentes || [])
+
+        // Actualizar estados con los datos recibidos
+        if (data.temario) {
+          setTemario(
+            data.temario.map((tema) => ({
+              id_temporal: Date.now() + Math.random(),
+              nombre_tema: tema.nombre,
+              competencias_especificas: tema.competencias_especificas || "",
+              competencias_genericas: tema.competencias_genericas || "",
+              subtemas: (tema.subtemas || []).map((subtema) => ({
+                id_temporal: Date.now() + Math.random(),
+                nombre_subtema: subtema.nombre,
+              })),
+            })),
+          )
+        }
+
+        if (data.porcentaje_practicas) {
+          setPorcentajePracticas(data.porcentaje_practicas)
+        }
+
+        if (data.porcentaje_proyecto) {
+          setPorcentajeProyecto(data.porcentaje_proyecto)
+        }
+
+        if (data.practicas) {
+          setPracticas(
+            data.practicas.map((p, i) => ({
+              id_temporal: Date.now() + i,
+              descripcion_practica: p.descripcion || p.instrucciones || "",
+              materiales: p.materiales || [],
+              id_tema: p.id_tema || "",
+              id_subtema: p.id_subtema || "",
+            })),
+          )
+        }
+
+        if (data.proyecto) {
+          setProyecto({
+            instrucciones: data.proyecto.instrucciones || "",
+            materiales: data.proyecto.materiales || [],
+          })
         }
       }
     } catch (err) {
       console.error("Error al cargar planeación:", err)
+      setError("Error al cargar la planeación del curso")
     } finally {
       setLoading(false)
     }
@@ -229,14 +266,18 @@ const PlaneacionCurso = ({ curso, onClose, onSave, token }) => {
       ...practicas,
       {
         id_temporal: Date.now(),
-        id_tema: "",
         descripcion_practica: "",
+        materiales: [],
+        id_tema: "",
+        id_subtema: "",
       },
     ])
   }
 
   const handleRemovePractica = (index) => {
-    setPracticas(practicas.filter((_, i) => i !== index))
+    const nuevasPracticas = [...practicas]
+    nuevasPracticas.splice(index, 1)
+    setPracticas(nuevasPracticas)
   }
 
   const handlePracticaChange = (index, field, value) => {
@@ -264,6 +305,78 @@ const PlaneacionCurso = ({ curso, onClose, onSave, token }) => {
     })
 
     return grupos
+  }
+
+  const obtenerNombreCompleto = (practica) => {
+    if (!practica.id_tema) return "Sin tema asignado"
+
+    const tema = temario.find(
+      (t) =>
+        t.id_temporal?.toString() === practica.id_tema?.toString() ||
+        t.id_tema?.toString() === practica.id_tema?.toString(),
+    )
+
+    if (!tema) return "Sin tema asignado"
+
+    // Si tiene subtema seleccionado
+    if (practica.id_subtema && tema.subtemas) {
+      const subtema = tema.subtemas.find(
+        (s) =>
+          s.id_temporal?.toString() === practica.id_subtema?.toString() ||
+          s.id_subtema?.toString() === practica.id_subtema?.toString(),
+      )
+      if (subtema) {
+        return `${tema.numero_tema}. ${tema.nombre_tema} → ${subtema.numero_subtema} ${subtema.nombre_subtema}`
+      }
+    }
+
+    return `${tema.numero_tema}. ${tema.nombre_tema}`
+  }
+
+  // --- FUNCIONES PARA MANEJAR MATERIALES ---
+  const handleAddMaterialPractica = (practicaIndex) => {
+    const nuevasPracticas = [...practicas]
+    if (!nuevasPracticas[practicaIndex].materiales) {
+      nuevasPracticas[practicaIndex].materiales = []
+    }
+    nuevasPracticas[practicaIndex].materiales.push({
+      id_temporal: Date.now(),
+      tipo: "link",
+      url: "",
+      nombre: "",
+    })
+    setPracticas(nuevasPracticas)
+  }
+
+  const handleMaterialChange = (practicaIndex, materialIndex, field, value) => {
+    const nuevasPracticas = [...practicas]
+    nuevasPracticas[practicaIndex].materiales[materialIndex][field] = value
+    setPracticas(nuevasPracticas)
+  }
+
+  const handleRemoveMaterial = (practicaIndex, materialIndex) => {
+    const nuevasPracticas = [...practicas]
+    nuevasPracticas[practicaIndex].materiales.splice(materialIndex, 1)
+    setPracticas(nuevasPracticas)
+  }
+
+  // Funciones similares para el proyecto
+  const handleProyectoMaterialChange = (materialIndex, field, value) => {
+    const nuevosMateriales = [...proyecto.materiales]
+    nuevosMateriales[materialIndex][field] = value
+    setProyecto({ ...proyecto, materiales: nuevosMateriales })
+  }
+
+  const handleAddProyectoMaterial = () => {
+    setProyecto({
+      ...proyecto,
+      materiales: [...proyecto.materiales, { id_temporal: Date.now(), tipo: "link", url: "", nombre: "" }],
+    })
+  }
+
+  const handleRemoveProyectoMaterial = (materialIndex) => {
+    const nuevosMateriales = proyecto.materiales.filter((_, i) => i !== materialIndex)
+    setProyecto({ ...proyecto, materiales: nuevosMateriales })
   }
 
   // --- FUNCIONES PARA FUENTES ---
@@ -294,39 +407,37 @@ const PlaneacionCurso = ({ curso, onClose, onSave, token }) => {
       setLoading(true)
       setError(null)
 
-      // Validaciones básicas
-      if (!planeacion.clave_asignatura.trim()) {
-        setError("La clave de la asignatura es obligatoria")
+      // Validaciones
+      if (porcentajePracticas + porcentajeProyecto !== 100) {
+        setError("La suma de los porcentajes de prácticas y proyecto debe ser 100%")
         return
-      }
-
-      if (!planeacion.id_carrera) {
-        setError("Debe seleccionar una carrera")
-        return
-      }
-
-      if (temario.length === 0) {
-        setError("Debe agregar al menos un tema al temario")
-        return
-      }
-
-      // Validar que todos los temas tengan nombre
-      for (let i = 0; i < temario.length; i++) {
-        if (!temario[i].nombre_tema.trim()) {
-          setError(`El tema ${i + 1} debe tener un nombre`)
-          return
-        }
       }
 
       const payload = {
         id_curso: curso.id_curso,
-        planeacion,
-        temario,
-        practicas: practicas.filter((p) => p.descripcion_practica.trim()),
-        fuentes: fuentes.filter((f) => f.referencia.trim()),
+        temario: temario.map((tema) => ({
+          nombre: tema.nombre_tema,
+          competencias_especificas: tema.competencias_especificas || "",
+          competencias_genericas: tema.competencias_genericas || "",
+          subtemas: (tema.subtemas || []).map((subtema) => ({
+            nombre: subtema.nombre_subtema,
+          })),
+        })),
+        porcentaje_practicas: porcentajePracticas,
+        porcentaje_proyecto: porcentajeProyecto,
+        practicas: practicas.map((p) => ({
+          descripcion: p.descripcion_practica,
+          materiales: p.materiales || [],
+          id_tema: p.id_tema,
+          id_subtema: p.id_subtema,
+        })),
+        proyecto: {
+          instrucciones: proyecto.instrucciones,
+          materiales: proyecto.materiales || [],
+        },
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/planeacion`, {
+      const response = await fetch(`${API_BASE_URL}/api/planeacion/${curso.id_curso}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -341,12 +452,7 @@ const PlaneacionCurso = ({ curso, onClose, onSave, token }) => {
       }
 
       const result = await response.json()
-
-      // Llamar al callback de guardado exitoso
-      if (onSave) {
-        onSave(result)
-      }
-
+      if (onSave) onSave(result)
       alert("Planeación guardada exitosamente")
       onClose()
     } catch (err) {
@@ -359,18 +465,15 @@ const PlaneacionCurso = ({ curso, onClose, onSave, token }) => {
 
   // useMemo para obtener la carrera seleccionada
   const carreraSeleccionada = useMemo(
-    () =>
-      carreras.find(
-        (carrera) =>
-          String(carrera.id_carrera) === String(planeacion.id_carrera || curso.id_carrera),
-      ),
+    () => carreras.find((carrera) => String(carrera.id_carrera) === String(planeacion.id_carrera || curso.id_carrera)),
     [carreras, planeacion.id_carrera, curso.id_carrera],
   )
 
   // Generar el label de la carrera
   const carreraLabel = carreraSeleccionada
-    ? `${carreraSeleccionada.nombre}${carreraSeleccionada.clave_carrera ? ` (${carreraSeleccionada.clave_carrera})` : ""
-    }`
+    ? `${carreraSeleccionada.nombre}${
+        carreraSeleccionada.clave_carrera ? ` (${carreraSeleccionada.clave_carrera})` : ""
+      }`
     : curso.nombre_carrera || "No asignada"
 
   if (loading && !planeacion.clave_asignatura) {
@@ -413,12 +516,7 @@ const PlaneacionCurso = ({ curso, onClose, onSave, token }) => {
 
               <div className={styles.formGroup}>
                 <label className={styles.label}>Carrera *</label>
-                <input
-                  type="text"
-                  className={styles.inputReadonly}
-                  value={carreraLabel}
-                  readOnly
-                />
+                <input type="text" className={styles.inputReadonly} value={carreraLabel} readOnly />
               </div>
             </div>
 
@@ -610,16 +708,6 @@ const PlaneacionCurso = ({ curso, onClose, onSave, token }) => {
                         placeholder="Competencias genéricas que se desarrollan en este tema..."
                       />
                     </div>
-
-                    <div className={styles.formGroup}>
-                      <label className={styles.label}>Actividades de Aprendizaje</label>
-                      <textarea
-                        className={styles.textarea}
-                        value={tema.actividades_aprendizaje?.actividades || ""}
-                        onChange={(e) => handleActividadesAprendizajeChange(temaIndex, "actividades", e.target.value)}
-                        placeholder="Lista de actividades de aprendizaje para este tema (una por línea)..."
-                      />
-                    </div>
                   </div>
                 )}
               </div>
@@ -633,123 +721,216 @@ const PlaneacionCurso = ({ curso, onClose, onSave, token }) => {
           {/* SECCIÓN 5: PRÁCTICAS */}
           <div className={styles.section}>
             <h3 className={styles.sectionTitle}>🔬 Prácticas</h3>
-            <p className={styles.sectionDescription}>
-              Asocia actividades de práctica con cada tema principal. Estas se agregarán automáticamente como
-              actividades de calificación.
-            </p>
 
-            {temario.length === 0 ? (
-              <p className={styles.warningMessage}>⚠️ Debes agregar al menos un tema antes de crear prácticas.</p>
-            ) : (
-              <>
-                {Object.entries(practicasAgrupadasPorTema()).map(([idTema, practicasDelTema]) => (
-                  <div key={idTema} className={styles.practicasGrupo}>
-                    <h4 className={styles.temaGrupoTitle}>
-                      {idTema === "sin_tema" ? "⚠️ Sin tema asignado" : `📚 ${obtenerNombreTema(idTema)}`}
-                    </h4>
-                    {practicasDelTema.map(({ index, id_temporal, id_practica, id_tema, descripcion_practica }) => (
-                      <div key={id_temporal || id_practica} className={styles.practicaItem}>
-                        <span className={styles.practicaNumber}>{index + 1}</span>
-                        <div className={styles.practicaContent}>
-                          <select
-                            className={styles.select}
-                            value={id_tema || ""}
-                            onChange={(e) => handlePracticaChange(index, "id_tema", e.target.value)}
-                          >
-                            <option value="">Seleccionar tema...</option>
-                            {temario.map((tema) => (
-                              <option key={tema.id_temporal || tema.id_tema} value={tema.id_temporal || tema.id_tema}>
-                                {tema.numero_tema}. {tema.nombre_tema}
-                              </option>
-                            ))}
-                          </select>
-                          <textarea
-                            className={styles.textareaSmall}
-                            value={descripcion_practica}
-                            onChange={(e) => handlePracticaChange(index, "descripcion_practica", e.target.value)}
-                            placeholder="Descripción de la actividad práctica..."
-                            rows={2}
-                          />
-                        </div>
-                        <button onClick={() => handleRemovePractica(index)} className={styles.buttonDanger}>
-                          <FontAwesomeIcon icon={faTrash} />
-                        </button>
-                      </div>
-                    ))}
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Distribución de Porcentajes</label>
+              <div className={styles.porcentajeVisual}>
+                <div className={styles.porcentajeBarContainer}>
+                  <div className={styles.porcentajeBarPracticas} style={{ width: `${porcentajePracticas}%` }}>
+                    <span className={styles.porcentajeLabel}>Prácticas: {porcentajePracticas}%</span>
                   </div>
-                ))}
+                  <div className={styles.porcentajeBarProyecto} style={{ width: `${porcentajeProyecto}%` }}>
+                    <span className={styles.porcentajeLabel}>Proyecto: {porcentajeProyecto}%</span>
+                  </div>
+                </div>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={porcentajePracticas}
+                onChange={(e) => {
+                  const nuevoValor = Number.parseInt(e.target.value)
+                  setPorcentajePracticas(nuevoValor)
+                  setPorcentajeProyecto(100 - nuevoValor)
+                }}
+                className={styles.rangeInput}
+              />
+            </div>
 
-                <button onClick={handleAddPractica} className={styles.buttonAdd}>
-                  <FontAwesomeIcon icon={faPlus} /> Añadir Práctica
-                </button>
-              </>
-            )}
+            {practicas.map((practica, pIndex) => (
+              <div key={practica.id_temporal || pIndex} className={styles.practicaItem}>
+                <div className={styles.practicaHeader}>
+                  <h4>Práctica {pIndex + 1}</h4>
+                  <button onClick={() => handleRemovePractica(pIndex)} className={styles.buttonDanger}>
+                    <FontAwesomeIcon icon={faTrash} /> Eliminar
+                  </button>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Asignar a tema o subtema</label>
+                  <select
+                    className={styles.select}
+                    value={practica.id_subtema || practica.id_tema || ""}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      const nuevasPracticas = [...practicas]
+
+                      // Verificar si es un subtema (formato: "tema_X_subtema_Y")
+                      if (value.includes("_subtema_")) {
+                        const [temaId, subtemaId] = value.split("_subtema_")
+                        nuevasPracticas[pIndex].id_tema = temaId
+                        nuevasPracticas[pIndex].id_subtema = subtemaId
+                      } else {
+                        // Es un tema
+                        nuevasPracticas[pIndex].id_tema = value
+                        nuevasPracticas[pIndex].id_subtema = ""
+                      }
+
+                      setPracticas(nuevasPracticas)
+                    }}
+                  >
+                    <option value="">Seleccionar tema...</option>
+                    {temario.map((tema) => (
+                      <optgroup
+                        key={tema.id_temporal || tema.id_tema}
+                        label={`${tema.numero_tema}. ${tema.nombre_tema}`}
+                      >
+                        <option value={tema.id_temporal || tema.id_tema}>
+                          {tema.numero_tema}. {tema.nombre_tema}
+                        </option>
+                        {tema.subtemas?.map((subtema) => (
+                          <option
+                            key={subtema.id_temporal || subtema.id_subtema}
+                            value={`${tema.id_temporal || tema.id_tema}_subtema_${subtema.id_temporal || subtema.id_subtema}`}
+                          >
+                            &nbsp;&nbsp;&nbsp;&nbsp;↳ {subtema.numero_subtema} {subtema.nombre_subtema}
+                          </option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                  {(practica.id_tema || practica.id_subtema) && (
+                    <div className={styles.temaAsignado}>📌 Asignado a: {obtenerNombreCompleto(practica)}</div>
+                  )}
+                </div>
+
+                <textarea
+                  className={styles.textarea}
+                  value={practica.descripcion_practica}
+                  onChange={(e) => handlePracticaChange(pIndex, "descripcion_practica", e.target.value)}
+                  placeholder="Descripción de la práctica..."
+                />
+
+                {/* Sección de materiales */}
+                <div className={styles.materialesSection}>
+                  <div className={styles.materialesHeader}>
+                    <h5>Materiales de apoyo</h5>
+                    <button onClick={() => handleAddMaterialPractica(pIndex)} className={styles.buttonSmall}>
+                      <FontAwesomeIcon icon={faPlus} /> Agregar material
+                    </button>
+                  </div>
+
+                  {practica.materiales?.map((material, mIndex) => (
+                    <div key={material.id_temporal || mIndex} className={styles.materialItem}>
+                      <select
+                        className={styles.selectSmall}
+                        value={material.tipo}
+                        onChange={(e) => handleMaterialChange(pIndex, mIndex, "tipo", e.target.value)}
+                      >
+                        <option value="link">🔗 Enlace</option>
+                        <option value="pdf">📄 PDF</option>
+                        <option value="doc">📝 Documento</option>
+                      </select>
+
+                      <input
+                        type="text"
+                        className={styles.input}
+                        placeholder={material.tipo === "link" ? "URL del material" : "Nombre del archivo"}
+                        value={material.tipo === "link" ? material.url : material.nombre}
+                        onChange={(e) =>
+                          handleMaterialChange(
+                            pIndex,
+                            mIndex,
+                            material.tipo === "link" ? "url" : "nombre",
+                            e.target.value,
+                          )
+                        }
+                      />
+
+                      <button onClick={() => handleRemoveMaterial(pIndex, mIndex)} className={styles.buttonDanger}>
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            <button onClick={handleAddPractica} className={styles.button}>
+              <FontAwesomeIcon icon={faPlus} /> Agregar Práctica
+            </button>
           </div>
 
           <div className={styles.section}>
             <h3 className={styles.sectionTitle}>🎓 Proyecto de Asignatura</h3>
-            <p className={styles.sectionDescription}>
-              El proyecto se agregará automáticamente como actividad de calificación en la pestaña correspondiente.
-            </p>
 
             <div className={styles.formGroup}>
-              <label className={styles.label}>Fundamentación</label>
-              <textarea
-                className={styles.textareaSmall}
-                value={planeacion.proyecto.fundamentacion}
-                onChange={(e) =>
-                  setPlaneacion({
-                    ...planeacion,
-                    proyecto: { ...planeacion.proyecto, fundamentacion: e.target.value },
-                  })
-                }
-                placeholder="Describe la fundamentación teórica del proyecto..."
-              />
+              <label className={styles.label}>Porcentaje del Proyecto</label>
+              <div className={styles.porcentajeReadOnly}>
+                <div className={styles.porcentajeValue}>{porcentajeProyecto}%</div>
+                <p className={styles.porcentajeHint}>
+                  Ajusta el porcentaje desde la sección de Prácticas. La suma debe ser 100%.
+                </p>
+              </div>
             </div>
 
             <div className={styles.formGroup}>
-              <label className={styles.label}>Planeación</label>
+              <label className={styles.label}>Instrucciones del Proyecto</label>
               <textarea
-                className={styles.textareaSmall}
-                value={planeacion.proyecto.planeacion}
-                onChange={(e) =>
-                  setPlaneacion({
-                    ...planeacion,
-                    proyecto: { ...planeacion.proyecto, planeacion: e.target.value },
-                  })
-                }
-                placeholder="Describe la planeación del proyecto..."
+                className={styles.textarea}
+                value={proyecto.instrucciones}
+                onChange={(e) => setProyecto({ ...proyecto, instrucciones: e.target.value })}
+                placeholder="Describe las instrucciones y requisitos del proyecto..."
               />
             </div>
 
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Ejecución</label>
-              <textarea
-                className={styles.textareaSmall}
-                value={planeacion.proyecto.ejecucion}
-                onChange={(e) =>
-                  setPlaneacion({
-                    ...planeacion,
-                    proyecto: { ...planeacion.proyecto, ejecucion: e.target.value },
-                  })
-                }
-                placeholder="Describe las fases de ejecución del proyecto..."
-              />
-            </div>
+            {/* Sección de materiales del proyecto */}
+            <div className={styles.materialesSection}>
+              <div className={styles.materialesHeader}>
+                <h4>Materiales de apoyo para el proyecto</h4>
+                <button onClick={handleAddProyectoMaterial} className={styles.buttonSmall}>
+                  <FontAwesomeIcon icon={faPlus} /> Agregar material
+                </button>
+              </div>
 
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Evaluación</label>
-              <textarea
-                className={styles.textareaSmall}
-                value={planeacion.proyecto.evaluacion}
-                onChange={(e) =>
-                  setPlaneacion({
-                    ...planeacion,
-                    proyecto: { ...planeacion.proyecto, evaluacion: e.target.value },
-                  })
-                }
-                placeholder="Describe los criterios de evaluación del proyecto..."
-              />
+              {proyecto.materiales?.map((material, index) => (
+                <div key={material.id_temporal || index} className={styles.materialItem}>
+                  <select
+                    className={styles.selectSmall}
+                    value={material.tipo}
+                    onChange={(e) => {
+                      const nuevosMateriales = [...proyecto.materiales]
+                      nuevosMateriales[index].tipo = e.target.value
+                      setProyecto({ ...proyecto, materiales: nuevosMateriales })
+                    }}
+                  >
+                    <option value="link">🔗 Enlace</option>
+                    <option value="pdf">📄 PDF</option>
+                    <option value="doc">📝 Documento</option>
+                  </select>
+
+                  <input
+                    type="text"
+                    className={styles.input}
+                    placeholder={material.tipo === "link" ? "URL del material" : "Nombre del archivo"}
+                    value={material.tipo === "link" ? material.url : material.nombre}
+                    onChange={(e) => {
+                      const nuevosMateriales = [...proyecto.materiales]
+                      if (material.tipo === "link") {
+                        nuevosMateriales[index].url = e.target.value
+                      } else {
+                        nuevosMateriales[index].nombre = e.target.value
+                      }
+                      setProyecto({ ...proyecto, materiales: nuevosMateriales })
+                    }}
+                  />
+
+                  <button onClick={() => handleRemoveProyectoMaterial(index)} className={styles.buttonDanger}>
+                    <FontAwesomeIcon icon={faTrash} />
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
 
