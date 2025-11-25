@@ -25,6 +25,10 @@ const PlaneacionCurso = ({ curso, onClose, onSave, token }) => {
   const [proyecto, setProyecto] = useState({
     instrucciones: "",
     materiales: [],
+    fundamentacion: "",
+    planeacion: "",
+    ejecucion: "",
+    evaluacion: "",
   })
   const [temario, setTemario] = useState([])
   const [temasExpandidos, setTemasExpandidos] = useState({})
@@ -169,6 +173,10 @@ const PlaneacionCurso = ({ curso, onClose, onSave, token }) => {
           setProyecto({
             instrucciones: data.proyecto.instrucciones || "",
             materiales: data.proyecto.materiales || [],
+            fundamentacion: data.proyecto.fundamentacion || "",
+            planeacion: data.proyecto.planeacion || "",
+            ejecucion: data.proyecto.ejecucion || "",
+            evaluacion: data.proyecto.evaluacion || "",
           })
         }
       }
@@ -434,6 +442,10 @@ const PlaneacionCurso = ({ curso, onClose, onSave, token }) => {
         proyecto: {
           instrucciones: proyecto.instrucciones,
           materiales: proyecto.materiales || [],
+          fundamentacion: proyecto.fundamentacion,
+          planeacion: proyecto.planeacion,
+          ejecucion: proyecto.ejecucion,
+          evaluacion: proyecto.evaluacion,
         },
       }
 
@@ -883,6 +895,61 @@ const PlaneacionCurso = ({ curso, onClose, onSave, token }) => {
                 onChange={(e) => setProyecto({ ...proyecto, instrucciones: e.target.value })}
                 placeholder="Describe las instrucciones y requisitos del proyecto..."
               />
+            </div>
+
+            <div className={styles.fasesProyecto}>
+              <h4 className={styles.fasesTitle}>Fases del Proyecto</h4>
+              <p className={styles.fasesDescription}>
+                El proyecto demuestra competencias mediante las siguientes fases:
+              </p>
+
+              <div className={styles.formGroup}>
+                <label className={styles.label}>📚 Fundamentación</label>
+                <textarea
+                  className={styles.textarea}
+                  value={proyecto.fundamentacion}
+                  onChange={(e) => setProyecto({ ...proyecto, fundamentacion: e.target.value })}
+                  placeholder="Marco teórico basado en diagnóstico para diseño de software..."
+                  rows={4}
+                />
+                <p className={styles.faseHint}>Marco teórico basado en diagnóstico para diseño de software.</p>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.label}>📋 Planeación</label>
+                <textarea
+                  className={styles.textarea}
+                  value={proyecto.planeacion}
+                  onChange={(e) => setProyecto({ ...proyecto, planeacion: e.target.value })}
+                  placeholder="Diseño con UML, recursos y cronograma..."
+                  rows={4}
+                />
+                <p className={styles.faseHint}>Diseño con UML, recursos y cronograma.</p>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.label}>⚙️ Ejecución</label>
+                <textarea
+                  className={styles.textarea}
+                  value={proyecto.ejecucion}
+                  onChange={(e) => setProyecto({ ...proyecto, ejecucion: e.target.value })}
+                  placeholder="Implementación del sistema, fase clave para competencias..."
+                  rows={4}
+                />
+                <p className={styles.faseHint}>Implementación del sistema, fase clave para competencias.</p>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.label}>📊 Evaluación</label>
+                <textarea
+                  className={styles.textarea}
+                  value={proyecto.evaluacion}
+                  onChange={(e) => setProyecto({ ...proyecto, evaluacion: e.target.value })}
+                  placeholder="Análisis de resultados para mejora, fomentando reflexión crítica..."
+                  rows={4}
+                />
+                <p className={styles.faseHint}>Análisis de resultados para mejora, fomentando reflexión crítica.</p>
+              </div>
             </div>
 
             {/* Sección de materiales del proyecto */}
